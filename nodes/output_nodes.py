@@ -18,10 +18,12 @@ class HunyuanViewer:
             },
             "optional": {
                 "display_mode": (["panorama", "depth", "segmentation", "mesh_info"], {
-                    "default": "panorama"
+                    "default": "panorama",
+                    "tooltip": "What to display: 'panorama' = original image, 'depth' = depth map, 'segmentation' = object masks, 'mesh_info' = wireframe."
                 }),
                 "output_size": (["512x256", "1024x512", "2048x1024"], {
-                    "default": "1024x512"
+                    "default": "1024x512",
+                    "tooltip": "Preview resolution. Higher = better quality but more memory. 1024x512 recommended for most cases."
                 })
             }
         }
@@ -237,19 +239,31 @@ class HunyuanMeshExporter:
             "required": {
                 "world_mesh": ("WORLD_MESH",),
                 "output_path": ("STRING", {
-                    "default": "output/world_mesh"
+                    "default": "output/world_mesh",
+                    "tooltip": "File path for exported mesh (without extension). Directory will be created if it doesn't exist."
                 }),
                 "format": (["OBJ", "PLY", "GLB", "FBX"], {
-                    "default": "OBJ"
+                    "default": "OBJ",
+                    "tooltip": "Export format: OBJ = widely supported, PLY = simple geometry, GLB = modern standard, FBX = animation support."
                 })
             },
             "optional": {
                 "texture_resolution": (["512", "1024", "2048", "4096"], {
-                    "default": "1024"
+                    "default": "1024",
+                    "tooltip": "Texture image resolution. Higher = sharper textures but larger files. 1024-2048 for most uses."
                 }),
-                "compression": ("BOOLEAN", {"default": True}),
-                "include_materials": ("BOOLEAN", {"default": True}),
-                "export_textures": ("BOOLEAN", {"default": True})
+                "compression": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Enable file compression for smaller file sizes. May slightly reduce quality but saves disk space."
+                }),
+                "include_materials": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Export material definitions (colors, properties). Creates .mtl file for OBJ format."
+                }),
+                "export_textures": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Export texture images as separate PNG files. Required for textured 3D models."
+                })
             }
         }
     

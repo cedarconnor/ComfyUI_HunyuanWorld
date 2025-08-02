@@ -14,19 +14,22 @@ class HunyuanTextInput:
             "required": {
                 "prompt": ("STRING", {
                     "multiline": True,
-                    "default": "A beautiful natural landscape with mountains and forests"
+                    "default": "A beautiful natural landscape with mountains and forests",
+                    "tooltip": "Text description of the world you want to generate. Be specific about environment, lighting, objects, and atmosphere for best results."
                 }),
                 "seed": ("INT", {
                     "default": -1,
                     "min": -1,
                     "max": 2**32 - 1,
-                    "step": 1
+                    "step": 1,
+                    "tooltip": "Random seed for reproducible generation. Use -1 for random seed, or specific number to recreate exact results."
                 }),
             },
             "optional": {
                 "negative_prompt": ("STRING", {
                     "multiline": True,
-                    "default": ""
+                    "default": "",
+                    "tooltip": "Optional: Describe what you DON'T want in the generated world (e.g., 'blurry, low quality, distorted')."
                 })
             }
         }
@@ -63,22 +66,26 @@ class HunyuanImageInput:
             },
             "optional": {
                 "resize_mode": (["stretch", "crop", "pad"], {
-                    "default": "stretch"
+                    "default": "stretch",
+                    "tooltip": "How to resize input image: 'stretch' changes aspect ratio, 'crop' maintains ratio by cutting, 'pad' maintains ratio by adding borders."
                 }),
                 "target_width": ("INT", {
                     "default": 1024,
                     "min": 512,
                     "max": 4096,
-                    "step": 64
+                    "step": 64,
+                    "tooltip": "Target width for panoramic image. Higher values = better quality but more VRAM. 1024-2048 recommended."
                 }),
                 "target_height": ("INT", {
                     "default": 512,
                     "min": 256,
                     "max": 2048,
-                    "step": 64
+                    "step": 64,
+                    "tooltip": "Target height for panoramic image. Should be half of width for proper 2:1 panoramic ratio."
                 }),
                 "preprocessing": (["none", "enhance", "denoise"], {
-                    "default": "none"
+                    "default": "none",
+                    "tooltip": "Image preprocessing: 'none' = no changes, 'enhance' = improve contrast/brightness, 'denoise' = reduce noise."
                 })
             }
         }
@@ -233,18 +240,25 @@ class HunyuanPromptProcessor:
             },
             "optional": {
                 "style": (["realistic", "artistic", "fantasy", "sci-fi", "minimalist"], {
-                    "default": "realistic"
+                    "default": "realistic",
+                    "tooltip": "Visual style for the generated world. 'realistic' for photorealistic, 'artistic' for painterly look."
                 }),
                 "lighting": (["natural", "dramatic", "soft", "golden_hour", "night"], {
-                    "default": "natural"
+                    "default": "natural",
+                    "tooltip": "Lighting conditions: 'natural' = balanced daylight, 'golden_hour' = warm sunset/sunrise, 'dramatic' = strong shadows."
                 }),
                 "atmosphere": (["clear", "misty", "stormy", "serene", "mysterious"], {
-                    "default": "clear"
+                    "default": "clear",
+                    "tooltip": "Atmospheric mood: 'clear' = no special effects, 'misty' = fog/haze, 'stormy' = dramatic weather."
                 }),
-                "quality_boost": ("BOOLEAN", {"default": True}),
+                "quality_boost": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Automatically add quality-enhancing terms to prompt (4k, high detail, sharp). Recommended for better results."
+                }),
                 "custom_suffix": ("STRING", {
                     "multiline": True,
-                    "default": ""
+                    "default": "",
+                    "tooltip": "Additional prompt text to append. Use for specific details, camera settings, or artistic directions."
                 })
             }
         }

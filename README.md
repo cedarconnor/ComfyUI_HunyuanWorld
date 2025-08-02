@@ -50,28 +50,61 @@ pip install -r requirements.txt
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 ```
 
-### 3. Download HunyuanWorld Models
+### 3. Download Models
 
-#### Model Directory Structure
+#### Standard ComfyUI Model Directory Structure
 
-Create the following directory structure in your ComfyUI models folder:
+Place HunyuanWorld models in the standard ComfyUI model directories:
 
 ```
 ComfyUI/
 ├── models/
-│   └── hunyuan_world/
+│   ├── checkpoints/
+│   │   └── hunyuan_world_base.safetensors     # Main HunyuanWorld checkpoint
+│   ├── flux/
+│   │   ├── flux1-dev.safetensors              # FLUX.1 [dev] model
+│   │   ├── flux1-schnell.safetensors          # FLUX.1 [schnell] model  
+│   │   └── flux1-pro.safetensors              # FLUX.1 [pro] model (if available)
+│   ├── unet/
+│   │   └── hunyuan_world_unet.safetensors     # HunyuanWorld UNet
+│   ├── vae/
+│   │   └── hunyuan_world_vae.safetensors      # HunyuanWorld VAE
+│   ├── clip/
+│   │   ├── clip_l.safetensors                 # CLIP text encoder
+│   │   └── t5xxl_fp16.safetensors             # T5 text encoder
+│   └── hunyuan_world/                         # HunyuanWorld specific models
 │       ├── text_to_panorama/
-│       │   ├── model.safetensors          # Main model weights
-│       │   ├── config.json                # Model configuration
-│       │   └── tokenizer/                 # Tokenizer files (if needed)
+│       │   ├── model.safetensors              # Text-to-panorama model
+│       │   └── config.json                    # Model configuration
 │       ├── scene_generator/
-│       │   ├── model.safetensors          # Scene generation model
-│       │   └── config.json                # Configuration
+│       │   ├── model.safetensors              # Scene generation model
+│       │   └── config.json                    # Configuration
 │       └── world_reconstructor/
-│           ├── model.safetensors          # 3D reconstruction model
-│           └── config.json                # Configuration
+│           ├── model.safetensors              # 3D reconstruction model
+│           └── config.json                    # Configuration
 └── custom_nodes/
-    └── HunyuanWorld/                      # This package
+    └── HunyuanWorld/                          # This package
+```
+
+#### FLUX Model Requirements
+
+**FLUX.1 Models** (Required for enhanced generation):
+- **FLUX.1 [dev]**: Best quality, slower generation (~12GB VRAM)
+- **FLUX.1 [schnell]**: Faster generation, good quality (~8GB VRAM)
+- **FLUX.1 [pro]**: Professional quality (requires API access)
+
+Place FLUX models in `ComfyUI/models/flux/`:
+```bash
+# Download FLUX models (examples)
+wget -O ComfyUI/models/flux/flux1-dev.safetensors "https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/flux1-dev.safetensors"
+wget -O ComfyUI/models/flux/flux1-schnell.safetensors "https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/flux1-schnell.safetensors"
+```
+
+**Text Encoders** (Required):
+```bash
+# CLIP and T5 encoders (place in ComfyUI/models/clip/)
+wget -O ComfyUI/models/clip/clip_l.safetensors "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors"
+wget -O ComfyUI/models/clip/t5xxl_fp16.safetensors "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp16.safetensors"
 ```
 
 #### Download Sources

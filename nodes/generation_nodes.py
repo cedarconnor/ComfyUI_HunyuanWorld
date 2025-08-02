@@ -13,20 +13,27 @@ class HunyuanLoader:
         return {
             "required": {
                 "model_path": ("STRING", {
-                    "default": "models/hunyuan_world"
+                    "default": "models/hunyuan_world",
+                    "tooltip": "Path to HunyuanWorld model directory. Should contain model.safetensors and config.json files."
                 }),
                 "model_type": (["text_to_panorama", "scene_generator", "world_reconstructor"], {
-                    "default": "text_to_panorama"
+                    "default": "text_to_panorama",
+                    "tooltip": "Model component to load: 'text_to_panorama' for text→image, 'scene_generator' for depth/segmentation, 'world_reconstructor' for 3D mesh."
                 }),
                 "precision": (["fp32", "fp16", "bf16"], {
-                    "default": "fp16"
+                    "default": "fp16",
+                    "tooltip": "Model precision: 'fp32' = best quality/more VRAM, 'fp16' = balanced, 'bf16' = fastest/least VRAM. Start with fp16."
                 }),
                 "device": (["auto", "cuda", "cpu", "mps"], {
-                    "default": "auto"
+                    "default": "auto",
+                    "tooltip": "Device for model execution: 'auto' = detect best, 'cuda' = NVIDIA GPU, 'cpu' = CPU only, 'mps' = Apple Silicon."
                 })
             },
             "optional": {
-                "force_reload": ("BOOLEAN", {"default": False})
+                "force_reload": ("BOOLEAN", {
+                    "default": False,
+                    "tooltip": "Force reload model even if already cached. Use when switching model files or troubleshooting."
+                })
             }
         }
     
@@ -81,28 +88,33 @@ class HunyuanTextToPanorama:
                     "default": 1024,
                     "min": 512,
                     "max": 4096,
-                    "step": 64
+                    "step": 64,
+                    "tooltip": "Panorama width in pixels. Higher = better quality but slower. 1024-2048 recommended. Must be multiple of 64."
                 }),
                 "height": ("INT", {
                     "default": 512,
                     "min": 256,
                     "max": 2048,
-                    "step": 64
+                    "step": 64,
+                    "tooltip": "Panorama height in pixels. Should be half of width (2:1 ratio) for proper panoramic format."
                 }),
                 "num_inference_steps": ("INT", {
                     "default": 50,
                     "min": 10,
                     "max": 100,
-                    "step": 1
+                    "step": 1,
+                    "tooltip": "Number of denoising steps. More = higher quality but slower. 20-30 for testing, 50+ for final results."
                 }),
                 "guidance_scale": ("FLOAT", {
                     "default": 7.5,
                     "min": 1.0,
                     "max": 20.0,
-                    "step": 0.1
+                    "step": 0.1,
+                    "tooltip": "How closely to follow the prompt. Higher = more prompt adherence but less creativity. 7.5 is balanced, 15+ for exact prompt following."
                 }),
                 "scheduler": (["DPMSolverMultistep", "DDIM", "LMS", "Euler", "EulerAncestral"], {
-                    "default": "DPMSolverMultistep"
+                    "default": "DPMSolverMultistep",
+                    "tooltip": "Sampling scheduler. DPMSolverMultistep = best quality, Euler = fastest, DDIM = most stable. Try DPM first."
                 })
             }
         }
@@ -189,19 +201,22 @@ class HunyuanImageToPanorama:
             },
             "optional": {
                 "extension_mode": (["seamless", "outpainting", "symmetric"], {
-                    "default": "seamless"
+                    "default": "seamless",
+                    "tooltip": "How to extend image to panorama: 'seamless' = tile/repeat, 'outpainting' = AI extend edges, 'symmetric' = mirror image."
                 }),
                 "strength": ("FLOAT", {
                     "default": 0.8,
                     "min": 0.1,
                     "max": 1.0,
-                    "step": 0.05
+                    "step": 0.05,
+                    "tooltip": "Strength of image-to-panorama conversion. Higher = more AI modification, lower = preserve original more."
                 }),
                 "guidance_scale": ("FLOAT", {
                     "default": 7.5,
                     "min": 1.0,
                     "max": 20.0,
-                    "step": 0.1
+                    "step": 0.1,
+                    "tooltip": "How closely to follow the prompt. Higher = more prompt adherence but less creativity. 7.5 is balanced, 15+ for exact prompt following."
                 }),
                 "num_inference_steps": ("INT", {
                     "default": 30,
@@ -361,25 +376,34 @@ class HunyuanSceneGenerator:
                 "panorama": ("PANORAMA_IMAGE",),
             },
             "optional": {
-                "depth_estimation": ("BOOLEAN", {"default": True}),
-                "semantic_segmentation": ("BOOLEAN", {"default": True}),
+                "depth_estimation": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Generate depth map for 3D reconstruction. Required for creating explorable 3D worlds."
+                }),
+                "semantic_segmentation": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Identify and separate objects (sky, ground, trees, etc). Enables better materials and physics."
+                }),
                 "object_separation": ("FLOAT", {
                     "default": 0.5,
                     "min": 0.0,
                     "max": 1.0,
-                    "step": 0.05
+                    "step": 0.05,
+                    "tooltip": "How distinctly to separate objects. Higher = cleaner boundaries but may miss details. 0.5 is balanced."
                 }),
                 "layer_count": ("INT", {
                     "default": 5,
                     "min": 3,
                     "max": 10,
-                    "step": 1
+                    "step": 1,
+                    "tooltip": "Maximum number of semantic layers/objects to detect. More = finer detail but slower processing."
                 }),
                 "depth_scale": ("FLOAT", {
                     "default": 1.0,
                     "min": 0.1,
                     "max": 5.0,
-                    "step": 0.1
+                    "step": 0.1,
+                    "tooltip": "Scale factor for depth values. Higher = more pronounced 3D effect. 1.0 = natural depth, 2.0+ = exaggerated."
                 })
             }
         }
@@ -520,22 +544,31 @@ class HunyuanWorldReconstructor:
                     "default": 512,
                     "min": 128,
                     "max": 2048,
-                    "step": 64
+                    "step": 64,
+                    "tooltip": "3D mesh density. Higher = smoother geometry but larger files and slower processing. 512 is good balance."
                 }),
                 "texture_resolution": ("INT", {
                     "default": 1024,
                     "min": 256,
                     "max": 4096,
-                    "step": 256
+                    "step": 256,
+                    "tooltip": "Texture quality for 3D mesh. Higher = sharper textures but larger files. 1024-2048 recommended."
                 }),
                 "optimization_steps": ("INT", {
                     "default": 100,
                     "min": 50,
                     "max": 500,
-                    "step": 25
+                    "step": 25,
+                    "tooltip": "Mesh optimization iterations. Higher = cleaner geometry but slower. 100 is good for most cases."
                 }),
-                "smooth_normals": ("BOOLEAN", {"default": True}),
-                "generate_materials": ("BOOLEAN", {"default": True})
+                "smooth_normals": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Smooth surface normals for better lighting. Usually keep enabled unless you want faceted/low-poly look."
+                }),
+                "generate_materials": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Auto-generate materials based on semantic segmentation (sky=emissive, water=reflective, etc). Recommended."
+                })
             }
         }
     
