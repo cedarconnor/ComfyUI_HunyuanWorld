@@ -61,93 +61,91 @@ Create the following directory structure and download the required models to the
 ```
 ComfyUI/
 ├── models/                                    # ← YOU NEED TO DOWNLOAD ALL FILES BELOW
-│   ├── checkpoints/
-│   │   └── hunyuan_world_base.safetensors     # ⬇️ Download: Main HunyuanWorld checkpoint
-│   ├── flux/
-│   │   ├── flux1-dev.safetensors              # ⬇️ Download: FLUX.1 [dev] model
-│   │   ├── flux1-schnell.safetensors          # ⬇️ Download: FLUX.1 [schnell] model  
-│   │   └── flux1-pro.safetensors              # ⬇️ Download: FLUX.1 [pro] model (if available)
-│   ├── unet/
-│   │   └── hunyuan_world_unet.safetensors     # ⬇️ Download: HunyuanWorld UNet
-│   ├── vae/
-│   │   └── hunyuan_world_vae.safetensors      # ⬇️ Download: HunyuanWorld VAE
-│   ├── clip/
-│   │   ├── clip_l.safetensors                 # ⬇️ Download: CLIP text encoder
-│   │   └── t5xxl_fp16.safetensors             # ⬇️ Download: T5 text encoder
-│   └── hunyuan_world/                         # ⬇️ Download: HunyuanWorld specific models
-│       ├── text_to_panorama/
-│       │   ├── model.safetensors              # ⬇️ Download: Text-to-panorama model
-│       │   └── config.json                    # ⬇️ Download: Model configuration
-│       ├── scene_generator/
-│       │   ├── model.safetensors              # ⬇️ Download: Scene generation model
-│       │   └── config.json                    # ⬇️ Download: Configuration
-│       └── world_reconstructor/
-│           ├── model.safetensors              # ⬇️ Download: 3D reconstruction model
-│           └── config.json                    # ⬇️ Download: Configuration
+│   ├── hunyuan_world/                         # ⬇️ Download: HunyuanWorld models (1.5GB total)
+│   │   ├── HunyuanWorld-PanoDiT-Text.safetensors     # ⬇️ 478MB: Text to panorama
+│   │   ├── HunyuanWorld-PanoDiT-Image.safetensors    # ⬇️ 478MB: Image to panorama  
+│   │   ├── HunyuanWorld-PanoInpaint-Scene.safetensors # ⬇️ 478MB: Scene inpainting
+│   │   └── HunyuanWorld-PanoInpaint-Sky.safetensors   # ⬇️ 120MB: Sky inpainting
+│   ├── flux/                                  # ⬇️ Download: FLUX models (optional, for enhanced quality)
+│   │   ├── flux1-dev.safetensors              # ⬇️ ~12GB: FLUX.1 [dev] model
+│   │   └── flux1-schnell.safetensors          # ⬇️ ~12GB: FLUX.1 [schnell] model  
+│   └── clip/                                  # ⬇️ Download: Text encoders (required for FLUX)
+│       ├── clip_l.safetensors                 # ⬇️ ~1GB: CLIP text encoder
+│       └── t5xxl_fp16.safetensors             # ⬇️ ~5GB: T5 text encoder
 └── custom_nodes/
     └── HunyuanWorld/                          # ✅ Included: This package (node code only)
 ```
 
-#### FLUX Model Requirements
+#### HunyuanWorld Model Downloads
 
-**FLUX.1 Models** (Required for enhanced generation):
-- **FLUX.1 [dev]**: Best quality, slower generation (~12GB VRAM)
-- **FLUX.1 [schnell]**: Faster generation, good quality (~8GB VRAM)
-- **FLUX.1 [pro]**: Professional quality (requires API access)
+**Required HunyuanWorld Models** (1.5GB total):
 
-Place FLUX models in `ComfyUI/models/flux/`:
+| Model | Description | Size | Download |
+|-------|-------------|------|----------|
+| **HunyuanWorld-PanoDiT-Text** | Text to Panorama Model | 478MB | [Download](https://huggingface.co/Tencent-Hunyuan/HunyuanWorld) |
+| **HunyuanWorld-PanoDiT-Image** | Image to Panorama Model | 478MB | [Download](https://huggingface.co/Tencent-Hunyuan/HunyuanWorld) |
+| **HunyuanWorld-PanoInpaint-Scene** | PanoInpaint Model for scene | 478MB | [Download](https://huggingface.co/Tencent-Hunyuan/HunyuanWorld) |
+| **HunyuanWorld-PanoInpaint-Sky** | PanoInpaint Model for sky | 120MB | [Download](https://huggingface.co/Tencent-Hunyuan/HunyuanWorld) |
+
+**Download Commands:**
 ```bash
-# Download FLUX models (examples)
-wget -O ComfyUI/models/flux/flux1-dev.safetensors "https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/flux1-dev.safetensors"
-wget -O ComfyUI/models/flux/flux1-schnell.safetensors "https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/flux1-schnell.safetensors"
+# Create directory
+mkdir -p ComfyUI/models/hunyuan_world
+
+# Download HunyuanWorld models
+huggingface-cli download Tencent-Hunyuan/HunyuanWorld HunyuanWorld-PanoDiT-Text.safetensors --local-dir ComfyUI/models/hunyuan_world/
+huggingface-cli download Tencent-Hunyuan/HunyuanWorld HunyuanWorld-PanoDiT-Image.safetensors --local-dir ComfyUI/models/hunyuan_world/
+huggingface-cli download Tencent-Hunyuan/HunyuanWorld HunyuanWorld-PanoInpaint-Scene.safetensors --local-dir ComfyUI/models/hunyuan_world/
+huggingface-cli download Tencent-Hunyuan/HunyuanWorld HunyuanWorld-PanoInpaint-Sky.safetensors --local-dir ComfyUI/models/hunyuan_world/
 ```
 
-**Text Encoders** (Required):
+#### FLUX Models (Optional Enhancement)
+
+**FLUX.1 Models** (Optional, for enhanced generation quality):
+- **FLUX.1 [dev]**: Best quality, slower generation (~12GB VRAM)
+- **FLUX.1 [schnell]**: Faster generation, good quality (~8GB VRAM)
+
 ```bash
-# CLIP and T5 encoders (place in ComfyUI/models/clip/)
+# Download FLUX models (optional)
+wget -O ComfyUI/models/flux/flux1-dev.safetensors "https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/flux1-dev.safetensors"
+wget -O ComfyUI/models/flux/flux1-schnell.safetensors "https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/flux1-schnell.safetensors"
+
+# CLIP and T5 encoders (required if using FLUX)
 wget -O ComfyUI/models/clip/clip_l.safetensors "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors"
 wget -O ComfyUI/models/clip/t5xxl_fp16.safetensors "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp16.safetensors"
 ```
 
-#### Where to Download Models
+#### Quick Setup Commands
 
-**⚠️ CRITICAL: Models are NOT included in this repository and must be downloaded separately.**
-
-**Option 1: Hugging Face Hub** (Recommended)
+**All-in-one setup** (install dependencies + download HunyuanWorld models):
 ```bash
 # Install huggingface-hub if not already installed
 pip install huggingface-hub
 
-# Download HunyuanWorld models (replace with actual model repositories when available)
-huggingface-cli download Tencent-Hunyuan/HunyuanWorld-Text2Panorama --local-dir ComfyUI/models/hunyuan_world/text_to_panorama/
-huggingface-cli download Tencent-Hunyuan/HunyuanWorld-SceneGenerator --local-dir ComfyUI/models/hunyuan_world/scene_generator/
-huggingface-cli download Tencent-Hunyuan/HunyuanWorld-Reconstructor --local-dir ComfyUI/models/hunyuan_world/world_reconstructor/
+# Create directories
+mkdir -p ComfyUI/models/hunyuan_world
+mkdir -p ComfyUI/models/flux
+mkdir -p ComfyUI/models/clip
+
+# Download all HunyuanWorld models (1.5GB total)
+huggingface-cli download Tencent-Hunyuan/HunyuanWorld --local-dir ComfyUI/models/hunyuan_world/ --include "*.safetensors"
 ```
 
-**Note**: Replace the repository names above with the actual HunyuanWorld model repositories once they become available on Hugging Face.
+**Alternative: Manual Download**
+1. Visit [HunyuanWorld on Hugging Face](https://huggingface.co/Tencent-Hunyuan/HunyuanWorld)
+2. Download the 4 `.safetensors` files listed above
+3. Place them in `ComfyUI/models/hunyuan_world/`
 
-**Option 2: Manual Download**
-1. Visit the [HunyuanWorld-1.0 repository](https://github.com/Tencent-Hunyuan/HunyuanWorld-1.0)
-2. Follow their model download instructions
-3. Place the model files in the directory structure shown above
+#### Storage Requirements
 
-**Option 3: Alternative Model Sources**
-- ModelScope: Check for HunyuanWorld models
-- Official Tencent releases
-- Community mirrors
+| Component | Size | Required |
+|-----------|------|----------|
+| **HunyuanWorld Models** | 1.5GB | ✅ Required |
+| **FLUX Models** | ~24GB | ⚠️ Optional (for enhanced quality) |
+| **Text Encoders** | ~6GB | ⚠️ Only if using FLUX |
 
-#### Required Model Files Summary
-
-**⚠️ NONE of these files are included in this repository - you must download them all:**
-
-| File | Description | Required | Download Size |
-|------|-------------|----------|---------------|
-| `model.safetensors` | Main model weights | ✅ Yes | ~2-8GB each |
-| `config.json` | Model configuration | ✅ Yes | ~1-5KB each |
-| `tokenizer/` | Text tokenizer (for text models) | ⚠️ If applicable | ~1-10MB |
-| `scheduler_config.json` | Diffusion scheduler config | ⚠️ If applicable | ~1KB |
-
-**Total estimated download size: 15-50GB depending on which models you choose.**
+**Minimum setup**: 1.5GB (HunyuanWorld models only)  
+**Full setup with FLUX**: ~31GB total
 
 ### 4. Verify Installation
 
