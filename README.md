@@ -54,36 +54,38 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 
 #### Standard ComfyUI Model Directory Structure
 
-Place HunyuanWorld models in the standard ComfyUI model directories:
+**⚠️ IMPORTANT: This repository contains only the ComfyUI node code. All model files must be downloaded separately.**
+
+Create the following directory structure and download the required models to these locations:
 
 ```
 ComfyUI/
-├── models/
+├── models/                                    # ← YOU NEED TO DOWNLOAD ALL FILES BELOW
 │   ├── checkpoints/
-│   │   └── hunyuan_world_base.safetensors     # Main HunyuanWorld checkpoint
+│   │   └── hunyuan_world_base.safetensors     # ⬇️ Download: Main HunyuanWorld checkpoint
 │   ├── flux/
-│   │   ├── flux1-dev.safetensors              # FLUX.1 [dev] model
-│   │   ├── flux1-schnell.safetensors          # FLUX.1 [schnell] model  
-│   │   └── flux1-pro.safetensors              # FLUX.1 [pro] model (if available)
+│   │   ├── flux1-dev.safetensors              # ⬇️ Download: FLUX.1 [dev] model
+│   │   ├── flux1-schnell.safetensors          # ⬇️ Download: FLUX.1 [schnell] model  
+│   │   └── flux1-pro.safetensors              # ⬇️ Download: FLUX.1 [pro] model (if available)
 │   ├── unet/
-│   │   └── hunyuan_world_unet.safetensors     # HunyuanWorld UNet
+│   │   └── hunyuan_world_unet.safetensors     # ⬇️ Download: HunyuanWorld UNet
 │   ├── vae/
-│   │   └── hunyuan_world_vae.safetensors      # HunyuanWorld VAE
+│   │   └── hunyuan_world_vae.safetensors      # ⬇️ Download: HunyuanWorld VAE
 │   ├── clip/
-│   │   ├── clip_l.safetensors                 # CLIP text encoder
-│   │   └── t5xxl_fp16.safetensors             # T5 text encoder
-│   └── hunyuan_world/                         # HunyuanWorld specific models
+│   │   ├── clip_l.safetensors                 # ⬇️ Download: CLIP text encoder
+│   │   └── t5xxl_fp16.safetensors             # ⬇️ Download: T5 text encoder
+│   └── hunyuan_world/                         # ⬇️ Download: HunyuanWorld specific models
 │       ├── text_to_panorama/
-│       │   ├── model.safetensors              # Text-to-panorama model
-│       │   └── config.json                    # Model configuration
+│       │   ├── model.safetensors              # ⬇️ Download: Text-to-panorama model
+│       │   └── config.json                    # ⬇️ Download: Model configuration
 │       ├── scene_generator/
-│       │   ├── model.safetensors              # Scene generation model
-│       │   └── config.json                    # Configuration
+│       │   ├── model.safetensors              # ⬇️ Download: Scene generation model
+│       │   └── config.json                    # ⬇️ Download: Configuration
 │       └── world_reconstructor/
-│           ├── model.safetensors              # 3D reconstruction model
-│           └── config.json                    # Configuration
+│           ├── model.safetensors              # ⬇️ Download: 3D reconstruction model
+│           └── config.json                    # ⬇️ Download: Configuration
 └── custom_nodes/
-    └── HunyuanWorld/                          # This package
+    └── HunyuanWorld/                          # ✅ Included: This package (node code only)
 ```
 
 #### FLUX Model Requirements
@@ -107,18 +109,22 @@ wget -O ComfyUI/models/clip/clip_l.safetensors "https://huggingface.co/comfyanon
 wget -O ComfyUI/models/clip/t5xxl_fp16.safetensors "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp16.safetensors"
 ```
 
-#### Download Sources
+#### Where to Download Models
+
+**⚠️ CRITICAL: Models are NOT included in this repository and must be downloaded separately.**
 
 **Option 1: Hugging Face Hub** (Recommended)
 ```bash
 # Install huggingface-hub if not already installed
 pip install huggingface-hub
 
-# Download models (replace with actual model repositories)
+# Download HunyuanWorld models (replace with actual model repositories when available)
 huggingface-cli download Tencent-Hunyuan/HunyuanWorld-Text2Panorama --local-dir ComfyUI/models/hunyuan_world/text_to_panorama/
 huggingface-cli download Tencent-Hunyuan/HunyuanWorld-SceneGenerator --local-dir ComfyUI/models/hunyuan_world/scene_generator/
 huggingface-cli download Tencent-Hunyuan/HunyuanWorld-Reconstructor --local-dir ComfyUI/models/hunyuan_world/world_reconstructor/
 ```
+
+**Note**: Replace the repository names above with the actual HunyuanWorld model repositories once they become available on Hugging Face.
 
 **Option 2: Manual Download**
 1. Visit the [HunyuanWorld-1.0 repository](https://github.com/Tencent-Hunyuan/HunyuanWorld-1.0)
@@ -130,22 +136,27 @@ huggingface-cli download Tencent-Hunyuan/HunyuanWorld-Reconstructor --local-dir 
 - Official Tencent releases
 - Community mirrors
 
-#### Required Model Files
+#### Required Model Files Summary
 
-For each model directory, you need:
+**⚠️ NONE of these files are included in this repository - you must download them all:**
 
-| File | Description | Required |
-|------|-------------|----------|
-| `model.safetensors` | Main model weights | ✅ Yes |
-| `config.json` | Model configuration | ✅ Yes |
-| `tokenizer/` | Text tokenizer (for text models) | ⚠️ If applicable |
-| `scheduler_config.json` | Diffusion scheduler config | ⚠️ If applicable |
+| File | Description | Required | Download Size |
+|------|-------------|----------|---------------|
+| `model.safetensors` | Main model weights | ✅ Yes | ~2-8GB each |
+| `config.json` | Model configuration | ✅ Yes | ~1-5KB each |
+| `tokenizer/` | Text tokenizer (for text models) | ⚠️ If applicable | ~1-10MB |
+| `scheduler_config.json` | Diffusion scheduler config | ⚠️ If applicable | ~1KB |
+
+**Total estimated download size: 15-50GB depending on which models you choose.**
 
 ### 4. Verify Installation
+
+**Before testing, ensure you have downloaded the required model files (see section 3 above).**
 
 1. **Restart ComfyUI** completely
 2. **Check for nodes**: Look for "HunyuanWorld" category in the node browser
 3. **Test basic workflow**: Create a simple Text Input → Model Loader → Text to Panorama chain
+4. **Model loading**: The first time you load a model, it may take several minutes to initialize
 
 ## 🚀 Quick Start
 
