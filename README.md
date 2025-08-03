@@ -91,7 +91,22 @@ pip install xformers  # Memory-efficient attention
 #   └── workflows/
 ```
 
-### **Step 3: Model Downloads**
+### **Step 3: Optional Dependencies**
+
+For full 3D functionality, install utils3d (may have dependency conflicts on some systems):
+
+```bash
+# Option 1: Try direct install (may fail due to conflicts)
+pip install utils3d
+
+# Option 2: Install from source (recommended)
+python install_utils3d.py
+
+# Option 3: Manual install from GitHub
+pip install git+https://github.com/EasternJournalist/utils3d.git
+```
+
+### **Step 4: Model Downloads**
 
 Models download automatically on first use:
 
@@ -99,7 +114,7 @@ Models download automatically on first use:
 - **HunyuanWorld LoRA**: `tencent/HunyuanWorld-1`
 - **Total Size**: ~10GB (downloads once, caches locally)
 
-### **Step 4: Verify Installation**
+### **Step 5: Verify Installation**
 
 ```bash
 # Test the integration

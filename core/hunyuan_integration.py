@@ -35,6 +35,8 @@ try:
     print("✅ HunyuanWorld imports successful")
 except ImportError as e:
     print(f"⚠️ HunyuanWorld import failed: {e}")
+    if "utils3d" in str(e):
+        print("💡 Install utils3d manually: pip install git+https://github.com/EasternJournalist/utils3d.git")
     HUNYUAN_AVAILABLE = False
 
 class HunyuanTextToPanoramaModel:

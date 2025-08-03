@@ -28,7 +28,7 @@ torch-audiomentations>=0.11.0  # For audio processing if needed
 trimesh>=4.0.0
 pymeshlab>=2022.2  # For mesh processing
 scipy>=1.10.0
-utils3d>=0.1.0  # Required for HunyuanWorld 3D utilities
+# utils3d  # Optional: install manually if HunyuanWorld 3D utilities needed
 
 # Real-ESRGAN for upscaling (optional)
 basicsr>=1.4.2
