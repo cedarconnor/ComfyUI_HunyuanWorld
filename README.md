@@ -1,50 +1,42 @@
 # ComfyUI HunyuanWorld - Professional 3D World Generation
 
-A comprehensive ComfyUI custom node package for [Tencent's HunyuanWorld-1.0](https://github.com/Tencent-Hunyuan/HunyuanWorld-1.0) with complete node architecture supporting both **framework testing** and **real AI inference**.
+A comprehensive ComfyUI custom node package for [Tencent's HunyuanWorld-1.0](https://github.com/Tencent-Hunyuan/HunyuanWorld-1.0) with complete AI inference integration for professional 3D world generation.
 
 ## 🚀 **Quick Start**
 
-### **Framework Testing (Immediate)**
-```bash
-git clone https://github.com/cedarconnor/ComfyUI_HunyuanWorld.git
-# Restart ComfyUI → Load workflows → Test node architecture with placeholder data
-```
-
-### **Real AI Inference (Production)**
 ```bash
 git clone https://github.com/cedarconnor/ComfyUI_HunyuanWorld.git
 cd ComfyUI_HunyuanWorld
 git clone https://github.com/Tencent-Hunyuan/HunyuanWorld-1.0.git
 pip install -r requirements_hunyuan.txt
-# Restart ComfyUI → Same workflows now use real HunyuanWorld AI models!
+# Restart ComfyUI → Load workflows → Create real 3D worlds with AI!
 ```
 
-## 🎯 **Implementation Status**
+## 🎯 **Features**
 
-| Feature | Framework | Real Inference | Status |
-|---------|-----------|----------------|--------|
-| **Node Architecture** | ✅ Complete | ✅ Compatible | Production Ready |
-| **3D Viewer & Export** | ✅ Functional | ✅ Functional | Works with any data |
-| **Text→Panorama** | ⚠️ Placeholder | ✅ FLUX.1-dev + HunyuanWorld | Optional real AI |
-| **Image→Panorama** | ⚠️ Placeholder | ✅ FLUX.1-fill + HunyuanWorld | Optional real AI |
-| **Scene Generation** | ⚠️ Placeholder | ✅ LayerDecomposition | Optional real AI |
-| **Panorama Inpainting** | ⚠️ Framework | 🔄 Coming Soon | Architecture ready |
+| Feature | Model | Status |
+|---------|-------|--------|
+| **Text→Panorama** | FLUX.1-dev + HunyuanWorld LoRA | ✅ Production Ready |
+| **Image→Panorama** | FLUX.1-fill + HunyuanWorld LoRA | ✅ Production Ready |
+| **Scene Generation** | LayerDecomposition + WorldComposer | ✅ Production Ready |
+| **3D Export & Viewer** | Three.js + Draco Compression | ✅ Production Ready |
+| **Panorama Inpainting** | HunyuanWorld-PanoInpaint | 🔄 Coming Soon |
 
 ## 🌟 **Key Features**
 
-### **Complete ComfyUI Integration**
+### **Complete AI Integration**
 - **15+ Professional Nodes**: Full pipeline from text/image → 3D world
-- **Smart Model Detection**: Automatically uses real inference when available
-- **Zero Breaking Changes**: Framework mode for development, real inference for production
+- **Real HunyuanWorld Models**: FLUX.1-dev base with HunyuanWorld LoRA adapters
+- **Local Inference Only**: No web calls - everything runs on your machine
 - **Production Workflows**: Batch processing, advanced parameters, professional export
 
-### **Real AI Capabilities** (When Integrated)
+### **AI Capabilities**
 - **Text-to-World Generation**: Create 360° environments from text descriptions
 - **Image-to-Panorama**: AI-powered panoramic extension of regular images  
 - **Advanced Scene Processing**: Multi-layer decomposition and 3D reconstruction
 - **Professional Export**: OBJ, PLY, GLB with Draco compression
 
-### **Always-Functional Features**
+### **Professional Features**
 - **Interactive 3D Viewer**: Three.js-based real-time visualization
 - **Professional Export Pipeline**: Multiple formats with compression
 - **Performance Monitoring**: Real-time memory and processing analytics
@@ -52,17 +44,18 @@ pip install -r requirements_hunyuan.txt
 
 ## 📋 **System Requirements**
 
-### **Framework Testing (Immediate Use)**
-- **GPU**: Any CUDA-compatible GPU
-- **RAM**: 8GB system memory
-- **Storage**: 2GB free space
-- **OS**: Windows 10+, Linux Ubuntu 20.04+, macOS 12+
-
-### **Real AI Inference (Production)**
+### **Recommended Configuration**
 - **GPU**: NVIDIA RTX 4080+ (16GB+ VRAM recommended)
 - **RAM**: 32GB+ for large panorama processing
 - **Storage**: 50GB+ (models: ~10GB, working space: ~40GB)
 - **CUDA**: 11.8 or newer
+- **OS**: Windows 10+, Linux Ubuntu 20.04+, macOS 12+
+
+### **Minimum Requirements**
+- **GPU**: NVIDIA RTX 3080 (10GB VRAM)
+- **RAM**: 16GB system memory
+- **Storage**: 25GB free space
+- **CUDA**: 11.0 or newer
 
 ## 🔧 **Installation & Setup**
 
@@ -78,9 +71,7 @@ cd ComfyUI_HunyuanWorld
 pip install -r requirements.txt
 ```
 
-### **Step 2: Enable Real AI Inference (Optional)**
-
-For actual HunyuanWorld model inference instead of placeholder data:
+### **Step 2: AI Model Integration**
 
 ```bash
 # 1. Install AI dependencies
@@ -116,34 +107,20 @@ python test_integration.py
 
 # Expected output:
 # ✅ Integration module imported
-# HunyuanWorld Available: ✅ Yes / ❌ No
+# HunyuanWorld Available: ✅ Yes
 # ✅ Model manager created
 ```
 
 ## 🚀 **Usage Guide**
 
-### **Framework Testing Mode**
-
-Start immediately with any workflow - generates placeholder data for testing:
+### **Basic Workflow**
 
 1. **Load Workflow**: Import any `.json` from `workflows/` folder
-2. **Configure Prompts**: Use nodes normally
-3. **Run Pipeline**: Generates test data to validate architecture
-4. **Check Console**: See clear "PLACEHOLDER" vs "Real inference" messages
+2. **Configure Prompts**: Use HunyuanTextInput or HunyuanImageInput nodes
+3. **Run Pipeline**: Generate real AI-powered 3D worlds
+4. **View Results**: Interactive 3D viewer with export options
 
-**Console Output (Framework Mode)**:
-```
-🎨 [PLACEHOLDER] Generating panorama from prompt: 'Mountain landscape'
-⚠️  Framework test output - not actual HunyuanWorld inference
-✅ Exporting 1000 vertices, 1800 faces to test_export.obj
-✅ 3D Viewer loaded successfully with interactive controls
-```
-
-### **Real AI Inference Mode**
-
-After following setup steps above, same workflows automatically use real AI:
-
-**Console Output (Real AI Mode)**:
+**Console Output**:
 ```
 ✅ HunyuanWorld integration available
 🔄 Loading real HunyuanWorld Text2Panorama model...
@@ -154,13 +131,13 @@ After following setup steps above, same workflows automatically use real AI:
 
 ### **Recommended Workflows**
 
-| Workflow | Purpose | Real AI Features |
-|----------|---------|------------------|
-| `framework_testing_basic.json` | Test all nodes | Architecture validation |
-| `export_pipeline_test.json` | Test 3D export | Real mesh export (always works) |
+| Workflow | Purpose | AI Features |
+|----------|---------|-------------|
+| `framework_testing_basic.json` | Test all nodes | Complete pipeline validation |
+| `export_pipeline_test.json` | Test 3D export | Real mesh export with compression |
 | `viewer_functionality_test.json` | Test 3D viewer | Interactive visualization |
-| `text_to_world_basic.json` | Text→3D world | Real FLUX.1-dev + HunyuanWorld |
-| `image_to_panorama_basic.json` | Image→panorama | Real FLUX.1-fill + HunyuanWorld |
+| `text_to_world_basic.json` | Text→3D world | FLUX.1-dev + HunyuanWorld |
+| `image_to_panorama_basic.json` | Image→panorama | FLUX.1-fill + HunyuanWorld |
 
 ## 📚 **Node Reference**
 
@@ -172,7 +149,7 @@ After following setup steps above, same workflows automatically use real AI:
 - **HunyuanMaskCreator**: Mask creation for inpainting workflows
 
 ### **Core Generation**
-- **HunyuanLoader**: Smart model loading (real AI or placeholder)
+- **HunyuanLoader**: AI model loading and management
 - **HunyuanTextToPanorama**: Text→360° panorama (FLUX.1-dev + HunyuanWorld)
 - **HunyuanImageToPanorama**: Image→panorama extension (FLUX.1-fill + HunyuanWorld)
 - **HunyuanSceneInpainter**: Professional scene editing and inpainting
@@ -181,7 +158,7 @@ After following setup steps above, same workflows automatically use real AI:
 - **HunyuanWorldReconstructor**: 3D mesh generation and optimization
 
 ### **Export & Visualization**
-- **HunyuanViewer**: Interactive Three.js 3D visualization (always functional)
+- **HunyuanViewer**: Interactive Three.js 3D visualization
 - **HunyuanMeshExporter**: Standard 3D export (OBJ, PLY, GLB)
 - **HunyuanDracoExporter**: Professional compressed export
 - **HunyuanLayeredMeshExporter**: Multi-layer export pipeline
@@ -254,12 +231,12 @@ huggingface-cli login
 #### 4. **"Node not found in ComfyUI"**
 - Restart ComfyUI completely
 - Check `custom_nodes/ComfyUI_HunyuanWorld` is in correct location
-- Verify Python dependencies: `pip install -r requirements.txt`
+- Verify Python dependencies: `pip install -r requirements_hunyuan.txt`
 
 ### **Verification Commands**
 
 ```bash
-# Test basic functionality
+# Test integration
 python test_integration.py
 
 # Check dependencies
@@ -284,19 +261,14 @@ ls ~/.cache/huggingface/transformers/  # Linux/Mac
 
 ## 🎯 **Development & Contributing**
 
-### **Framework Development**
-- Use placeholder mode for rapid node development
-- Test with `framework_testing_basic.json`
-- All export and viewer features work with placeholder data
-
-### **AI Integration Development**
-- Real models automatically used when `HUNYUAN_AVAILABLE = True`
-- Fallback to placeholder when integration not installed
+### **AI Integration Architecture**
+- Real models automatically loaded when HunyuanWorld-1.0 repository present
+- Smart error handling with detailed logging
 - Modify `core/hunyuan_integration.py` for model improvements
 
 ### **Contributing**
-1. Test both framework and real inference modes
-2. Ensure backward compatibility
+1. Test complete AI inference pipeline
+2. Ensure all dependencies work correctly
 3. Add comprehensive error handling
 4. Update workflows and documentation
 
@@ -321,4 +293,4 @@ ls ~/.cache/huggingface/transformers/  # Linux/Mac
 
 ---
 
-**🎯 Ready to Use**: Complete ComfyUI node architecture with optional real HunyuanWorld-1.0 AI inference. Start with framework testing immediately, upgrade to real AI when ready!
+**🎯 Production Ready**: Complete ComfyUI integration with real HunyuanWorld-1.0 AI inference for professional 3D world generation!
