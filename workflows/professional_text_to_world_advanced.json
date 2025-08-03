@@ -1,0 +1,569 @@
+{
+  "last_node_id": 15,
+  "last_link_id": 24,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "HunyuanTextInput",
+      "pos": [50, 50],
+      "size": {"0": 400, "1": 200},
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "links": [1],
+          "slot_index": 0
+        },
+        {
+          "name": "seed",
+          "type": "INT", 
+          "links": [2],
+          "slot_index": 1
+        },
+        {
+          "name": "negative_prompt",
+          "type": "STRING",
+          "links": [3],
+          "slot_index": 2
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanTextInput"},
+      "widgets_values": [
+        "A majestic ancient temple complex nestled in misty mountains, with intricate stone carvings, golden sunlight filtering through morning fog, cherry blossom trees, peaceful zen garden with koi pond, highly detailed architecture, photorealistic, 8K quality",
+        42,
+        "blurry, low quality, distorted, modern buildings, cars, people, anime style"
+      ],
+      "title": "Master Prompt Input"
+    },
+    {
+      "id": 2,
+      "type": "HunyuanPromptProcessor",
+      "pos": [500, 50],
+      "size": {"0": 350, "1": 300},
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "enhanced_prompt",
+          "type": "STRING",
+          "links": [4],
+          "slot_index": 0
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanPromptProcessor"},
+      "widgets_values": [
+        "realistic",
+        "golden_hour",
+        "serene",
+        true,
+        "professional photography, cinematic composition, award-winning landscape, National Geographic style"
+      ],
+      "title": "Professional Prompt Enhancement"
+    },
+    {
+      "id": 3,
+      "type": "HunyuanLoader",
+      "pos": [50, 300],
+      "size": {"0": 400, "1": 250},
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL_HUNYUAN",
+          "links": [5, 6],
+          "slot_index": 0
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanLoader"},
+      "widgets_values": [
+        "models/hunyuan_world",
+        "text_to_panorama",
+        "fp16",
+        "auto",
+        false
+      ],
+      "title": "High-Resolution Model Loader"
+    },
+    {
+      "id": 4,
+      "type": "HunyuanTextToPanorama",
+      "pos": [500, 400],
+      "size": {"0": 450, "1": 400},
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL_HUNYUAN",
+          "link": 5
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 4
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "link": 2
+        },
+        {
+          "name": "negative_prompt",
+          "type": "STRING",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "panorama",
+          "type": "PANORAMA_IMAGE",
+          "links": [7, 8],
+          "slot_index": 0
+        },
+        {
+          "name": "preview_image",
+          "type": "IMAGE",
+          "links": [9],
+          "slot_index": 1
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanTextToPanorama"},
+      "widgets_values": [
+        3840,
+        1920,
+        30.0,
+        1.0,
+        6,
+        50,
+        "DPMSolverMultistep"
+      ],
+      "title": "Ultra High-Res Panorama Generation"
+    },
+    {
+      "id": 5,
+      "type": "HunyuanObjectLabeler",
+      "pos": [1000, 50],
+      "size": {"0": 350, "1": 300},
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "object_labels",
+          "type": "OBJECT_LABELS",
+          "links": [10],
+          "slot_index": 0
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanObjectLabeler"},
+      "widgets_values": [
+        "temple, mountains, trees, architecture",
+        "stones, grass, water, bridges, lanterns",
+        "outdoor",
+        0.7,
+        "temple:1.0, mountains:0.9, trees:0.8, water:0.7"
+      ],
+      "title": "Scene Object Detection"
+    },
+    {
+      "id": 6,
+      "type": "HunyuanLayeredSceneGenerator",
+      "pos": [1000, 400],
+      "size": {"0": 450, "1": 450},
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL_HUNYUAN",
+          "link": 6
+        },
+        {
+          "name": "panorama",
+          "type": "PANORAMA_IMAGE",
+          "link": 7
+        },
+        {
+          "name": "object_labels",
+          "type": "OBJECT_LABELS",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "layered_scene",
+          "type": "LAYERED_SCENE_3D",
+          "links": [11, 12],
+          "slot_index": 0
+        },
+        {
+          "name": "depth_preview",
+          "type": "IMAGE",
+          "links": [13],
+          "slot_index": 1
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanLayeredSceneGenerator"},
+      "widgets_values": [
+        true,
+        true,
+        0.6,
+        8,
+        "accurate",
+        0.8,
+        true
+      ],
+      "title": "Multi-Layer 3D Scene Generation"
+    },
+    {
+      "id": 7,
+      "type": "HunyuanWorldReconstructor",
+      "pos": [1500, 400],
+      "size": {"0": 400, "1": 350},
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "layered_scene",
+          "type": "LAYERED_SCENE_3D",
+          "link": 11
+        }
+      ],
+      "outputs": [
+        {
+          "name": "world_mesh",
+          "type": "LAYER_MESH",
+          "links": [14, 15],
+          "slot_index": 0
+        },
+        {
+          "name": "reconstruction_info",
+          "type": "STRING",
+          "links": [16],
+          "slot_index": 1
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanWorldReconstructor"},
+      "widgets_values": [
+        "high",
+        true,
+        true,
+        0.05,
+        4096,
+        true,
+        "vertex_color"
+      ],
+      "title": "Professional 3D Reconstruction"
+    },
+    {
+      "id": 8,
+      "type": "PreviewImage",
+      "pos": [500, 850],
+      "size": {"0": 400, "1": 300},
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 9
+        }
+      ],
+      "properties": {"Node name for S&R": "PreviewImage"},
+      "title": "Panorama Preview"
+    },
+    {
+      "id": 9,
+      "type": "PreviewImage",
+      "pos": [1000, 900],
+      "size": {"0": 400, "1": 300},
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 13
+        }
+      ],
+      "properties": {"Node name for S&R": "PreviewImage"},
+      "title": "Depth Map Preview"
+    },
+    {
+      "id": 10,
+      "type": "HunyuanViewer",
+      "pos": [1500, 50],
+      "size": {"0": 500, "1": 300},
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "input_data",
+          "type": "*",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "preview_image",
+          "type": "IMAGE",
+          "links": [],
+          "slot_index": 0
+        },
+        {
+          "name": "info_text",
+          "type": "STRING",
+          "links": [17],
+          "slot_index": 1
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanViewer"},
+      "widgets_values": [
+        "layered",
+        "3840x1920"
+      ],
+      "title": "Interactive 3D Viewer"
+    },
+    {
+      "id": 11,
+      "type": "HunyuanDracoExporter",
+      "pos": [2000, 400],
+      "size": {"0": 400, "1": 450},
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "world_mesh",
+          "type": "WORLD_MESH",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "file_path",
+          "type": "STRING",
+          "links": [18],
+          "slot_index": 0
+        },
+        {
+          "name": "compression_info",
+          "type": "STRING",
+          "links": [19],
+          "slot_index": 1
+        },
+        {
+          "name": "compression_ratio",
+          "type": "FLOAT",
+          "links": [20],
+          "slot_index": 2
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanDracoExporter"},
+      "widgets_values": [
+        "output/professional_world_compressed",
+        "draco_glb",
+        8,
+        14,
+        10,
+        12,
+        true,
+        true
+      ],
+      "title": "Professional Draco Export"
+    },
+    {
+      "id": 12,
+      "type": "HunyuanLayeredMeshExporter",
+      "pos": [2000, 900],
+      "size": {"0": 400, "1": 400},
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "layered_scene",
+          "type": "LAYERED_SCENE_3D",
+          "link": 12
+        }
+      ],
+      "outputs": [
+        {
+          "name": "export_summary",
+          "type": "STRING",
+          "links": [21],
+          "slot_index": 0
+        },
+        {
+          "name": "layer_info",
+          "type": "STRING",
+          "links": [22],
+          "slot_index": 1
+        },
+        {
+          "name": "total_files",
+          "type": "INT",  
+          "links": [23],
+          "slot_index": 2
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanLayeredMeshExporter"},
+      "widgets_values": [
+        "output/professional_layers",
+        "GLB",
+        true,
+        true,
+        "object_name",
+        "2048",
+        true
+      ],
+      "title": "Professional Layer Export"
+    },
+    {
+      "id": 13,
+      "type": "ShowText",
+      "pos": [2050, 50],
+      "size": {"0": 350, "1": 200},
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 17
+        }
+      ],
+      "properties": {"Node name for S&R": "ShowText"},
+      "title": "Viewer Information"
+    },
+    {
+      "id": 14,
+      "type": "ShowText",
+      "pos": [2450, 400],
+      "size": {"0": 300, "1": 200},
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 19
+        }
+      ],
+      "properties": {"Node name for S&R": "ShowText"},
+      "title": "Compression Statistics"
+    },
+    {
+      "id": 15,
+      "type": "ShowText",
+      "pos": [2450, 900],
+      "size": {"0": 300, "1": 200},
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 21
+        }
+      ],
+      "properties": {"Node name for S&R": "ShowText"},
+      "title": "Export Summary"
+    }
+  ],
+  "links": [
+    [1, 1, 0, 2, 0, "STRING"],
+    [2, 1, 1, 4, 2, "INT"],
+    [3, 1, 2, 4, 3, "STRING"],
+    [4, 2, 0, 4, 1, "STRING"],
+    [5, 3, 0, 4, 0, "MODEL_HUNYUAN"],
+    [6, 3, 0, 6, 0, "MODEL_HUNYUAN"],
+    [7, 4, 0, 6, 1, "PANORAMA_IMAGE"],
+    [8, 4, 0, 10, 0, "*"],
+    [9, 4, 1, 8, 0, "IMAGE"],
+    [10, 5, 0, 6, 2, "OBJECT_LABELS"],
+    [11, 6, 0, 7, 0, "LAYERED_SCENE_3D"],
+    [12, 6, 0, 12, 0, "LAYERED_SCENE_3D"],
+    [13, 6, 1, 9, 0, "IMAGE"],
+    [14, 7, 0, 11, 0, "WORLD_MESH"],
+    [15, 7, 0, 15, 0, "LAYER_MESH"],
+    [16, 7, 1, 13, 0, "STRING"],
+    [17, 10, 1, 13, 0, "STRING"],
+    [18, 11, 0, 14, 0, "STRING"],
+    [19, 11, 1, 14, 0, "STRING"],
+    [20, 11, 2, 15, 0, "FLOAT"],
+    [21, 12, 0, 15, 0, "STRING"],
+    [22, 12, 1, 13, 0, "STRING"],
+    [23, 12, 2, 15, 0, "INT"],
+    [24, 15, 0, 11, 0, "LAYER_MESH"]
+  ],
+  "groups": [
+    {
+      "title": "Professional Input Processing",
+      "bounding": [30, 20, 850, 350],
+      "color": "#3f789e"
+    },
+    {
+      "title": "Advanced Panorama Generation", 
+      "bounding": [480, 370, 500, 450],
+      "color": "#a1309b"
+    },
+    {
+      "title": "Multi-Layer Scene Analysis",
+      "bounding": [980, 20, 500, 900],
+      "color": "#88a056"
+    },
+    {
+      "title": "Professional 3D Reconstruction",
+      "bounding": [1480, 370, 450, 400],
+      "color": "#8B4513"
+    },
+    {
+      "title": "Professional Export Pipeline",
+      "bounding": [1980, 370, 450, 600],
+      "color": "#A0522D"
+    },
+    {
+      "title": "Interactive Viewing & Analytics",
+      "bounding": [1480, 20, 1300, 330],
+      "color": "#4B0082"
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.7,
+      "offset": [0, 0]
+    },
+    "info": {
+      "name": "Professional Text-to-World Advanced",
+      "author": "HunyuanWorld Team",
+      "description": "Complete professional workflow for generating high-quality 3D worlds from text prompts with advanced features including multi-layer scenes, professional export, and interactive viewing.",
+      "version": "1.0",
+      "created": "2024-08-02"
+    }
+  },
+  "version": 0.4
+}

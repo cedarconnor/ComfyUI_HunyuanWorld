@@ -51,18 +51,27 @@ venv.bak/
 ehthumbs.db
 Thumbs.db
 
+# HunyuanWorld-1.0 repository (users download separately)
+HunyuanWorld-1.0/
+
+# Workflow templates (users create their own)
+workflow_templates/
+
 # Model files (too large for git)
+models/
 *.safetensors
 *.ckpt
 *.pth
 *.bin
 *.pkl
+*.pt
 
 # Generated outputs
 output/
 exports/
 temp/
 cache/
+user_configs/
 
 # Logs
 *.log

@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HunyuanWorld 3D Viewer</title>
+    <title>HunyuanWorld 3D Viewer - Enhanced</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
     <style>
         body {
             margin: 0;
@@ -28,26 +32,30 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             color: white;
             padding: 15px;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 12px;
-            max-width: 300px;
+            max-width: 320px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         #info {
             position: absolute;
             bottom: 10px;
             left: 10px;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 12px;
+            border-radius: 8px;
             font-size: 11px;
-            max-width: 400px;
-            max-height: 200px;
+            max-width: 420px;
+            max-height: 220px;
             overflow-y: auto;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .control-group {
@@ -113,6 +121,57 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        #layerControls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            max-width: 280px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+        
+        .layer-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        
+        .layer-checkbox {
+            margin-right: 8px;
+        }
+        
+        .layer-name {
+            flex: 1;
+            font-size: 11px;
+        }
+        
+        .layer-opacity {
+            width: 60px;
+            margin-left: 8px;
+        }
+        
+        #viewportInfo {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 10px;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
@@ -125,10 +184,21 @@
             <div class="control-group">
                 <label>View Mode:</label>
                 <select id="viewMode">
-                    <option value="panorama">Panorama</option>
+                    <option value="panorama">Panorama 360°</option>
                     <option value="wireframe">Wireframe</option>
                     <option value="solid">Solid</option>
                     <option value="textured">Textured</option>
+                    <option value="layered">Layered View</option>
+                    <option value="depth">Depth Map</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Rendering:</label>
+                <select id="renderMode">
+                    <option value="standard">Standard</option>
+                    <option value="physical">Physical</option>
+                    <option value="toon">Toon</option>
                 </select>
             </div>
             
@@ -147,22 +217,50 @@
                 <button id="exportView">Export View</button>
                 <button id="exportMesh" disabled>Export Mesh</button>
             </div>
+            
+            <div class="control-group">
+                <label>Quality:</label>
+                <select id="renderQuality">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                    <option value="ultra">Ultra</option>
+                </select>
+            </div>
+        </div>
+        
+        <div id="layerControls">
+            <h4>Layer Controls</h4>
+            <div id="layerList">
+                <!-- Dynamic layer controls will be added here -->
+            </div>
+        </div>
+        
+        <div id="viewportInfo">
+            FPS: <span id="fps">60</span> | Triangles: <span id="triangles">0</span>
         </div>
         
         <div id="info">
             <div id="meshInfo">
-                <strong>Mesh Information:</strong><br>
+                <strong>Scene Information:</strong><br>
+                Type: <span id="sceneType">-</span><br>
                 Vertices: <span id="vertexCount">-</span><br>
                 Faces: <span id="faceCount">-</span><br>
                 Textures: <span id="textureCount">-</span><br>
+                Layers: <span id="layerCount">-</span><br>
+                Memory: <span id="memoryUsage">-</span>
             </div>
             <br>
             <div id="instructions">
                 <strong>Controls:</strong><br>
-                • Mouse: Rotate view<br>
+                • Left Mouse: Rotate view<br>
                 • Wheel: Zoom in/out<br>
-                • Right-click + drag: Pan<br>
+                • Right Mouse: Pan<br>
+                • Middle Mouse: Focus object<br>
                 • Double-click: Reset view<br>
+                • 'F': Toggle fullscreen<br>
+                • 'R': Reset camera<br>
+                • '1-6': Switch view modes<br>
             </div>
         </div>
         

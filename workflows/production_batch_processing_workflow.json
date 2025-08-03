@@ -1,0 +1,779 @@
+{
+  "last_node_id": 20,
+  "last_link_id": 32,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "HunyuanTextInput",
+      "pos": [50, 50],
+      "size": {"0": 400, "1": 200},
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "links": [1],
+          "slot_index": 0
+        },
+        {
+          "name": "seed",
+          "type": "INT", 
+          "links": [2],
+          "slot_index": 1
+        },
+        {
+          "name": "negative_prompt",
+          "type": "STRING",
+          "links": [3],
+          "slot_index": 2
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanTextInput"},
+      "widgets_values": [
+        "Modern architectural interior design: {style} style {room_type} with {lighting} lighting, {material} materials, professional photography, 8K, hyperrealistic",
+        -1,
+        "blurry, low quality, distorted, amateur, cluttered"
+      ],
+      "title": "Batch Template Prompt"
+    },
+    {
+      "id": 2,
+      "type": "HunyuanPromptProcessor",
+      "pos": [500, 50],
+      "size": {"0": 400, "1": 300},
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "enhanced_prompt",
+          "type": "STRING",
+          "links": [4, 5, 6],
+          "slot_index": 0
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanPromptProcessor"},
+      "widgets_values": [
+        "realistic",
+        "natural",
+        "clear",
+        true,
+        "architectural photography, interior design magazine quality, professional lighting setup"
+      ],
+      "title": "Production Prompt Enhancement"
+    },
+    {
+      "id": 3,
+      "type": "HunyuanLoader",
+      "pos": [50, 300],
+      "size": {"0": 400, "1": 200},
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL_HUNYUAN",
+          "links": [7, 8, 9],
+          "slot_index": 0
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanLoader"},
+      "widgets_values": [
+        "models/hunyuan_world",
+        "text_to_panorama",
+        "fp16",
+        "auto",
+        true
+      ],
+      "title": "Production Model (Optimized)"
+    },
+    {
+      "id": 4,
+      "type": "HunyuanTextToPanorama",
+      "pos": [950, 50],
+      "size": {"0": 450, "1": 400},
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL_HUNYUAN",
+          "link": 7
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 4
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "link": 2
+        },
+        {
+          "name": "negative_prompt",
+          "type": "STRING",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "panorama",
+          "type": "PANORAMA_IMAGE",
+          "links": [10],
+          "slot_index": 0
+        },
+        {
+          "name": "preview_image",
+          "type": "IMAGE",
+          "links": [11],
+          "slot_index": 1
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanTextToPanorama"},
+      "widgets_values": [
+        2048,
+        1024,
+        25.0,
+        1.0,
+        4,
+        30,
+        "DPMSolverMultistep"
+      ],
+      "title": "Batch Item 1: Living Room"
+    },
+    {
+      "id": 5,
+      "type": "HunyuanTextToPanorama",
+      "pos": [950, 500],
+      "size": {"0": 450, "1": 400},
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL_HUNYUAN",
+          "link": 8
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 5
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "link": 2
+        },
+        {
+          "name": "negative_prompt",
+          "type": "STRING",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "panorama",
+          "type": "PANORAMA_IMAGE",
+          "links": [12],
+          "slot_index": 0
+        },
+        {
+          "name": "preview_image",
+          "type": "IMAGE",
+          "links": [13],
+          "slot_index": 1
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanTextToPanorama"},
+      "widgets_values": [
+        2048,
+        1024,
+        25.0,
+        1.0,
+        4,
+        30,
+        "DPMSolverMultistep"
+      ],
+      "title": "Batch Item 2: Kitchen"
+    },
+    {
+      "id": 6,
+      "type": "HunyuanTextToPanorama",
+      "pos": [950, 950],
+      "size": {"0": 450, "1": 400},
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL_HUNYUAN",
+          "link": 9
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 6
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "link": 2
+        },
+        {
+          "name": "negative_prompt",
+          "type": "STRING",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "panorama",
+          "type": "PANORAMA_IMAGE",
+          "links": [14],
+          "slot_index": 0
+        },
+        {
+          "name": "preview_image",
+          "type": "IMAGE",
+          "links": [15],
+          "slot_index": 1
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanTextToPanorama"},
+      "widgets_values": [
+        2048,
+        1024,
+        25.0,
+        1.0,
+        4,
+        30,
+        "DPMSolverMultistep"
+      ],
+      "title": "Batch Item 3: Bedroom"
+    },
+    {
+      "id": 7,
+      "type": "HunyuanLayeredSceneGenerator",
+      "pos": [1450, 50],
+      "size": {"0": 450, "1": 400},
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL_HUNYUAN",
+          "link": 7
+        },
+        {
+          "name": "panorama",
+          "type": "PANORAMA_IMAGE",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "layered_scene",
+          "type": "LAYERED_SCENE_3D",
+          "links": [16],
+          "slot_index": 0
+        },
+        {
+          "name": "depth_preview",
+          "type": "IMAGE",
+          "links": [17],
+          "slot_index": 1
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanLayeredSceneGenerator"},
+      "widgets_values": [
+        true,
+        true,
+        0.5,
+        6,
+        "fast",
+        0.7,
+        false
+      ],
+      "title": "Fast 3D Processing - Item 1"
+    },
+    {
+      "id": 8,
+      "type": "HunyuanLayeredSceneGenerator",
+      "pos": [1450, 500],
+      "size": {"0": 450, "1": 400},
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL_HUNYUAN",
+          "link": 8
+        },
+        {
+          "name": "panorama",
+          "type": "PANORAMA_IMAGE",
+          "link": 12
+        }
+      ],
+      "outputs": [
+        {
+          "name": "layered_scene",
+          "type": "LAYERED_SCENE_3D",
+          "links": [18],
+          "slot_index": 0
+        },
+        {
+          "name": "depth_preview",
+          "type": "IMAGE",
+          "links": [19],
+          "slot_index": 1
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanLayeredSceneGenerator"},
+      "widgets_values": [
+        true,
+        true,
+        0.5,
+        6,
+        "fast",
+        0.7,
+        false
+      ],
+      "title": "Fast 3D Processing - Item 2"
+    },
+    {
+      "id": 9,
+      "type": "HunyuanLayeredSceneGenerator",
+      "pos": [1450, 950],
+      "size": {"0": 450, "1": 400},
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL_HUNYUAN",
+          "link": 9
+        },
+        {
+          "name": "panorama",
+          "type": "PANORAMA_IMAGE",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "layered_scene",
+          "type": "LAYERED_SCENE_3D",
+          "links": [20],
+          "slot_index": 0
+        },
+        {
+          "name": "depth_preview",
+          "type": "IMAGE",
+          "links": [21],
+          "slot_index": 1
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanLayeredSceneGenerator"},
+      "widgets_values": [
+        true,
+        true,
+        0.5,
+        6,
+        "fast",
+        0.7,
+        false
+      ],
+      "title": "Fast 3D Processing - Item 3"
+    },
+    {
+      "id": 10,
+      "type": "HunyuanDracoExporter",
+      "pos": [1950, 50],
+      "size": {"0": 400, "1": 400},
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "layered_scene",
+          "type": "LAYERED_SCENE_3D",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "file_path",
+          "type": "STRING",
+          "links": [22],
+          "slot_index": 0
+        },
+        {
+          "name": "compression_info",
+          "type": "STRING",
+          "links": [23],
+          "slot_index": 1
+        },
+        {
+          "name": "compression_ratio",
+          "type": "FLOAT",
+          "links": [24],
+          "slot_index": 2
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanDracoExporter"},
+      "widgets_values": [
+        "batch_output/living_room_compressed",
+        "draco_glb",
+        6,
+        12,
+        8,
+        10,
+        false,
+        true
+      ],
+      "title": "Batch Export 1: Living Room"
+    },
+    {
+      "id": 11,
+      "type": "HunyuanDracoExporter",
+      "pos": [1950, 500],
+      "size": {"0": 400, "1": 400},
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "layered_scene",
+          "type": "LAYERED_SCENE_3D",
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "file_path",
+          "type": "STRING",
+          "links": [25],
+          "slot_index": 0
+        },
+        {
+          "name": "compression_info",
+          "type": "STRING",
+          "links": [26],
+          "slot_index": 1
+        },
+        {
+          "name": "compression_ratio",
+          "type": "FLOAT",
+          "links": [27],
+          "slot_index": 2
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanDracoExporter"},
+      "widgets_values": [
+        "batch_output/kitchen_compressed",
+        "draco_glb",
+        6,
+        12,
+        8,
+        10,
+        false,
+        true
+      ],
+      "title": "Batch Export 2: Kitchen"
+    },
+    {
+      "id": 12,
+      "type": "HunyuanDracoExporter",
+      "pos": [1950, 950],
+      "size": {"0": 400, "1": 400},
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "layered_scene",
+          "type": "LAYERED_SCENE_3D",
+          "link": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "file_path",
+          "type": "STRING",
+          "links": [28],
+          "slot_index": 0
+        },
+        {
+          "name": "compression_info",
+          "type": "STRING",
+          "links": [29],
+          "slot_index": 1
+        },
+        {
+          "name": "compression_ratio",
+          "type": "FLOAT",
+          "links": [30],
+          "slot_index": 2
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanDracoExporter"},
+      "widgets_values": [
+        "batch_output/bedroom_compressed",
+        "draco_glb",
+        6,
+        12,
+        8,
+        10,
+        false,
+        true
+      ],
+      "title": "Batch Export 3: Bedroom"
+    },
+    {
+      "id": 13,
+      "type": "PreviewImage",
+      "pos": [950, 1400],
+      "size": {"0": 400, "1": 300},
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 11
+        }
+      ],
+      "properties": {"Node name for S&R": "PreviewImage"},
+      "title": "Living Room Preview"
+    },
+    {
+      "id": 14,
+      "type": "PreviewImage",
+      "pos": [1400, 1400],
+      "size": {"0": 400, "1": 300},
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 13
+        }
+      ],
+      "properties": {"Node name for S&R": "PreviewImage"},
+      "title": "Kitchen Preview"
+    },
+    {
+      "id": 15,
+      "type": "PreviewImage",
+      "pos": [1850, 1400],
+      "size": {"0": 400, "1": 300},
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 15
+        }
+      ],
+      "properties": {"Node name for S&R": "PreviewImage"},
+      "title": "Bedroom Preview"
+    },
+    {
+      "id": 16,
+      "type": "ShowText",
+      "pos": [2400, 50],
+      "size": {"0": 350, "1": 200},
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 23
+        }
+      ],
+      "properties": {"Node name for S&R": "ShowText"},
+      "title": "Living Room Export Info"
+    },
+    {
+      "id": 17,
+      "type": "ShowText",
+      "pos": [2400, 300],
+      "size": {"0": 350, "1": 200},
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 26
+        }
+      ],
+      "properties": {"Node name for S&R": "ShowText"},
+      "title": "Kitchen Export Info"
+    },
+    {
+      "id": 18,
+      "type": "ShowText",
+      "pos": [2400, 550],
+      "size": {"0": 350, "1": 200},
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 29
+        }
+      ],
+      "properties": {"Node name for S&R": "ShowText"},
+      "title": "Bedroom Export Info"
+    },
+    {
+      "id": 19,
+      "type": "HunyuanDataInfo",
+      "pos": [2400, 800],
+      "size": {"0": 350, "1": 200},
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "data",
+          "type": "*",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "info",
+          "type": "STRING",
+          "links": [31],
+          "slot_index": 0
+        }
+      ],
+      "properties": {"Node name for S&R": "HunyuanDataInfo"},
+      "title": "Batch Processing Statistics"
+    },
+    {
+      "id": 20,
+      "type": "ShowText",
+      "pos": [2400, 1050],
+      "size": {"0": 350, "1": 300},
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 31
+        }
+      ],
+      "properties": {"Node name for S&R": "ShowText"},
+      "title": "Production Analytics"
+    }
+  ],
+  "links": [
+    [1, 1, 0, 2, 0, "STRING"],
+    [2, 1, 1, 4, 2, "INT"],
+    [3, 1, 2, 4, 3, "STRING"],
+    [4, 2, 0, 4, 1, "STRING"],
+    [5, 2, 0, 5, 1, "STRING"],
+    [6, 2, 0, 6, 1, "STRING"],
+    [7, 3, 0, 4, 0, "MODEL_HUNYUAN"],
+    [8, 3, 0, 5, 0, "MODEL_HUNYUAN"],
+    [9, 3, 0, 6, 0, "MODEL_HUNYUAN"],
+    [10, 4, 0, 7, 1, "PANORAMA_IMAGE"],
+    [11, 4, 1, 13, 0, "IMAGE"],
+    [12, 5, 0, 8, 1, "PANORAMA_IMAGE"],
+    [13, 5, 1, 14, 0, "IMAGE"],
+    [14, 6, 0, 9, 1, "PANORAMA_IMAGE"],
+    [15, 6, 1, 15, 0, "IMAGE"],
+    [16, 7, 0, 10, 0, "LAYERED_SCENE_3D"],
+    [17, 7, 1, 13, 0, "IMAGE"],
+    [18, 8, 0, 11, 0, "LAYERED_SCENE_3D"],
+    [19, 8, 1, 14, 0, "IMAGE"],
+    [20, 9, 0, 12, 0, "LAYERED_SCENE_3D"],
+    [21, 9, 1, 15, 0, "IMAGE"],
+    [22, 10, 0, 16, 0, "STRING"],
+    [23, 10, 1, 16, 0, "STRING"],
+    [24, 10, 2, 19, 0, "*"],
+    [25, 11, 0, 17, 0, "STRING"],
+    [26, 11, 1, 17, 0, "STRING"],
+    [27, 11, 2, 19, 0, "*"],
+    [28, 12, 0, 18, 0, "STRING"],
+    [29, 12, 1, 18, 0, "STRING"],
+    [30, 12, 2, 19, 0, "*"],
+    [31, 19, 0, 20, 0, "STRING"],
+    [32, 10, 0, 19, 0, "*"]
+  ],
+  "groups": [
+    {
+      "title": "Batch Input Configuration",
+      "bounding": [30, 20, 870, 530],
+      "color": "#3f789e"
+    },
+    {
+      "title": "Parallel Panorama Generation",
+      "bounding": [930, 20, 490, 1380],
+      "color": "#a1309b"
+    },
+    {
+      "title": "Parallel 3D Processing",
+      "bounding": [1430, 20, 490, 1380],
+      "color": "#88a056"
+    },
+    {
+      "title": "Batch Export Pipeline",
+      "bounding": [1930, 20, 440, 1380],
+      "color": "#8B4513"
+    },
+    {
+      "title": "Production Analytics & Monitoring",
+      "bounding": [2380, 20, 390, 1380],
+      "color": "#4B0082"
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.5,
+      "offset": [0, 0]
+    },
+    "info": {
+      "name": "Production Batch Processing Workflow",
+      "author": "HunyuanWorld Team",
+      "description": "Optimized workflow for batch processing multiple architectural interior designs with parallel processing, fast 3D generation, and automated export pipeline suitable for production environments.",
+      "version": "1.0",
+      "created": "2024-08-02"
+    }
+  },
+  "version": 0.4
+}

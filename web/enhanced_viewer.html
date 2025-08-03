@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HunyuanWorld 3D Viewer - Enhanced</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #viewer {
+            width: 100%;
+            height: 100%;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            max-width: 320px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            max-width: 420px;
+            max-height: 220px;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .control-group {
+            margin-bottom: 10px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 3px;
+            font-weight: bold;
+        }
+        
+        .control-group input, .control-group select {
+            width: 100%;
+            padding: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 3px;
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 18px;
+            text-align: center;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        #layerControls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            max-width: 280px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+        
+        .layer-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        
+        .layer-checkbox {
+            margin-right: 8px;
+        }
+        
+        .layer-name {
+            flex: 1;
+            font-size: 11px;
+        }
+        
+        .layer-opacity {
+            width: 60px;
+            margin-left: 8px;
+        }
+        
+        #viewportInfo {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 10px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="viewer"></div>
+        
+        <div id="controls">
+            <h3>HunyuanWorld Viewer</h3>
+            
+            <div class="control-group">
+                <label>View Mode:</label>
+                <select id="viewMode">
+                    <option value="panorama">Panorama 360°</option>
+                    <option value="wireframe">Wireframe</option>
+                    <option value="solid">Solid</option>
+                    <option value="textured">Textured</option>
+                    <option value="layered">Layered View</option>
+                    <option value="depth">Depth Map</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Rendering:</label>
+                <select id="renderMode">
+                    <option value="standard">Standard</option>
+                    <option value="physical">Physical</option>
+                    <option value="toon">Toon</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Field of View:</label>
+                <input type="range" id="fov" min="30" max="120" value="75">
+                <span id="fovValue">75°</span>
+            </div>
+            
+            <div class="control-group">
+                <button id="resetView">Reset View</button>
+                <button id="fullscreen">Fullscreen</button>
+            </div>
+            
+            <div class="control-group">
+                <button id="exportView">Export View</button>
+                <button id="exportMesh" disabled>Export Mesh</button>
+            </div>
+            
+            <div class="control-group">
+                <label>Quality:</label>
+                <select id="renderQuality">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                    <option value="ultra">Ultra</option>
+                </select>
+            </div>
+        </div>
+        
+        <div id="layerControls">
+            <h4>Layer Controls</h4>
+            <div id="layerList">
+                <!-- Dynamic layer controls will be added here -->
+            </div>
+        </div>
+        
+        <div id="viewportInfo">
+            FPS: <span id="fps">60</span> | Triangles: <span id="triangles">0</span>
+        </div>
+        
+        <div id="info">
+            <div id="meshInfo">
+                <strong>Scene Information:</strong><br>
+                Type: <span id="sceneType">-</span><br>
+                Vertices: <span id="vertexCount">-</span><br>
+                Faces: <span id="faceCount">-</span><br>
+                Textures: <span id="textureCount">-</span><br>
+                Layers: <span id="layerCount">-</span><br>
+                Memory: <span id="memoryUsage">-</span>
+            </div>
+            <br>
+            <div id="instructions">
+                <strong>Controls:</strong><br>
+                • Left Mouse: Rotate view<br>
+                • Wheel: Zoom in/out<br>
+                • Right Mouse: Pan<br>
+                • Middle Mouse: Focus object<br>
+                • Double-click: Reset view<br>
+                • 'F': Toggle fullscreen<br>
+                • 'R': Reset camera<br>
+                • '1-6': Switch view modes<br>
+            </div>
+        </div>
+        
+        <div id="loading" style="display: none;">
+            <div class="spinner"></div>
+            Loading 3D scene...
+        </div>
+    </div>
+
+    <script>
+        // Enhanced HunyuanWorld 3D Viewer with Three.js
+        class HunyuanViewer {
+            constructor() {
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.controls = null;
+                this.currentMesh = null;
+                this.panoramaTexture = null;
+                this.layeredScene = null;
+                this.layers = new Map();
+                this.stats = { fps: 0, triangles: 0 };
+                this.clock = new THREE.Clock();
+                this.frameCount = 0;
+                this.lastTime = 0;
+                
+                // Scene state
+                this.currentDataType = null;
+                this.currentViewMode = 'panorama';
+                this.renderQuality = 'medium';
+                
+                this.setupEventListeners();
+                this.initViewer();
+            }
+
+            setupEventListeners() {
+                // View mode controls
+                document.getElementById('viewMode').addEventListener('change', (e) => {
+                    this.setViewMode(e.target.value);
+                });
+                
+                document.getElementById('renderMode').addEventListener('change', (e) => {
+                    this.setRenderMode(e.target.value);
+                });
+                
+                document.getElementById('renderQuality').addEventListener('change', (e) => {
+                    this.setRenderQuality(e.target.value);
+                });
+                
+                // Camera controls
+                document.getElementById('fov').addEventListener('input', (e) => {
+                    this.setFieldOfView(parseInt(e.target.value));
+                    document.getElementById('fovValue').textContent = e.target.value + '°';
+                });
+                
+                // Action buttons
+                document.getElementById('resetView').addEventListener('click', () => {
+                    this.resetView();
+                });
+                
+                document.getElementById('fullscreen').addEventListener('click', () => {
+                    this.toggleFullscreen();
+                });
+                
+                document.getElementById('exportView').addEventListener('click', () => {
+                    this.exportView();
+                });
+                
+                document.getElementById('exportMesh').addEventListener('click', () => {
+                    this.exportMesh();
+                });
+                
+                // Window events
+                window.addEventListener('resize', () => {
+                    this.onWindowResize();
+                });
+                
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    this.handleKeyDown(e);
+                });
+            }
+
+            initViewer() {
+                console.log('Initializing HunyuanWorld 3D Viewer with Three.js');
+                
+                this.showLoading(true);
+                
+                try {
+                    // Initialize Three.js scene
+                    this.scene = new THREE.Scene();
+                    this.scene.background = new THREE.Color(0x000000);
+                    
+                    // Setup camera
+                    const container = document.getElementById('viewer');
+                    const aspect = container.clientWidth / container.clientHeight;
+                    this.camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+                    this.camera.position.set(0, 0, 5);
+                    
+                    // Setup renderer
+                    this.renderer = new THREE.WebGLRenderer({ 
+                        antialias: true, 
+                        preserveDrawingBuffer: true // For screenshots
+                    });
+                    this.renderer.setSize(container.clientWidth, container.clientHeight);
+                    this.renderer.setPixelRatio(window.devicePixelRatio);
+                    this.renderer.shadowMap.enabled = true;
+                    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                    this.renderer.outputEncoding = THREE.sRGBEncoding;
+                    
+                    container.appendChild(this.renderer.domElement);
+                    
+                    // Setup orbit controls
+                    this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                    this.controls.enableDamping = true;
+                    this.controls.dampingFactor = 0.05;
+                    this.controls.enableZoom = true;
+                    this.controls.enablePan = true;
+                    this.controls.enableRotate = true;
+                    
+                    // Setup lighting
+                    this.setupLighting();
+                    
+                    // Start render loop
+                    this.animate();
+                    
+                    this.showLoading(false);
+                    this.setupDefaultScene();
+                    
+                    console.log('Three.js viewer initialized successfully');
+                    
+                } catch (error) {
+                    console.error('Failed to initialize viewer:', error);
+                    this.showLoading(false);
+                    this.showError('Failed to initialize 3D viewer: ' + error.message);
+                }
+            }
+
+            setupLighting() {
+                // Ambient light
+                const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+                this.scene.add(ambientLight);
+                
+                // Directional light (main sun)
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(10, 10, 5);
+                directionalLight.castShadow = true;
+                directionalLight.shadow.mapSize.width = 2048;
+                directionalLight.shadow.mapSize.height = 2048;
+                this.scene.add(directionalLight);
+                
+                // Fill light
+                const fillLight = new THREE.DirectionalLight(0x87CEEB, 0.3);
+                fillLight.position.set(-10, 0, -5);
+                this.scene.add(fillLight);
+            }
+            
+            setupDefaultScene() {
+                console.log('Setting up default scene');
+                
+                // Create a simple demonstration scene
+                const geometry = new THREE.SphereGeometry(2, 32, 16);
+                const material = new THREE.MeshStandardMaterial({ 
+                    color: 0x4CAF50,
+                    metalness: 0.1,
+                    roughness: 0.8
+                });
+                
+                const sphere = new THREE.Mesh(geometry, material);
+                sphere.position.set(0, 0, 0);
+                sphere.castShadow = true;
+                sphere.receiveShadow = true;
+                this.scene.add(sphere);
+                
+                // Add ground plane
+                const planeGeometry = new THREE.PlaneGeometry(10, 10);
+                const planeMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x333333,
+                    metalness: 0.0,
+                    roughness: 1.0
+                });
+                const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+                plane.rotation.x = -Math.PI / 2;
+                plane.position.y = -2;
+                plane.receiveShadow = true;
+                this.scene.add(plane);
+                
+                // Update UI
+                this.updateSceneInfo({
+                    type: 'Demo Scene',
+                    vertices: geometry.attributes.position.count,
+                    faces: geometry.index ? geometry.index.count / 3 : geometry.attributes.position.count / 3,
+                    textures: 0,
+                    layers: 1
+                });
+                
+                document.getElementById('exportMesh').disabled = false;
+            }
+
+            animate() {
+                const animate = () => {
+                    requestAnimationFrame(animate);
+                    
+                    // Update controls
+                    if (this.controls) {
+                        this.controls.update();
+                    }
+                    
+                    // Update stats
+                    this.updateStats();
+                    
+                    // Render scene
+                    if (this.renderer && this.scene && this.camera) {
+                        this.renderer.render(this.scene, this.camera);
+                    }
+                };
+                animate();
+            }
+            
+            updateStats() {
+                const currentTime = performance.now();
+                this.frameCount++;
+                
+                if (currentTime >= this.lastTime + 1000) {
+                    this.stats.fps = Math.round((this.frameCount * 1000) / (currentTime - this.lastTime));
+                    this.frameCount = 0;
+                    this.lastTime = currentTime;
+                    
+                    // Update triangles count
+                    this.stats.triangles = this.getTriangleCount();
+                    
+                    // Update UI
+                    document.getElementById('fps').textContent = this.stats.fps;
+                    document.getElementById('triangles').textContent = this.stats.triangles.toLocaleString();
+                }
+            }
+            
+            getTriangleCount() {
+                let triangles = 0;
+                this.scene.traverse((object) => {
+                    if (object.isMesh && object.geometry) {
+                        if (object.geometry.index) {
+                            triangles += object.geometry.index.count / 3;
+                        } else {
+                            triangles += object.geometry.attributes.position.count / 3;
+                        }
+                    }
+                });
+                return Math.floor(triangles);
+            }
+
+            loadPanorama(imageData) {
+                console.log('Loading panorama image');
+                this.showLoading(true);
+                
+                try {
+                    // Clear existing scene
+                    this.clearScene();
+                    
+                    // Create panorama sphere
+                    const geometry = new THREE.SphereGeometry(50, 64, 32);
+                    geometry.scale(-1, 1, 1); // Invert for inside view
+                    
+                    // Load texture
+                    const loader = new THREE.TextureLoader();
+                    loader.load(
+                        imageData.url || this.createImageDataURL(imageData),
+                        (texture) => {
+                            texture.minFilter = THREE.LinearFilter;
+                            texture.magFilter = THREE.LinearFilter;
+                            texture.format = THREE.RGBFormat;
+                            
+                            const material = new THREE.MeshBasicMaterial({ map: texture });
+                            const panoramaMesh = new THREE.Mesh(geometry, material);
+                            
+                            this.scene.add(panoramaMesh);
+                            this.currentMesh = panoramaMesh;
+                            this.currentDataType = 'panorama';
+                            
+                            // Reset camera for panorama viewing
+                            this.camera.position.set(0, 0, 0.1);
+                            this.controls.reset();
+                            
+                            this.updateSceneInfo({
+                                type: 'Panorama Image',
+                                vertices: geometry.attributes.position.count,
+                                faces: geometry.index ? geometry.index.count / 3 : geometry.attributes.position.count / 3,
+                                textures: 1,
+                                layers: 1
+                            });
+                            
+                            this.showLoading(false);
+                            console.log('Panorama loaded successfully');
+                        },
+                        undefined,
+                        (error) => {
+                            console.error('Error loading panorama texture:', error);
+                            this.showLoading(false);
+                            this.showError('Failed to load panorama texture');
+                        }
+                    );
+                    
+                } catch (error) {
+                    console.error('Error loading panorama:', error);
+                    this.showLoading(false);
+                    this.showError('Failed to load panorama: ' + error.message);
+                }
+            }
+
+            loadMesh(meshData) {
+                console.log('Loading 3D mesh data');
+                this.showLoading(true);
+                
+                try {
+                    // Clear existing scene
+                    this.clearScene();
+                    
+                    // Create geometry from mesh data
+                    const geometry = new THREE.BufferGeometry();
+                    
+                    // Set vertices
+                    if (meshData.vertices) {
+                        const vertices = new Float32Array(meshData.vertices.flat());
+                        geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+                    }
+                    
+                    // Set faces/indices
+                    if (meshData.faces) {
+                        const indices = new Uint32Array(meshData.faces.flat());
+                        geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+                    }
+                    
+                    // Set texture coordinates
+                    if (meshData.textureCoords) {
+                        const uvs = new Float32Array(meshData.textureCoords.flat());
+                        geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+                    }
+                    
+                    // Compute normals if not provided
+                    geometry.computeVertexNormals();
+                    
+                    // Create material
+                    let material;
+                    if (meshData.textures && meshData.textures.length > 0) {
+                        const textureLoader = new THREE.TextureLoader();
+                        const texture = textureLoader.load(this.createImageDataURL(meshData.textures[0]));
+                        material = new THREE.MeshStandardMaterial({ map: texture });
+                    } else {
+                        material = new THREE.MeshStandardMaterial({ 
+                            color: 0x8A2BE2,
+                            metalness: 0.1,
+                            roughness: 0.7
+                        });
+                    }
+                    
+                    // Create mesh
+                    const mesh = new THREE.Mesh(geometry, material);
+                    mesh.castShadow = true;
+                    mesh.receiveShadow = true;
+                    
+                    this.scene.add(mesh);
+                    this.currentMesh = mesh;
+                    this.currentDataType = 'worldmesh';
+                    
+                    // Center camera on mesh
+                    this.centerCameraOnMesh(mesh);
+                    
+                    this.updateSceneInfo({
+                        type: '3D World Mesh',
+                        vertices: meshData.vertices ? meshData.vertices.length : 0,
+                        faces: meshData.faces ? meshData.faces.length : 0,
+                        textures: meshData.textures ? meshData.textures.length : 0,
+                        layers: 1
+                    });
+                    
+                    this.showLoading(false);
+                    console.log('Mesh loaded successfully');
+                    
+                } catch (error) {
+                    console.error('Error loading mesh:', error);
+                    this.showLoading(false);
+                    this.showError('Failed to load mesh: ' + error.message);
+                }
+            }
+
+            loadLayeredScene(layeredData) {
+                console.log('Loading layered 3D scene');
+                this.showLoading(true);
+                
+                try {
+                    // Clear existing scene
+                    this.clearScene();
+                    this.layers.clear();
+                    
+                    // Load background panorama
+                    if (layeredData.panorama) {
+                        this.loadPanorama(layeredData.panorama);
+                    }
+                    
+                    // Load each layer
+                    let totalVertices = 0, totalFaces = 0;
+                    if (layeredData.foregroundLayers) {
+                        layeredData.foregroundLayers.forEach((layer, index) => {
+                            const layerMesh = this.createLayerMesh(layer, index);
+                            this.scene.add(layerMesh);
+                            this.layers.set(layer.name || `layer_${index}`, layerMesh);
+                            
+                            totalVertices += layerMesh.geometry.attributes.position.count;
+                            totalFaces += layerMesh.geometry.index ? layerMesh.geometry.index.count / 3 : layerMesh.geometry.attributes.position.count / 3;
+                        });
+                    }
+                    
+                    this.currentDataType = 'layered_scene';
+                    this.layeredScene = layeredData;
+                    
+                    // Setup layer controls
+                    this.setupLayerControls();
+                    
+                    this.updateSceneInfo({
+                        type: 'Layered 3D Scene',
+                        vertices: totalVertices,
+                        faces: Math.floor(totalFaces),
+                        textures: layeredData.textures ? layeredData.textures.length : 0,
+                        layers: this.layers.size
+                    });
+                    
+                    this.showLoading(false);
+                    console.log('Layered scene loaded successfully');
+                    
+                } catch (error) {
+                    console.error('Error loading layered scene:', error);
+                    this.showLoading(false);
+                    this.showError('Failed to load layered scene: ' + error.message);
+                }
+            }
+            
+            createLayerMesh(layerData, index) {
+                // Create geometry for layer (placeholder implementation)
+                const geometry = new THREE.BoxGeometry(1, 1, 1);
+                const material = new THREE.MeshStandardMaterial({ 
+                    color: new THREE.Color().setHSL(index * 0.2 % 1, 0.7, 0.5),
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.x = (index - 1) * 2;
+                mesh.name = layerData.name || `layer_${index}`;
+                
+                return mesh;
+            }
+            
+            setupLayerControls() {
+                const layerControls = document.getElementById('layerControls');
+                const layerList = document.getElementById('layerList');
+                
+                // Clear existing controls
+                layerList.innerHTML = '';
+                
+                // Add controls for each layer
+                this.layers.forEach((mesh, name) => {
+                    const layerItem = document.createElement('div');
+                    layerItem.className = 'layer-item';
+                    
+                    layerItem.innerHTML = `
+                        <input type="checkbox" class="layer-checkbox" checked data-layer="${name}">
+                        <span class="layer-name">${name}</span>
+                        <input type="range" class="layer-opacity" min="0" max="1" step="0.1" value="0.8" data-layer="${name}">
+                    `;
+                    
+                    layerList.appendChild(layerItem);
+                    
+                    // Add event listeners
+                    const checkbox = layerItem.querySelector('.layer-checkbox');
+                    const opacitySlider = layerItem.querySelector('.layer-opacity');
+                    
+                    checkbox.addEventListener('change', (e) => {
+                        mesh.visible = e.target.checked;
+                    });
+                    
+                    opacitySlider.addEventListener('input', (e) => {
+                        mesh.material.opacity = parseFloat(e.target.value);
+                    });
+                });
+                
+                // Show layer controls
+                layerControls.style.display = 'block';
+            }
+
+            setViewMode(mode) {
+                console.log('Setting view mode:', mode);
+                this.currentViewMode = mode;
+                
+                switch(mode) {
+                    case 'panorama':
+                        this.setupPanoramaMode();
+                        break;
+                    case 'wireframe':
+                        this.setupWireframeMode();
+                        break;
+                    case 'solid':
+                        this.setupSolidMode();
+                        break;
+                    case 'textured':
+                        this.setupTexturedMode();
+                        break;
+                    case 'layered':
+                        this.setupLayeredMode();
+                        break;
+                    case 'depth':
+                        this.setupDepthMode();
+                        break;
+                }
+            }
+            
+            setRenderMode(mode) {
+                console.log('Setting render mode:', mode);
+                
+                this.scene.traverse((object) => {
+                    if (object.isMesh && object.material) {
+                        switch(mode) {
+                            case 'standard':
+                                // Keep current material
+                                break;
+                            case 'physical':
+                                if (!(object.material instanceof THREE.MeshPhysicalMaterial)) {
+                                    const newMaterial = new THREE.MeshPhysicalMaterial();
+                                    newMaterial.copy(object.material);
+                                    object.material = newMaterial;
+                                }
+                                break;
+                            case 'toon':
+                                if (!(object.material instanceof THREE.MeshToonMaterial)) {
+                                    const newMaterial = new THREE.MeshToonMaterial();
+                                    newMaterial.copy(object.material);
+                                    object.material = newMaterial;
+                                }
+                                break;
+                        }
+                    }
+                });
+            }
+            
+            setRenderQuality(quality) {
+                console.log('Setting render quality:', quality);
+                this.renderQuality = quality;
+                
+                const pixelRatios = {
+                    low: 0.5,
+                    medium: 1.0,
+                    high: 1.5,
+                    ultra: 2.0
+                };
+                
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, pixelRatios[quality]));
+                
+                // Adjust shadow map size based on quality
+                const shadowMapSizes = {
+                    low: 512,
+                    medium: 1024,
+                    high: 2048,
+                    ultra: 4096
+                };
+                
+                this.scene.traverse((object) => {
+                    if (object.isLight && object.shadow) {
+                        const size = shadowMapSizes[quality];
+                        object.shadow.mapSize.width = size;
+                        object.shadow.mapSize.height = size;
+                    }
+                });
+            }
+
+            setupPanoramaMode() {
+                console.log('Panorama mode activated');
+                if (this.currentDataType === 'panorama') {
+                    this.camera.position.set(0, 0, 0.1);
+                    this.controls.enableZoom = true;
+                    this.controls.enablePan = false;
+                }
+            }
+            
+            setupWireframeMode() {
+                console.log('Wireframe mode activated');
+                this.scene.traverse((object) => {
+                    if (object.isMesh && object.material) {
+                        object.material.wireframe = true;
+                        object.material.needsUpdate = true;
+                    }
+                });
+            }
+            
+            setupSolidMode() {
+                console.log('Solid mode activated');
+                this.scene.traverse((object) => {
+                    if (object.isMesh && object.material) {
+                        object.material.wireframe = false;
+                        if (object.material.map) {
+                            object.material.map = null;
+                        }
+                        object.material.needsUpdate = true;
+                    }
+                });
+            }
+            
+            setupTexturedMode() {
+                console.log('Textured mode activated');
+                this.scene.traverse((object) => {
+                    if (object.isMesh && object.material) {
+                        object.material.wireframe = false;
+                        object.material.needsUpdate = true;
+                    }
+                });
+            }
+            
+            setupLayeredMode() {
+                console.log('Layered mode activated');
+                if (this.currentDataType === 'layered_scene') {
+                    document.getElementById('layerControls').style.display = 'block';
+                } else {
+                    document.getElementById('layerControls').style.display = 'none';
+                }
+            }
+            
+            setupDepthMode() {
+                console.log('Depth mode activated');
+                // Apply depth-based coloring to meshes
+                this.scene.traverse((object) => {
+                    if (object.isMesh && object.geometry) {
+                        const positions = object.geometry.attributes.position;
+                        const colors = new Float32Array(positions.count * 3);
+                        
+                        for (let i = 0; i < positions.count; i++) {
+                            const z = positions.getZ(i);
+                            const depth = (z + 10) / 20; // Normalize depth
+                            colors[i * 3] = depth;
+                            colors[i * 3 + 1] = 1 - depth;
+                            colors[i * 3 + 2] = 0.5;
+                        }
+                        
+                        object.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                        object.material.vertexColors = true;
+                        object.material.needsUpdate = true;
+                    }
+                });
+            }
+
+            setFieldOfView(fov) {
+                console.log('Setting FOV:', fov);
+                if (this.camera) {
+                    this.camera.fov = fov;
+                    this.camera.updateProjectionMatrix();
+                }
+            }
+            
+            resetView() {
+                console.log('Resetting view');
+                if (this.controls) {
+                    this.controls.reset();
+                }
+                if (this.camera) {
+                    if (this.currentDataType === 'panorama') {
+                        this.camera.position.set(0, 0, 0.1);
+                    } else {
+                        this.camera.position.set(0, 0, 5);
+                    }
+                }
+            }
+            
+            centerCameraOnMesh(mesh) {
+                const box = new THREE.Box3().setFromObject(mesh);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const fov = this.camera.fov * (Math.PI / 180);
+                let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+                
+                cameraZ *= 1.5; // Add some padding
+                
+                this.camera.position.set(center.x, center.y, center.z + cameraZ);
+                this.controls.target.copy(center);
+                this.controls.update();
+            }
+
+            toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+
+            exportView() {
+                console.log('Exporting current view');
+                
+                if (this.renderer) {
+                    // Render to canvas
+                    this.renderer.render(this.scene, this.camera);
+                    
+                    // Create download link
+                    const link = document.createElement('a');
+                    link.download = `hunyuan_view_${Date.now()}.png`;
+                    link.href = this.renderer.domElement.toDataURL('image/png');
+                    link.click();
+                    
+                    console.log('View exported successfully');
+                } else {
+                    this.showError('Cannot export view: renderer not available');
+                }
+            }
+            
+            exportMesh() {
+                console.log('Exporting current mesh');
+                
+                if (!this.currentMesh) {
+                    this.showError('No mesh to export');
+                    return;
+                }
+                
+                try {
+                    // Export as OBJ format (simplified)
+                    let objContent = '# HunyuanWorld exported mesh\n';
+                    
+                    const geometry = this.currentMesh.geometry;
+                    const positions = geometry.attributes.position;
+                    
+                    // Export vertices
+                    for (let i = 0; i < positions.count; i++) {
+                        const x = positions.getX(i);
+                        const y = positions.getY(i);
+                        const z = positions.getZ(i);
+                        objContent += `v ${x.toFixed(6)} ${y.toFixed(6)} ${z.toFixed(6)}\n`;
+                    }
+                    
+                    // Export faces
+                    if (geometry.index) {
+                        for (let i = 0; i < geometry.index.count; i += 3) {
+                            const a = geometry.index.getX(i) + 1;
+                            const b = geometry.index.getX(i + 1) + 1;
+                            const c = geometry.index.getX(i + 2) + 1;
+                            objContent += `f ${a} ${b} ${c}\n`;
+                        }
+                    }
+                    
+                    // Create download
+                    const blob = new Blob([objContent], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const link = document.createElement('a');
+                    link.download = `hunyuan_mesh_${Date.now()}.obj`;
+                    link.href = url;
+                    link.click();
+                    
+                    URL.revokeObjectURL(url);
+                    console.log('Mesh exported successfully');
+                    
+                } catch (error) {
+                    console.error('Error exporting mesh:', error);
+                    this.showError('Failed to export mesh: ' + error.message);
+                }
+            }
+
+            clearScene() {
+                // Remove all meshes from scene
+                const meshesToRemove = [];
+                this.scene.traverse((object) => {
+                    if (object.isMesh) {
+                        meshesToRemove.push(object);
+                    }
+                });
+                
+                meshesToRemove.forEach(mesh => {
+                    this.scene.remove(mesh);
+                    if (mesh.geometry) mesh.geometry.dispose();
+                    if (mesh.material) {
+                        if (Array.isArray(mesh.material)) {
+                            mesh.material.forEach(mat => mat.dispose());
+                        } else {
+                            mesh.material.dispose();
+                        }
+                    }
+                });
+                
+                this.layers.clear();
+                document.getElementById('layerControls').style.display = 'none';
+            }
+            
+            updateSceneInfo(info) {
+                document.getElementById('sceneType').textContent = info.type || '-';
+                document.getElementById('vertexCount').textContent = info.vertices ? info.vertices.toLocaleString() : '-';
+                document.getElementById('faceCount').textContent = info.faces ? info.faces.toLocaleString() : '-';
+                document.getElementById('textureCount').textContent = info.textures ? info.textures.toString() : '-';
+                document.getElementById('layerCount').textContent = info.layers ? info.layers.toString() : '-';
+                
+                // Estimate memory usage
+                const vertexMem = (info.vertices || 0) * 3 * 4; // 3 floats per vertex
+                const faceMem = (info.faces || 0) * 3 * 4; // 3 ints per face
+                const totalMem = vertexMem + faceMem;
+                document.getElementById('memoryUsage').textContent = this.formatBytes(totalMem);
+            }
+            
+            formatBytes(bytes) {
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                if (bytes === 0) return '0 B';
+                const i = Math.floor(Math.log(bytes) / Math.log(1024));
+                return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+            }
+            
+            createImageDataURL(imageData) {
+                // Convert tensor/array data to data URL
+                if (typeof imageData === 'string') {
+                    return imageData; // Already a URL
+                }
+                
+                // For now, return placeholder
+                return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+            }
+            
+            handleKeyDown(event) {
+                switch(event.key) {
+                    case 'f':
+                    case 'F':
+                        this.toggleFullscreen();
+                        break;
+                    case 'r':
+                    case 'R':
+                        this.resetView();
+                        break;
+                    case '1':
+                        document.getElementById('viewMode').value = 'panorama';
+                        this.setViewMode('panorama');
+                        break;
+                    case '2':
+                        document.getElementById('viewMode').value = 'wireframe';
+                        this.setViewMode('wireframe');
+                        break;
+                    case '3':
+                        document.getElementById('viewMode').value = 'solid';
+                        this.setViewMode('solid');
+                        break;
+                    case '4':
+                        document.getElementById('viewMode').value = 'textured';
+                        this.setViewMode('textured');
+                        break;
+                    case '5':
+                        document.getElementById('viewMode').value = 'layered';
+                        this.setViewMode('layered');
+                        break;
+                    case '6':
+                        document.getElementById('viewMode').value = 'depth';
+                        this.setViewMode('depth');
+                        break;
+                }
+            }
+            
+            showLoading(show) {
+                document.getElementById('loading').style.display = show ? 'block' : 'none';
+            }
+            
+            showError(message) {
+                console.error(message);
+                // Could show a toast or modal here
+                alert('Error: ' + message);
+            }
+            
+            onWindowResize() {
+                if (this.camera && this.renderer) {
+                    const container = document.getElementById('viewer');
+                    this.camera.aspect = container.clientWidth / container.clientHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(container.clientWidth, container.clientHeight);
+                }
+            }
+        }
+        
+        // Enhanced ComfyUI Bridge with support for all HunyuanWorld data types
+        class ComfyUIBridge {
+            constructor(viewer) {
+                this.viewer = viewer;
+                this.setupMessageHandling();
+            }
+            
+            setupMessageHandling() {
+                window.addEventListener('message', (event) => {
+                    console.log('Received message:', event.data);
+                    
+                    if (event.data.type === 'hunyuan_data') {
+                        this.handleHunyuanData(event.data);
+                    } else if (event.data.type === 'viewer_command') {
+                        this.handleViewerCommand(event.data);
+                    }
+                });
+                
+                // Send ready message to parent
+                this.sendToParent({
+                    type: 'viewer_ready',
+                    timestamp: Date.now(),
+                    capabilities: [
+                        'panorama_viewing',
+                        'mesh_rendering', 
+                        'layered_scenes',
+                        'depth_visualization',
+                        'export_view',
+                        'export_mesh'
+                    ]
+                });
+            }
+            
+            handleHunyuanData(data) {
+                console.log('Processing HunyuanWorld data:', data.dataType);
+                
+                switch(data.dataType) {
+                    case 'PANORAMA_IMAGE':
+                        this.viewer.loadPanorama({
+                            url: data.imageUrl,
+                            tensor: data.imageTensor,
+                            metadata: data.metadata
+                        });
+                        break;
+                        
+                    case 'SCENE_3D':
+                        this.viewer.loadMesh({
+                            vertices: data.vertices,
+                            faces: data.faces,
+                            textures: data.textures,
+                            depthMap: data.depthMap,
+                            semanticMasks: data.semanticMasks,
+                            metadata: data.metadata
+                        });
+                        break;
+                        
+                    case 'WORLD_MESH':
+                        this.viewer.loadMesh({
+                            vertices: data.vertices,
+                            faces: data.faces,
+                            textureCoords: data.textureCoords,
+                            textures: data.textures,
+                            materials: data.materials,
+                            metadata: data.metadata
+                        });
+                        break;
+                        
+                    case 'LAYERED_SCENE_3D':
+                        this.viewer.loadLayeredScene({
+                            panorama: data.panorama,
+                            backgroundScene: data.backgroundScene,
+                            foregroundLayers: data.foregroundLayers,
+                            layerDepthMaps: data.layerDepthMaps,
+                            layerMasks: data.layerMasks,
+                            objectLabels: data.objectLabels,
+                            metadata: data.metadata
+                        });
+                        break;
+                        
+                    case 'LAYER_MESH':
+                        this.viewer.loadLayeredScene({
+                            baseMesh: data.baseMesh,
+                            layerMeshes: data.layerMeshes,
+                            layerHierarchy: data.layerHierarchy,
+                            layerTransforms: data.layerTransforms,
+                            layerVisibility: data.layerVisibility,
+                            metadata: data.metadata
+                        });
+                        break;
+                        
+                    default:
+                        console.warn('Unknown data type:', data.dataType);
+                        this.viewer.showError('Unsupported data type: ' + data.dataType);
+                }
+            }
+            
+            handleViewerCommand(data) {
+                console.log('Processing viewer command:', data.command);
+                
+                switch(data.command) {
+                    case 'set_view_mode':
+                        document.getElementById('viewMode').value = data.mode;
+                        this.viewer.setViewMode(data.mode);
+                        break;
+                        
+                    case 'reset_view':
+                        this.viewer.resetView();
+                        break;
+                        
+                    case 'export_view':
+                        this.viewer.exportView();
+                        break;
+                        
+                    case 'export_mesh':
+                        this.viewer.exportMesh();
+                        break;
+                        
+                    case 'set_quality':
+                        document.getElementById('renderQuality').value = data.quality;
+                        this.viewer.setRenderQuality(data.quality);
+                        break;
+                        
+                    case 'toggle_layer':
+                        if (this.viewer.layers.has(data.layerName)) {
+                            const mesh = this.viewer.layers.get(data.layerName);
+                            mesh.visible = data.visible;
+                        }
+                        break;
+                        
+                    default:
+                        console.warn('Unknown viewer command:', data.command);
+                }
+            }
+            
+            sendToParent(message) {
+                if (window.parent !== window) {
+                    window.parent.postMessage(message, '*');
+                }
+            }
+            
+            // Methods to notify parent of viewer events
+            notifyViewChange(viewInfo) {
+                this.sendToParent({
+                    type: 'viewer_event',
+                    event: 'view_changed',
+                    data: viewInfo
+                });
+            }
+            
+            notifyExportComplete(exportInfo) {
+                this.sendToParent({
+                    type: 'viewer_event',
+                    event: 'export_complete',
+                    data: exportInfo
+                });
+            }
+            
+            notifyError(error) {
+                this.sendToParent({
+                    type: 'viewer_event',
+                    event: 'error',
+                    data: { message: error }
+                });
+            }
+        }
+        
+        // Initialize enhanced viewer when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Initializing HunyuanWorld Enhanced 3D Viewer');
+            
+            try {
+                const viewer = new HunyuanViewer();
+                const bridge = new ComfyUIBridge(viewer);
+                
+                // Make viewer globally accessible for debugging
+                window.hunyuanViewer = viewer;
+                window.comfyUIBridge = bridge;
+                
+                console.log('HunyuanWorld viewer initialized successfully');
+                
+            } catch (error) {
+                console.error('Failed to initialize viewer:', error);
+                document.getElementById('loading').innerHTML = 
+                    '<div style="color: red;">Failed to initialize 3D viewer: ' + error.message + '</div>';
+            }
+        });
+        
+        // Auto-adjust viewer size when parent window changes
+        const resizeObserver = new ResizeObserver(() => {
+            if (window.hunyuanViewer) {
+                window.hunyuanViewer.onWindowResize();
+            }
+        });
+        
+        resizeObserver.observe(document.body);
+        
+    </script>
+</body>
+</html>

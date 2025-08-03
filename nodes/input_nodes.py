@@ -3,7 +3,7 @@ import numpy as np
 from PIL import Image
 from typing import Dict, Any, Tuple
 
-from ..core.data_types import PanoramaImage
+from ..core.data_types import PanoramaImage, ObjectLabels, SceneMask
 
 class HunyuanTextInput:
     """Text input node for world generation prompts"""
@@ -326,3 +326,183 @@ class HunyuanPromptProcessor:
         enhanced_prompt = ", ".join(enhanced_parts)
         
         return (enhanced_prompt,)
+
+class HunyuanObjectLabeler:
+    """Object labeling node for multi-layer scene generation"""
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "fg_labels_1": ("STRING", {
+                    "multiline": True,
+                    "default": "trees, mountains, buildings",
+                    "tooltip": "Primary foreground object labels (layer 1), separated by commas. These will be processed first with highest priority."
+                }),
+                "fg_labels_2": ("STRING", {
+                    "multiline": True, 
+                    "default": "rocks, grass, bushes",
+                    "tooltip": "Secondary foreground object labels (layer 2), separated by commas. These will be processed second with lower priority."
+                }),
+                "scene_class": (["outdoor", "indoor", "landscape", "urban", "natural", "architectural"], {
+                    "default": "outdoor",
+                    "tooltip": "Scene classification to guide object detection and layer separation. Repository default is 'outdoor'."
+                }),
+            },
+            "optional": {
+                "confidence_threshold": ("FLOAT", {
+                    "default": 0.5,
+                    "min": 0.1,
+                    "max": 1.0,
+                    "step": 0.05,
+                    "tooltip": "Minimum confidence threshold for object detection. Higher = more selective detection."
+                }),
+                "label_weights": ("STRING", {
+                    "multiline": True,
+                    "default": "",
+                    "tooltip": "Optional label weights in format 'label1:weight1, label2:weight2'. E.g., 'trees:1.0, buildings:0.8'"
+                })
+            }
+        }
+    
+    RETURN_TYPES = ("OBJECT_LABELS",)
+    RETURN_NAMES = ("object_labels",)
+    FUNCTION = "create_object_labels"
+    CATEGORY = "HunyuanWorld/Input"
+    
+    def create_object_labels(self,
+                           fg_labels_1: str,
+                           fg_labels_2: str,
+                           scene_class: str = "outdoor",
+                           confidence_threshold: float = 0.5,
+                           label_weights: str = ""):
+        """Create object labels for layered scene generation"""
+        
+        # Parse label lists
+        labels_1 = [label.strip() for label in fg_labels_1.split(",") if label.strip()]
+        labels_2 = [label.strip() for label in fg_labels_2.split(",") if label.strip()]
+        
+        # Parse label weights
+        weights = {}
+        if label_weights.strip():
+            for weight_pair in label_weights.split(","):
+                if ":" in weight_pair:
+                    label, weight = weight_pair.split(":", 1)
+                    try:
+                        weights[label.strip()] = float(weight.strip())
+                    except ValueError:
+                        print(f"Invalid weight format: {weight_pair}")
+        
+        # Create ObjectLabels instance
+        object_labels = ObjectLabels(
+            fg_labels_1=labels_1,
+            fg_labels_2=labels_2,
+            scene_class=scene_class,
+            confidence_threshold=confidence_threshold,
+            label_weights=weights,
+            metadata={
+                "total_labels": len(labels_1) + len(labels_2),
+                "primary_labels": len(labels_1),
+                "secondary_labels": len(labels_2)
+            }
+        )
+        
+        return (object_labels,)
+
+class HunyuanMaskCreator:
+    """Create scene masks for inpainting and layered processing"""
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "mask_input": ("IMAGE", {
+                    "tooltip": "Input mask image (black/white or grayscale). White areas will be processed."
+                }),
+                "mask_type": (["scene", "sky", "object", "custom"], {
+                    "default": "scene",
+                    "tooltip": "Type of mask: 'scene' for scene inpainting, 'sky' for sky replacement, 'object' for object-specific, 'custom' for general use."
+                }),
+            },
+            "optional": {
+                "invert": ("BOOLEAN", {
+                    "default": False,
+                    "tooltip": "Invert the mask (make black areas white and vice versa)"
+                }),
+                "feather": ("FLOAT", {
+                    "default": 0.0,
+                    "min": 0.0,
+                    "max": 20.0,
+                    "step": 0.5,
+                    "tooltip": "Feathering amount for soft mask edges. Higher = softer transitions."
+                }),
+                "threshold": ("FLOAT", {
+                    "default": 0.5,
+                    "min": 0.0,
+                    "max": 1.0,
+                    "step": 0.05,
+                    "tooltip": "Threshold for converting grayscale to binary mask. Values above threshold become white."
+                }),
+                "target_regions": ("STRING", {
+                    "multiline": True,
+                    "default": "",
+                    "tooltip": "Optional comma-separated list of target region names (e.g., 'foreground, background, sky')"
+                })
+            }
+        }
+    
+    RETURN_TYPES = ("SCENE_MASK", "IMAGE")
+    RETURN_NAMES = ("scene_mask", "preview_mask")
+    FUNCTION = "create_mask"
+    CATEGORY = "HunyuanWorld/Input"
+    
+    def create_mask(self,
+                   mask_input: torch.Tensor,
+                   mask_type: str = "scene",
+                   invert: bool = False,
+                   feather: float = 0.0,
+                   threshold: float = 0.5,
+                   target_regions: str = ""):
+        """Create scene mask from input image"""
+        
+        # Process input mask
+        if len(mask_input.shape) == 4:
+            # Remove batch dimension
+            mask_tensor = mask_input[0]
+        else:
+            mask_tensor = mask_input
+        
+        # Convert to grayscale if needed
+        if len(mask_tensor.shape) == 3 and mask_tensor.shape[-1] > 1:
+            # Convert RGB to grayscale
+            mask_tensor = torch.mean(mask_tensor, dim=-1)
+        elif len(mask_tensor.shape) == 3:
+            mask_tensor = mask_tensor[:, :, 0]
+        
+        # Apply threshold to create binary mask
+        binary_mask = (mask_tensor > threshold).float()
+        
+        # Parse target regions
+        regions = []
+        if target_regions.strip():
+            regions = [region.strip() for region in target_regions.split(",") if region.strip()]
+        
+        # Create SceneMask instance
+        scene_mask = SceneMask(
+            mask=binary_mask,
+            mask_type=mask_type,
+            invert=invert,
+            feather=feather,
+            target_regions=regions,
+            metadata={
+                "threshold": threshold,
+                "original_shape": mask_input.shape,
+                "mask_coverage": torch.sum(binary_mask).item() / (binary_mask.shape[0] * binary_mask.shape[1])
+            }
+        )
+        
+        # Create preview image (convert mask back to 3-channel for display)
+        processed_mask = scene_mask.get_processed_mask()
+        preview_mask = processed_mask.unsqueeze(-1).repeat(1, 1, 3).unsqueeze(0)
+        
+        return (scene_mask, preview_mask)
