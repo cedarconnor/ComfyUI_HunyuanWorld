@@ -70,7 +70,16 @@ try:
     
     # Fix the relative imports in model_manager.py
     model_manager_code = model_manager_code.replace("from .data_types import ModelHunyuan", "# from .data_types import ModelHunyuan")
-    model_manager_code = model_manager_code.replace("from .hunyuan_integration import", "# from .hunyuan_integration import")
+    # Replace the entire multi-line import block
+    import_block = """from .hunyuan_integration import (
+    get_hunyuan_model_class, 
+    HUNYUAN_AVAILABLE
+)"""
+    replacement_block = """# from .hunyuan_integration import (
+#     get_hunyuan_model_class, 
+#     HUNYUAN_AVAILABLE
+# )"""
+    model_manager_code = model_manager_code.replace(import_block, replacement_block)
     
     # Create namespace with required objects
     model_manager_namespace = {
@@ -103,6 +112,9 @@ except Exception as e:
     print(f"❌ Core module error: {e}")
     import traceback
     traceback.print_exc()
+    # Create fallback variables to prevent NameError in node loading
+    model_manager = None
+    ModelManager = None
 
 # Step 2: Load nodes with direct file execution
 print("🔧 Loading node classes...")
@@ -191,8 +203,12 @@ def load_node_classes():
     
     return loaded_classes
 
-# Load all node classes
-all_classes = load_node_classes()
+# Load all node classes only if core modules loaded successfully
+if model_manager is not None:
+    all_classes = load_node_classes()
+else:
+    print("⚠️ Skipping node loading due to core module errors")
+    all_classes = {}
 
 # Set up ComfyUI mappings
 NODE_CLASS_MAPPINGS = all_classes
