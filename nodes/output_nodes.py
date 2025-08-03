@@ -14,14 +14,14 @@ class HunyuanViewer:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "input_data": (["PANORAMA_IMAGE", "SCENE_3D", "WORLD_MESH", "LAYERED_SCENE_3D"],),  # Accept specific HunyuanWorld data types
+                "input_data": ("*",),  # Accept any data type - ComfyUI handles validation
             },
             "optional": {
                 "display_mode": (["panorama", "depth", "segmentation", "mesh_info"], {
                     "default": "panorama",
                     "tooltip": "What to display: 'panorama' = original image, 'depth' = depth map, 'segmentation' = object masks, 'mesh_info' = wireframe."
                 }),
-                "output_size": (["512x256", "1024x512", "1920x960", "2048x1024", "3840x1920"], {
+                "output_size": (["512x256", "1024x512", "1024x768", "1920x960", "1920x1080", "2048x1024", "3840x1920"], {
                     "default": "1024x512",
                     "tooltip": "Preview resolution. Higher = better quality but more memory. 1024x512 recommended for most cases."
                 })
@@ -485,7 +485,7 @@ class HunyuanDataInfo:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "data": (["PANORAMA_IMAGE", "SCENE_3D", "WORLD_MESH", "LAYERED_SCENE_3D", "SCENE_MASK", "OBJECT_LABELS"],),  # Accept specific data types
+                "data": ("*",),  # Accept any data type - ComfyUI handles validation
             }
         }
     
