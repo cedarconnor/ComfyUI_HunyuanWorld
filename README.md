@@ -1,42 +1,51 @@
-# ComfyUI HunyuanWorld - Professional 3D World Generation
+# ComfyUI HunyuanWorld - Framework Implementation
 
-A comprehensive ComfyUI custom node package for [Tencent's HunyuanWorld-1.0](https://github.com/Tencent-Hunyuan/HunyuanWorld-1.0) that enables professional-grade generation of immersive, explorable 3D worlds from text prompts or images with advanced features including panorama inpainting, multi-layer scene decomposition, and high-quality export capabilities.
+⚠️ **DEVELOPMENT STATUS**: This is a **framework implementation** of [Tencent's HunyuanWorld-1.0](https://github.com/Tencent-Hunyuan/HunyuanWorld-1.0) with complete ComfyUI node architecture but **placeholder model inference**. The node structure is production-ready, but actual HunyuanWorld model integration is pending implementation.
 
-## 🌟 Key Features
+## 🏗️ Framework Features
 
-### Core Generation Capabilities
-- **🎨 Text-to-World Generation**: Create complete 360° 3D environments from detailed text descriptions
-- **🖼️ Image-to-Panorama**: Convert regular images to high-resolution panoramic format with intelligent extension
-- **🎯 Advanced Panorama Inpainting**: Professional scene and sky inpainting with mask-based control
-- **🏗️ Multi-Layer 3D Scene Decomposition**: Separate foreground/background layers with object-specific processing
-- **📐 High-Quality 3D Reconstruction**: Generate detailed depth maps, semantic segmentation, and explorable meshes
+### ✅ **Fully Implemented**
+- **🔧 Complete Node Architecture**: 15+ specialized ComfyUI nodes with proper data types
+- **🎛️ Advanced Parameter Systems**: Repository-accurate settings and professional controls  
+- **💾 Export Framework**: OBJ, PLY, GLB export structure with Draco compression support
+- **👁️ Interactive 3D Viewer**: Built-in Three.js-based viewer with layer controls
+- **📊 Workflow Management**: Professional workflow templates and batch processing structure
 
-### Professional Workflow Features
-- **🔧 Complete Node Ecosystem**: 15+ specialized nodes covering the entire pipeline from input to export
-- **🎛️ Advanced Parameter Control**: Repository-accurate settings with professional-grade fine-tuning
-- **🚀 Batch Processing Support**: Optimized workflows for production environments
-- **💾 Multiple Export Formats**: OBJ, PLY, GLB, FBX with Draco compression support
-- **👁️ Interactive 3D Viewer**: Built-in Three.js-based viewer with layer controls and real-time preview
+### ⚠️ **Placeholder Implementation**
+- **🎨 Text-to-Panorama**: Node exists but outputs random data (needs HunyuanWorld integration)
+- **🖼️ Image-to-Panorama**: Framework ready but uses simple tiling (needs real model inference)
+- **🎯 Panorama Inpainting**: Nodes structured but require actual HunyuanWorld-PanoInpaint models
+- **🏗️ Scene Decomposition**: Architecture complete but missing core HunyuanWorld algorithms
+- **📐 3D Reconstruction**: Export pipeline ready but generates placeholder meshes
 
-### Advanced Technical Features
-- **🧠 Intelligent Model Loading**: Support for 6 model types (text_to_panorama, image_to_panorama, scene_inpainter, sky_inpainter, scene_generator, world_reconstructor)
-- **🎭 Object Labeling System**: Automated foreground object detection and classification
-- **🗜️ Draco Mesh Compression**: Professional-grade 3D asset optimization for production pipelines
-- **📊 Real-time Analytics**: Performance monitoring, memory usage tracking, and detailed export statistics
-- **🌐 Web Integration**: Modern browser-based 3D visualization with full ComfyUI integration
+### 🎯 **Implementation Status**
+- **Architecture**: ✅ Production-ready ComfyUI integration
+- **Model Loading**: ✅ Framework exists, ❌ actual .safetensors inference missing
+- **Data Pipeline**: ✅ Complete data types and processing chains
+- **Export System**: ✅ Functional 3D export with real mesh processing
+- **UI Integration**: ✅ Full ComfyUI compatibility with proper node categories
+- **Core AI Models**: ❌ **Requires HunyuanWorld-1.0 integration implementation**
+
+### 🔧 **Technical Implementation**
+- **🧠 Model Framework**: Complete loading system for 6 HunyuanWorld model types (architecture ready)
+- **🎭 Data Types**: Full implementation of PanoramaImage, Scene3D, WorldMesh, LayeredScene3D
+- **🗜️ Export Pipeline**: Functional Draco compression and multi-format export
+- **📊 Performance Monitoring**: Real memory usage tracking and model management
+- **🌐 Web Viewer**: Complete Three.js integration with interactive 3D display
+- **⚠️ Missing Core**: Actual HunyuanWorld Python API integration and model inference
 
 ## 📋 System Requirements
 
-### Minimum Requirements
-- **GPU**: NVIDIA RTX 3060 (8GB VRAM) or equivalent
-- **RAM**: 16GB system memory
-- **Storage**: 15GB free space (5GB for models + 10GB working space)
+### Current Framework Requirements
+- **GPU**: Any CUDA-compatible GPU (framework generates placeholder data)
+- **RAM**: 8GB system memory (no heavy model loading yet)
+- **Storage**: 2GB free space (framework and viewer assets)
 - **OS**: Windows 10/11, Linux Ubuntu 20.04+, or macOS 12+
 
-### Recommended Configuration
-- **GPU**: NVIDIA RTX 4080/4090 (16GB+ VRAM) for ultra-high quality
-- **RAM**: 32GB+ for large batch processing
-- **Storage**: 50GB+ SSD for optimal performance
+### Future Production Requirements (when models integrated)
+- **GPU**: NVIDIA RTX 4080+ (16GB+ VRAM) for full HunyuanWorld pipeline
+- **RAM**: 32GB+ for large panorama processing
+- **Storage**: 50GB+ (10GB+ for actual HunyuanWorld model files)
 - **CUDA**: 11.8 or newer
 
 ### Software Dependencies
@@ -56,43 +65,37 @@ cd ComfyUI_HunyuanWorld
 pip install -r requirements.txt
 ```
 
-### 2. Download Required Models
+### 2. Model Files (Framework Ready)
 
-**⚠️ CRITICAL**: This package contains only node code. You must download model files separately.
+**⚠️ CURRENT STATUS**: Node framework supports model loading but actual inference is not implemented.
 
 Create the model directory structure:
 ```bash
 mkdir -p ComfyUI/models/hunyuan_world
 ```
 
-**Required HunyuanWorld Models** (download all 6 models):
+**HunyuanWorld Models** (framework recognizes these files):
 
-| Model File | Purpose | Size | Required |
-|------------|---------|------|----------|
-| `HunyuanWorld-PanoDiT-Text.safetensors` | Text → Panorama | 478MB | ✅ Essential |
-| `HunyuanWorld-PanoDiT-Image.safetensors` | Image → Panorama | 478MB | ✅ Essential |
-| `HunyuanWorld-PanoInpaint-Scene.safetensors` | Scene Inpainting | 478MB | ✅ Essential |
-| `HunyuanWorld-PanoInpaint-Sky.safetensors` | Sky Inpainting | 120MB | ✅ Essential |
-| `HunyuanWorld-SceneGenerator.safetensors` | 3D Scene Generation | 1.2GB | ⚠️ Advanced Features |
-| `HunyuanWorld-WorldReconstructor.safetensors` | 3D Reconstruction | 1.5GB | ⚠️ Advanced Features |
+| Model File | Purpose | Size | Framework Support |
+|------------|---------|------|-------------------|
+| `HunyuanWorld-PanoDiT-Text.safetensors` | Text → Panorama | 478MB | ✅ Loads, ❌ Inference |
+| `HunyuanWorld-PanoDiT-Image.safetensors` | Image → Panorama | 478MB | ✅ Loads, ❌ Inference |
+| `HunyuanWorld-PanoInpaint-Scene.safetensors` | Scene Inpainting | 478MB | ✅ Loads, ❌ Inference |
+| `HunyuanWorld-PanoInpaint-Sky.safetensors` | Sky Inpainting | 120MB | ✅ Loads, ❌ Inference |
+| `HunyuanWorld-SceneGenerator.safetensors` | 3D Scene Generation | 1.2GB | ⚠️ Placeholder |
+| `HunyuanWorld-WorldReconstructor.safetensors` | 3D Reconstruction | 1.5GB | ⚠️ Placeholder |
 
-**Quick Download** (requires huggingface-cli):
+**Optional Download** (for testing model file recognition):
 ```bash
 # Install huggingface CLI
 pip install huggingface-hub
 
-# Download essential models (1.5GB total)
+# Download models for framework testing (they won't run inference yet)
 huggingface-cli download Tencent-Hunyuan/HunyuanWorld \
   HunyuanWorld-PanoDiT-Text.safetensors \
   HunyuanWorld-PanoDiT-Image.safetensors \
   HunyuanWorld-PanoInpaint-Scene.safetensors \
   HunyuanWorld-PanoInpaint-Sky.safetensors \
-  --local-dir ComfyUI/models/hunyuan_world/
-
-# Download advanced models (2.7GB additional)
-huggingface-cli download Tencent-Hunyuan/HunyuanWorld \
-  HunyuanWorld-SceneGenerator.safetensors \
-  HunyuanWorld-WorldReconstructor.safetensors \
   --local-dir ComfyUI/models/hunyuan_world/
 ```
 
@@ -100,200 +103,176 @@ huggingface-cli download Tencent-Hunyuan/HunyuanWorld \
 
 1. **Restart ComfyUI** completely
 2. **Check Node Categories**: Look for "HunyuanWorld" in node browser
-3. **Test Basic Workflow**: Load workflow from `workflows/` folder
-4. **Verify Models**: Check console for successful model loading
+3. **Test Framework**: Load workflow from `workflows/` folder
+4. **Verify Placeholder Output**: Check console for model loading messages
 
-## 🚀 Quick Start Guide
+## 🚀 Framework Testing Guide
 
-### Basic Text-to-Panorama Workflow
+### Basic Node Testing Workflow
 
 1. **Load Workflow**: Import `workflows/text_to_world_basic.json`
 2. **Configure Prompt**: Use HunyuanTextInput node
    ```
-   Example: "A majestic mountain landscape with snow-capped peaks, alpine lakes, and evergreen forests, captured during golden hour with dramatic lighting"
+   Example: "A majestic mountain landscape" 
+   (Note: Will generate placeholder data until models integrated)
    ```
 3. **Set Model Path**: Point HunyuanLoader to `models/hunyuan_world`
 4. **Select Model Type**: Choose `text_to_panorama`
-5. **Generate**: Click "Queue Prompt"
+5. **Test Framework**: Click "Queue Prompt" (generates random test data)
 
-### Professional Panorama Inpainting
+### Framework Architecture Testing
 
 1. **Load Workflow**: Import `workflows/professional_panorama_inpainting_workflow.json`
-2. **Prepare Assets**:
-   - Base panorama image
-   - Scene mask (black/white image for areas to modify)
-   - Sky mask (for sky replacement)
-3. **Configure Inpainting**:
-   - Scene inpainting prompt: "Add a wooden dock with boats"
-   - Sky inpainting prompt: "Dramatic sunset with golden clouds"
-4. **Process**: Run the complete pipeline
+2. **Test All Nodes**: Verify each node loads and processes data
+3. **Check Data Flow**: Confirm PanoramaImage → Scene3D → WorldMesh pipeline
+4. **Test Export**: Verify OBJ/PLY export functionality (will export placeholder meshes)
 
-### Production Batch Processing
+### 3D Viewer Testing
 
-1. **Load Workflow**: Import `workflows/production_batch_processing_workflow.json`
-2. **Configure Template**: Set up prompt template with variables
-3. **Batch Settings**: Configure parallel processing nodes
-4. **Export Pipeline**: Set up automated Draco compression export
-5. **Monitor**: Track progress with real-time analytics
+1. **Load Workflow**: Import any workflow with HunyuanViewer
+2. **Generate Output**: Run workflow to create placeholder 3D data
+3. **Open Viewer**: Click on HunyuanViewer output in ComfyUI
+4. **Test Interactivity**: Verify Three.js viewer controls and layer toggles
 
 ## 📚 Complete Node Reference
 
 ### Input Processing Nodes
-| Node | Function | Key Parameters |
-|------|----------|----------------|
-| **HunyuanTextInput** | Text prompt processing | `prompt`, `seed`, `negative_prompt` |
-| **HunyuanImageInput** | Image preprocessing & enhancement | `resize_mode`, `target_resolution`, `preprocessing` |
-| **HunyuanPromptProcessor** | Advanced prompt enhancement | `style`, `lighting`, `atmosphere`, `quality_boost` |
-| **HunyuanObjectLabeler** | Object detection & labeling | `fg_labels_1`, `fg_labels_2`, `scene_class` |
-| **HunyuanMaskCreator** | Mask creation for inpainting | `mask_type`, `feather`, `target_regions` |
+| Node | Function | Status |
+|------|----------|---------|
+| **HunyuanTextInput** | Text prompt processing | ✅ Functional |
+| **HunyuanImageInput** | Image preprocessing & enhancement | ✅ Functional |
+| **HunyuanPromptProcessor** | Advanced prompt enhancement | ✅ Functional |
+| **HunyuanObjectLabeler** | Object detection & labeling | ⚠️ Framework only |
+| **HunyuanMaskCreator** | Mask creation for inpainting | ✅ Functional |
 
 ### Core Generation Nodes
-| Node | Function | Key Parameters |
-|------|----------|----------------|
-| **HunyuanLoader** | Model loading & management | `model_path`, `model_type`, `precision`, `device` |
-| **HunyuanTextToPanorama** | Text → 360° panorama | `width=1920`, `height=960`, `guidance_scale=30.0` |
-| **HunyuanImageToPanorama** | Image → panorama extension | `extension_mode`, `strength`, `blend_extend=6` |
-| **HunyuanSceneInpainter** | Professional scene editing | `guidance_scale`, `strength`, `blend_mode` |
-| **HunyuanSkyInpainter** | Sky replacement & enhancement | `sky_prompt`, `atmospheric_control` |
-| **HunyuanLayeredSceneGenerator** | Multi-layer 3D decomposition | `layer_count`, `object_separation`, `depth_accuracy` |
-| **HunyuanWorldReconstructor** | 3D mesh generation | `quality_level`, `mesh_resolution`, `texture_resolution` |
+| Node | Function | Status |
+|------|----------|---------|
+| **HunyuanLoader** | Model loading & management | ✅ Framework, ❌ Inference |
+| **HunyuanTextToPanorama** | Text → 360° panorama | ⚠️ Placeholder output |
+| **HunyuanImageToPanorama** | Image → panorama extension | ⚠️ Simple tiling only |
+| **HunyuanSceneInpainter** | Professional scene editing | ⚠️ Placeholder output |
+| **HunyuanSkyInpainter** | Sky replacement & enhancement | ⚠️ Placeholder output |
+| **HunyuanLayeredSceneGenerator** | Multi-layer 3D decomposition | ⚠️ Placeholder output |
+| **HunyuanWorldReconstructor** | 3D mesh generation | ⚠️ Random mesh generation |
 
-### Advanced Export & Viewing Nodes
-| Node | Function | Key Parameters |
-|------|----------|----------------|
-| **HunyuanViewer** | Interactive 3D visualization | `display_mode`, `layer_controls`, `output_size` |
-| **HunyuanMeshExporter** | Standard 3D export | `format`, `texture_resolution`, `compression` |
-| **HunyuanDracoExporter** | Professional compressed export | `compression_level`, `quantization_bits`, `optimize_size` |
-| **HunyuanLayeredMeshExporter** | Multi-layer export pipeline | `export_background`, `layer_naming`, `format` |
-| **HunyuanDataInfo** | Analytics & statistics | Real-time performance monitoring |
+### Export & Viewing Nodes
+| Node | Function | Status |
+|------|----------|---------|
+| **HunyuanViewer** | Interactive 3D visualization | ✅ Fully functional |
+| **HunyuanMeshExporter** | Standard 3D export | ✅ Functional (real export) |
+| **HunyuanDracoExporter** | Professional compressed export | ✅ Functional compression |
+| **HunyuanLayeredMeshExporter** | Multi-layer export pipeline | ✅ Framework functional |
+| **HunyuanDataInfo** | Analytics & statistics | ✅ Real performance data |
 
-## 🎯 Professional Workflow Examples
+## 🎯 Framework Testing Examples
 
-### 1. Architectural Visualization Pipeline
+**Note**: All workflows currently generate placeholder data for testing node architecture.
+
+### 1. Node Architecture Testing
 ```
 HunyuanTextInput → HunyuanPromptProcessor → HunyuanTextToPanorama
                                                     ↓
 HunyuanObjectLabeler → HunyuanLayeredSceneGenerator → HunyuanDracoExporter
 ```
 
-### 2. Panorama Enhancement & Inpainting
+### 2. Export Pipeline Testing
 ```
-LoadImage → HunyuanImageInput → HunyuanImageToPanorama
-    ↓               ↓
-HunyuanMaskCreator → HunyuanSceneInpainter → HunyuanSkyInpainter → Export
-```
-
-### 3. Production Batch Processing
-```
-Template Input → Multiple HunyuanTextToPanorama (Parallel)
-                            ↓
-                 Batch HunyuanLayeredSceneGenerator
-                            ↓
-                 Automated HunyuanDracoExporter Pipeline
+HunyuanLoader → Generate Placeholder Data → HunyuanMeshExporter
+                                         → HunyuanViewer (functional)
 ```
 
-## ⚙️ Advanced Configuration
+### 3. Data Flow Validation
+```
+Any Input → Placeholder Generation → Export (functional) → View (functional)
+```
 
-### High-Quality Settings (16GB+ VRAM)
+## ⚙️ Development Status
+
+### Framework Testing Settings
 ```python
-# In HunyuanTextToPanorama
-width = 3840
-height = 1920
-guidance_scale = 30.0
-num_inference_steps = 50
-true_cfg_scale = 1.0
-blend_extend = 6
+# All nodes generate placeholder data with these dimensions
+width = 1920  # HunyuanWorld standard
+height = 960  # 2:1 panoramic ratio
+placeholder_vertices = 1000  # Test mesh complexity
+placeholder_faces = 1800     # Triangle count for testing
 ```
 
-### Production Optimization (8-12GB VRAM)
+### Model Integration TODOs
 ```python
-# Optimized for speed/memory balance
-width = 1920
-height = 960
-guidance_scale = 25.0
-num_inference_steps = 30
-precision = "fp16"
+# Required for production:
+# 1. Integrate actual HunyuanWorld-1.0 Python API
+# 2. Replace torch.randn() with real model inference  
+# 3. Implement proper .safetensors loading
+# 4. Add real panorama inpainting algorithms
+# 5. Implement layered scene generation logic
 ```
 
-### Batch Processing Configuration
-```python
-# For production environments
-batch_size = 4
-parallel_workers = 2
-auto_clear_cache = True
-compression_level = 7
-```
+## 🔍 Current Limitations
 
-## 🔍 Troubleshooting
+### ❌ **Not Yet Implemented**
+- Actual HunyuanWorld model inference
+- Real text-to-panorama generation
+- Functional panorama inpainting
+- Layered scene decomposition algorithms  
+- Real-time model performance
+- Production-quality 3D reconstruction
 
-### Model Loading Issues
-```bash
-# Check model files exist
-ls -la ComfyUI/models/hunyuan_world/
-# Should show all 4-6 .safetensors files
+### ✅ **What Works Now**
+- Complete ComfyUI node integration
+- Professional workflow architecture
+- Real 3D mesh export (with placeholder data)
+- Interactive Three.js 3D viewer
+- Model file loading framework
+- Performance monitoring systems
 
-# Verify file integrity
-python -c "import torch; print(torch.cuda.is_available())"
-```
-
-### Memory Optimization
-- **Reduce Resolution**: Start with 1024x512 for testing
-- **Enable FP16**: Use `precision="fp16"` in HunyuanLoader
-- **Clear Cache**: Enable `auto_clear_cache` between generations
-- **Model Unloading**: Use `unload_after_generation=True`
-
-### Performance Tuning
-- **Parallel Processing**: Use multiple generation nodes for batch work
-- **Draco Compression**: Optimize export file sizes for production
-- **Layer Management**: Selectively enable/disable layers for faster preview
-
-## 🚀 Production Features
+## 🚀 Framework Capabilities
 
 ### Web-Based 3D Viewer
-- **Real-time Rendering**: Three.js-based interactive viewer
-- **Layer Controls**: Toggle visibility and opacity per layer
-- **Export Integration**: Direct export from viewer interface
-- **Performance Monitoring**: FPS tracking and triangle count display
+- **Real-time Rendering**: Three.js-based interactive viewer (functional)
+- **Layer Controls**: Toggle visibility and opacity per layer (functional)
+- **Export Integration**: Direct export from viewer interface (functional)
+- **Performance Monitoring**: FPS tracking and triangle count display (functional)
 
 ### Professional Export Pipeline
-- **Multiple Formats**: OBJ, PLY, GLB, FBX with full material support
-- **Draco Compression**: Industry-standard mesh optimization
-- **Batch Export**: Automated processing for production workflows
-- **Quality Analytics**: Compression ratios and optimization statistics
+- **Multiple Formats**: OBJ, PLY, GLB, FBX with full material support (functional)
+- **Draco Compression**: Industry-standard mesh optimization (functional)
+- **Batch Export**: Automated processing for production workflows (framework ready)
+- **Quality Analytics**: Compression ratios and optimization statistics (functional)
 
-### Enterprise Integration
-- **API Compatibility**: RESTful endpoints for external integration
-- **Workflow Templates**: Pre-configured professional workflows
-- **Asset Management**: Organized output with naming conventions
-- **Performance Metrics**: Detailed analytics for production monitoring
+### Enterprise Framework
+- **Node Architecture**: Production-ready ComfyUI integration (complete)
+- **Workflow Templates**: Pre-configured professional workflows (complete)
+- **Asset Management**: Organized output with naming conventions (functional)
+- **Performance Metrics**: Detailed analytics for framework monitoring (functional)
 
 ## 📄 License & Credits
 
 **License**: Apache 2.0 License - see LICENSE file for details
 
 **Credits**:
-- **HunyuanWorld-1.0**: Tencent Hunyuan Team
-- **ComfyUI Integration**: Community development
+- **HunyuanWorld-1.0**: Tencent Hunyuan Team  
+- **ComfyUI Framework**: Community development
 - **3D Viewer**: Three.js library
-- **Mesh Compression**: Google Draco
+- **Mesh Export**: Functional pipeline implementation
 
 ## 🔗 Resources & Support
 
 - **🏠 HunyuanWorld Official**: https://github.com/Tencent-Hunyuan/HunyuanWorld-1.0
 - **💬 ComfyUI Community**: https://github.com/comfyanonymous/ComfyUI
-- **📖 Technical Documentation**: See `CLAUDE.md` for implementation details
+- **📖 Framework Documentation**: See `CLAUDE.md` for implementation details
 - **🐛 Bug Reports**: GitHub Issues
-- **💡 Feature Requests**: GitHub Discussions
+- **💡 Integration Help**: GitHub Discussions
 
 ## 🆘 Getting Help
 
-1. **Check Documentation**: Review node tooltips and workflow examples
-2. **Community Discord**: Join ComfyUI Discord for real-time help
-3. **GitHub Issues**: Report bugs with detailed error logs
-4. **Professional Support**: Contact for enterprise deployment assistance
+1. **Framework Issues**: Review node architecture and workflow examples
+2. **Integration Questions**: Check GitHub Discussions for HunyuanWorld integration
+3. **ComfyUI Problems**: Join ComfyUI Discord for node framework help
+4. **Model Integration**: Refer to HunyuanWorld-1.0 official repository
 
 ---
 
-**⚠️ Important**: This is a community-developed integration package. Model files must be downloaded separately from the official HunyuanWorld repository. For the latest model updates and official support, please refer to Tencent's HunyuanWorld-1.0 repository.
+**⚠️ Important**: This is a ComfyUI framework package with placeholder model implementation. Model files can be downloaded but won't perform actual inference until HunyuanWorld-1.0 integration is completed. For actual HunyuanWorld functionality, please refer to Tencent's official repository.
 
-**🎯 Production Ready**: This package is designed for professional workflows and production environments, with comprehensive testing and optimization for real-world use cases.
+**🎯 Framework Status**: This package provides production-ready ComfyUI node architecture. The framework is complete and functional for testing, workflow development, and 3D export. AI model integration is the next development phase.

@@ -1,0 +1,144 @@
+{
+  "last_node_id": 4,
+  "last_link_id": 6,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "HunyuanLoader",
+      "pos": [50, 50],
+      "size": {"0": 350, "1": 150},
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {"name": "model", "type": "MODEL_HUNYUAN", "links": [1]}
+      ],
+      "properties": {
+        "Node name for S&R": "HunyuanLoader"
+      },
+      "widgets_values": [
+        "models/hunyuan_world",
+        "world_reconstructor",
+        "fp16",
+        "auto",
+        false
+      ],
+      "title": "Framework Model Loader"
+    },
+    {
+      "id": 2,
+      "type": "HunyuanWorldReconstructor",
+      "pos": [450, 50],
+      "size": {"0": 350, "1": 300},
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {"name": "model", "type": "MODEL_HUNYUAN", "link": 1}
+      ],
+      "outputs": [
+        {"name": "world_mesh", "type": "WORLD_MESH", "links": [2, 3]}
+      ],
+      "properties": {
+        "Node name for S&R": "HunyuanWorldReconstructor"
+      },
+      "widgets_values": [
+        512,
+        1024,
+        100,
+        true,
+        true
+      ],
+      "title": "Generate Test Mesh Data"
+    },
+    {
+      "id": 3,
+      "type": "HunyuanViewer",
+      "pos": [850, 50],
+      "size": {"0": 400, "1": 300},
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {"name": "world_mesh", "type": "WORLD_MESH", "link": 2}
+      ],
+      "outputs": [
+        {"name": "viewer_output", "type": "STRING", "links": [4]}
+      ],
+      "properties": {
+        "Node name for S&R": "HunyuanViewer"
+      },
+      "widgets_values": [
+        "interactive",
+        true,
+        "1920x1080"
+      ],
+      "title": "Interactive 3D Viewer (FUNCTIONAL)"
+    },
+    {
+      "id": 4,
+      "type": "HunyuanDataInfo",
+      "pos": [850, 400],
+      "size": {"0": 400, "1": 200},
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {"name": "world_mesh", "type": "WORLD_MESH", "link": 3},
+        {"name": "viewer_info", "type": "STRING", "link": 4}
+      ],
+      "outputs": [
+        {"name": "statistics", "type": "STRING", "links": [5]}
+      ],
+      "properties": {
+        "Node name for S&R": "HunyuanDataInfo"
+      },
+      "widgets_values": [],
+      "title": "Performance Analytics (FUNCTIONAL)"
+    }
+  ],
+  "links": [
+    [1, 1, 0, 2, 0, "MODEL_HUNYUAN"],
+    [2, 2, 0, 3, 0, "WORLD_MESH"],
+    [3, 2, 0, 4, 0, "WORLD_MESH"],
+    [4, 3, 0, 4, 1, "STRING"],
+    [5, 4, 0, 3, 1, "STRING"]
+  ],
+  "groups": [
+    {
+      "title": "3D Viewer & Analytics Test",
+      "bounding": [25, 0, 1300, 650],
+      "color": "#2ecc71",
+      "font_size": 24
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.9,
+      "offset": [0, 0]
+    }
+  },
+  "version": 0.4,
+  "workflow_info": {
+    "name": "3D Viewer Functionality Test",
+    "description": "Tests the fully functional Three.js 3D viewer and performance analytics with placeholder mesh data. All viewer features should work properly.",
+    "version": "1.0.0",
+    "functional_features": [
+      "Interactive 3D visualization",
+      "Layer controls",
+      "Real-time performance monitoring",
+      "Triangle count display",
+      "FPS tracking",
+      "Export from viewer"
+    ],
+    "test_instructions": [
+      "1. Run workflow to generate placeholder mesh",
+      "2. Click on HunyuanViewer output to open 3D viewer",
+      "3. Test mouse controls (rotate, zoom, pan)",
+      "4. Check layer visibility toggles",
+      "5. Verify performance stats display",
+      "6. Test export functionality from viewer"
+    ]
+  }
+}

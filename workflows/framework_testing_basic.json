@@ -1,0 +1,246 @@
+{
+  "last_node_id": 8,
+  "last_link_id": 12,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "HunyuanTextInput",
+      "pos": [50, 50],
+      "size": {"0": 400, "1": 200},
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {"name": "prompt", "type": "STRING", "links": [1]},
+        {"name": "seed", "type": "INT", "links": [2]},
+        {"name": "negative_prompt", "type": "STRING", "links": [3]}
+      ],
+      "properties": {
+        "Node name for S&R": "HunyuanTextInput"
+      },
+      "widgets_values": [
+        "A majestic mountain landscape with snow-capped peaks (FRAMEWORK TEST - PLACEHOLDER OUTPUT)",
+        42,
+        "blurry, low quality"
+      ],
+      "title": "Framework Test Input"
+    },
+    {
+      "id": 2,
+      "type": "HunyuanLoader",
+      "pos": [50, 300],
+      "size": {"0": 350, "1": 150},
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {"name": "model", "type": "MODEL_HUNYUAN", "links": [4]}
+      ],
+      "properties": {
+        "Node name for S&R": "HunyuanLoader"
+      },
+      "widgets_values": [
+        "models/hunyuan_world",
+        "text_to_panorama",
+        "fp16",
+        "auto",
+        false
+      ],
+      "title": "Framework Model Loader (Placeholder)"
+    },
+    {
+      "id": 3,
+      "type": "HunyuanTextToPanorama",
+      "pos": [500, 50],
+      "size": {"0": 350, "1": 400},
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {"name": "model", "type": "MODEL_HUNYUAN", "link": 4},
+        {"name": "prompt", "type": "STRING", "link": 1},
+        {"name": "seed", "type": "INT", "link": 2},
+        {"name": "negative_prompt", "type": "STRING", "link": 3}
+      ],
+      "outputs": [
+        {"name": "panorama", "type": "PANORAMA_IMAGE", "links": [5]},
+        {"name": "preview_image", "type": "IMAGE", "links": [6]}
+      ],
+      "properties": {
+        "Node name for S&R": "HunyuanTextToPanorama"
+      },
+      "widgets_values": [
+        1920,
+        960,
+        30,
+        30.0,
+        1.0,
+        6,
+        "DPMSolverMultistep"
+      ],
+      "title": "Framework Panorama Generator (Placeholder)"
+    },
+    {
+      "id": 4,
+      "type": "PreviewImage",
+      "pos": [900, 50],
+      "size": {"0": 400, "1": 300},
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {"name": "images", "type": "IMAGE", "link": 6}
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "title": "Placeholder Panorama Preview"
+    },
+    {
+      "id": 5,
+      "type": "HunyuanSceneGenerator",
+      "pos": [500, 500],
+      "size": {"0": 350, "1": 300},
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {"name": "model", "type": "MODEL_HUNYUAN", "link": 4},
+        {"name": "panorama", "type": "PANORAMA_IMAGE", "link": 5}
+      ],
+      "outputs": [
+        {"name": "scene_3d", "type": "SCENE_3D", "links": [7]},
+        {"name": "depth_preview", "type": "IMAGE", "links": [8]},
+        {"name": "segmentation_preview", "type": "IMAGE", "links": [9]}
+      ],
+      "properties": {
+        "Node name for S&R": "HunyuanSceneGenerator"
+      },
+      "widgets_values": [
+        true,
+        true,
+        0.5,
+        5,
+        1.0
+      ],
+      "title": "Framework Scene Generator (Placeholder)"
+    },
+    {
+      "id": 6,
+      "type": "HunyuanWorldReconstructor",
+      "pos": [900, 400],
+      "size": {"0": 350, "1": 300},
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {"name": "model", "type": "MODEL_HUNYUAN", "link": 4},
+        {"name": "scene_3d", "type": "SCENE_3D", "link": 7}
+      ],
+      "outputs": [
+        {"name": "world_mesh", "type": "WORLD_MESH", "links": [10]}
+      ],
+      "properties": {
+        "Node name for S&R": "HunyuanWorldReconstructor"
+      },
+      "widgets_values": [
+        512,
+        1024,
+        100,
+        true,
+        true
+      ],
+      "title": "Framework 3D Reconstructor (Placeholder)"
+    },
+    {
+      "id": 7,
+      "type": "HunyuanViewer",
+      "pos": [1300, 400],
+      "size": {"0": 350, "1": 200},
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {"name": "world_mesh", "type": "WORLD_MESH", "link": 10}
+      ],
+      "outputs": [
+        {"name": "viewer_output", "type": "STRING", "links": [11]}
+      ],
+      "properties": {
+        "Node name for S&R": "HunyuanViewer"
+      },
+      "widgets_values": [
+        "interactive",
+        true,
+        "1024x768"
+      ],
+      "title": "3D Viewer (FUNCTIONAL)"
+    },
+    {
+      "id": 8,
+      "type": "HunyuanMeshExporter",
+      "pos": [1300, 650],
+      "size": {"0": 350, "1": 200},
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {"name": "world_mesh", "type": "WORLD_MESH", "link": 10}
+      ],
+      "outputs": [
+        {"name": "export_path", "type": "STRING", "links": [12]}
+      ],
+      "properties": {
+        "Node name for S&R": "HunyuanMeshExporter"
+      },
+      "widgets_values": [
+        "obj",
+        "framework_test_export",
+        1024,
+        "standard"
+      ],
+      "title": "Mesh Export (FUNCTIONAL)"
+    }
+  ],
+  "links": [
+    [1, 1, 0, 3, 1, "STRING"],
+    [2, 1, 1, 3, 2, "INT"],
+    [3, 1, 2, 3, 3, "STRING"],
+    [4, 2, 0, 3, 0, "MODEL_HUNYUAN"],
+    [4, 2, 0, 5, 0, "MODEL_HUNYUAN"],
+    [4, 2, 0, 6, 0, "MODEL_HUNYUAN"],
+    [5, 3, 0, 5, 1, "PANORAMA_IMAGE"],
+    [6, 3, 1, 4, 0, "IMAGE"],
+    [7, 5, 0, 6, 1, "SCENE_3D"],
+    [8, 5, 1, 4, 0, "IMAGE"],
+    [9, 5, 2, 4, 0, "IMAGE"],
+    [10, 6, 0, 7, 0, "WORLD_MESH"],
+    [10, 6, 0, 8, 0, "WORLD_MESH"],
+    [11, 7, 0, 8, 0, "STRING"],
+    [12, 8, 0, 7, 0, "STRING"]
+  ],
+  "groups": [
+    {
+      "title": "Framework Testing Pipeline",
+      "bounding": [25, 0, 1650, 900],
+      "color": "#3f789e",
+      "font_size": 24
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.8,
+      "offset": [0, 0]
+    }
+  },
+  "version": 0.4,
+  "workflow_info": {
+    "name": "HunyuanWorld Framework Testing",
+    "description": "Tests the complete node architecture with placeholder data generation. Use this to verify ComfyUI integration and export functionality.",
+    "version": "1.0.0",
+    "framework_status": "Complete node architecture, placeholder model inference",
+    "functional_components": ["3D Viewer", "Mesh Export", "Data Pipeline", "Node Integration"],
+    "placeholder_components": ["Model Inference", "Panorama Generation", "Scene Generation", "3D Reconstruction"]
+  }
+}

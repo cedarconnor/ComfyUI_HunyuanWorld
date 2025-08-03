@@ -1,233 +1,188 @@
-# HunyuanWorld ComfyUI Workflow Templates
+# HunyuanWorld ComfyUI Workflows
 
-This directory contains sample workflow templates for the HunyuanWorld ComfyUI custom nodes. Each workflow demonstrates different use cases and capabilities of the integration.
+⚠️ **IMPORTANT**: These workflows test the ComfyUI node framework with **placeholder data**. Actual HunyuanWorld model inference is not yet implemented.
 
-## Available Workflows
+## Framework Testing Workflows
 
-### 1. Text-to-World Basic (`text_to_world_basic.json`)
-**Purpose**: Complete pipeline from text prompt to 3D world mesh
-**Use Case**: Generate explorable 3D worlds from natural language descriptions
+### 1. `framework_testing_basic.json` ✅
+**Purpose**: Complete node architecture test
+- Tests all major nodes: Input → Generation → Reconstruction → Export
+- Generates placeholder panorama and 3D data
+- **Functional**: 3D viewer, mesh export, data pipeline
+- **Placeholder**: Model inference, AI generation
 
-**Key Features**:
-- Text input with prompt enhancement
-- Panoramic image generation
-- 3D scene reconstruction
-- Mesh export in OBJ format
-- Real-time preview at each stage
+### 2. `export_pipeline_test.json` ✅
+**Purpose**: Export functionality validation
+- Tests OBJ, Draco compression, and viewer export
+- **All export features are fully functional**
+- Uses placeholder mesh data for testing
 
-**Nodes Used**:
-- `HunyuanTextInput` - Text prompt input
-- `HunyuanPromptProcessor` - Enhance prompts with style/lighting
-- `HunyuanLoader` - Load different model components
-- `HunyuanTextToPanorama` - Generate 360° images
-- `HunyuanSceneGenerator` - Create depth maps and segmentation
-- `HunyuanWorldReconstructor` - Build 3D mesh
-- `HunyuanMeshExporter` - Export to file formats
-- `HunyuanViewer` - Preview results
+### 3. `viewer_functionality_test.json` ✅
+**Purpose**: 3D viewer and analytics testing
+- Tests interactive Three.js viewer
+- Performance monitoring and statistics
+- **Fully functional viewer with real-time controls**
 
-**Recommended Settings**:
-- Resolution: 1024x512 for panorama
-- Inference steps: 50 for high quality
-- Mesh resolution: 512 for balanced performance
-- Export format: OBJ with materials
+## Legacy Workflows (Framework Compatible)
 
-### 2. Image-to-Panorama Basic (`image_to_panorama_basic.json`)
-**Purpose**: Convert regular images to 360° panoramic format only
-**Use Case**: Quick panorama creation for VR, 360° viewers, or further processing
+### 4. `text_to_world_basic.json` ⚠️
+**Status**: Framework test with placeholder output
+- Original workflow structure maintained
+- Added framework testing metadata
+- **Use for node architecture validation**
 
-**Key Features**:
-- Simple image-to-panorama conversion
-- Real-time preview of results
-- Multiple extension algorithms
-- High-resolution output support (up to 2048x1024)
-- Detailed panorama information display
+### 5. `image_to_panorama_basic.json` ⚠️
+**Status**: Framework ready, placeholder panorama extension
+- Image loading and processing works
+- Extension algorithms use simple tiling (not AI)
+- **Use for testing image-to-panorama node flow**
 
-**Nodes Used**:
-- `LoadImage` - Load source image
-- `HunyuanImageInput` - Process and resize image  
-- `HunyuanImageToPanorama` - Convert to 360° format
-- `HunyuanViewer` - Display panorama info
-- `PreviewImage` - Visual preview
+### 6. `image_to_world_basic.json` ⚠️
+**Status**: Framework ready, placeholder 3D generation
+- Complete pipeline from image to 3D mesh
+- Uses placeholder depth estimation and reconstruction
+- **Export and viewer functionality work perfectly**
 
-**Extension Modes**:
-- **Outpainting**: AI-extend image edges (recommended)
-- **Seamless**: Tile/repeat image content
-- **Symmetric**: Mirror image for panorama
+### 7. `advanced_multi_input.json` ⚠️
+**Status**: Complex workflow testing
+- Multiple input processing
+- Parallel placeholder generation
+- **Tests advanced node combinations**
 
-**Recommended Settings**:
-- Resolution: 2048x1024 for high quality
-- Extension mode: "outpainting" for natural results
-- Strength: 0.8 for balanced AI modification
-- Steps: 35 for good quality/speed balance
+### 8. `batch_processing.json` ⚠️
+**Status**: Batch framework testing
+- Parallel placeholder generation
+- Model loading efficiency testing
+- **Tests production workflow architecture**
 
-### 3. Image-to-World Basic (`image_to_world_basic.json`)
-**Purpose**: Convert existing images into 3D explorable worlds
-**Use Case**: Transform photographs or artwork into immersive environments
+### 9. Professional Workflows ⚠️
+- `professional_text_to_world_advanced.json`
+- `professional_panorama_inpainting_workflow.json`
+- `professional_image_to_world_enhanced.json`
+- `production_batch_processing_workflow.json`
 
-**Key Features**:
-- Image preprocessing and resizing
-- Multiple panorama extension modes
-- Complete 3D reconstruction pipeline
-- GLB export format support
+**Status**: Advanced framework testing with professional parameters
 
-**Nodes Used**:
-- `LoadImage` - Load source image
-- `HunyuanImageInput` - Process and resize image
-- `HunyuanImageToPanorama` - Convert to 360° format
-- Complete 3D reconstruction pipeline
+## Workflow Status Legend
 
-**Extension Modes**:
-- **Seamless**: Tile/repeat image content
-- **Outpainting**: AI-extend image edges  
-- **Symmetric**: Mirror image for panorama
+| Symbol | Meaning |
+|--------|---------|
+| ✅ | Fully functional feature |
+| ⚠️ | Framework ready, placeholder output |
+| ❌ | Not implemented |
 
-**Recommended Settings**:
-- Resize mode: "crop" to maintain aspect ratio
-- Extension mode: "outpainting" for natural results
-- Lower inference steps (30) for faster processing
-- Export format: GLB for modern 3D applications
+## Testing Instructions
 
-### 4. Advanced Multi-Input (`advanced_multi_input.json`)
-**Purpose**: Combine multiple text prompts and images for complex scenes
-**Use Case**: Create diverse worlds with multiple themes or reference materials
+### For Framework Validation:
+1. Load any workflow in ComfyUI
+2. Check that all nodes appear in correct categories
+3. Verify data flows between nodes
+4. Confirm functional components work (viewer, export)
+5. Observe placeholder data generation messages
 
-**Key Features**:
-- Multiple independent text inputs
-- Different prompt processing styles
-- Parallel panorama generation
-- Combined 3D reconstruction
-- High-resolution output (2048x1024)
+### For Export Testing:
+1. Use `export_pipeline_test.json`
+2. Run workflow to generate test mesh
+3. Check output files are created
+4. Test 3D viewer functionality
+5. Verify Draco compression works
 
-**Workflow Structure**:
-- **Input Layer**: 2 text prompts + 1 reference image
-- **Processing Layer**: Individual prompt enhancement
-- **Generation Layer**: Parallel panorama creation
-- **Combination Layer**: Single high-quality 3D mesh
-- **Export Layer**: High-resolution GLB output
+### For 3D Viewer Testing:
+1. Use `viewer_functionality_test.json`
+2. Generate placeholder mesh data
+3. Click on HunyuanViewer output to open 3D viewer
+4. Test mouse controls (rotate, zoom, pan)
+5. Check layer visibility toggles
+6. Verify performance stats display
 
-**Use Cases**:
-- Fantasy/realistic hybrid environments
-- Multi-biome worlds (forest + ocean + desert)
-- Architectural visualization with natural surroundings
-- Game environment concept development
+### For Development:
+1. Use workflows to test new node implementations
+2. Replace placeholder functions with real model inference
+3. Maintain compatibility with existing data types
+4. Test export pipeline after model integration
 
-### 5. Batch Processing (`batch_processing.json`)
-**Purpose**: Generate multiple 3D worlds efficiently in parallel
-**Use Case**: Content creation pipelines, style exploration, asset generation
+## Current Framework Status
 
-**Key Features**:
-- 4 parallel text-to-world pipelines
-- Shared model loading for efficiency
-- Individual export paths and settings
-- Optimized for production workflows
+### ✅ **Fully Functional Components**
+- **ComfyUI Integration**: All nodes load properly in correct categories
+- **Data Pipeline**: PanoramaImage → Scene3D → WorldMesh → Export
+- **3D Viewer**: Interactive Three.js viewer with real-time controls
+- **Export System**: OBJ, PLY, GLB export with Draco compression
+- **Performance Monitoring**: Real memory usage and statistics tracking
+- **Workflow Management**: All templates load and execute properly
 
-**Batch Configuration**:
-- **Input**: 4 different environment prompts
-- **Processing**: Parallel generation with shared models
-- **Output**: 4 separate OBJ mesh files
-- **Settings**: Balanced quality/speed (256 mesh resolution)
+### ⚠️ **Placeholder Components** 
+- **Text-to-Panorama**: Generates random data instead of AI inference
+- **Image-to-Panorama**: Uses simple tiling instead of AI extension
+- **Panorama Inpainting**: Framework ready but outputs placeholder data
+- **3D Scene Generation**: Placeholder depth maps and segmentation
+- **3D Reconstruction**: Random vertices/faces instead of real geometry
 
-**Sample Prompts Included**:
-1. Mountain forest with lake
-2. Desert canyon landscape  
-3. Tropical beach paradise
-4. Snowy arctic wilderness
+### ❌ **Missing Integration**
+- Actual HunyuanWorld-1.0 Python API integration
+- Real .safetensors model weight loading and inference
+- Genuine AI-powered panorama generation and processing
+- Production-quality 3D reconstruction algorithms
 
-**Production Benefits**:
-- Model loading overhead shared across batches
-- Consistent processing parameters
-- Organized output file naming
-- Scalable to more parallel streams
+## Expected Console Output
 
-## Getting Started
+When running workflows, you'll see messages like:
+```
+🎨 [PLACEHOLDER] Generating panorama from prompt: 'Mountain landscape' using HunyuanWorld-PanoDiT-Text.safetensors
+⚠️  Framework test output - not actual HunyuanWorld inference
 
-### Prerequisites
-1. ComfyUI installed and running
-2. HunyuanWorld models downloaded to `models/hunyuan_world/`
-3. Sufficient VRAM (8GB+ recommended for high-quality generation)
+🏗️ [PLACEHOLDER] Generating 3D scene using models/hunyuan_world
+⚠️  Framework test output - not actual HunyuanWorld scene generation
 
-### Quick Start
-1. Open ComfyUI in your browser
-2. Load any workflow template using "Load" button
-3. Adjust prompts and settings as needed
-4. Click "Queue Prompt" to start generation
-5. Monitor progress in the UI
-6. Find exported files in the `output/` directory
+✅ Exporting 1000 vertices, 1800 faces to test_export.obj
+✅ 3D Viewer loaded successfully with interactive controls
+```
 
-### Model Requirements
-Each workflow requires specific HunyuanWorld model components:
-- **text_to_panorama**: For generating panoramic images from text
-- **scene_generator**: For depth estimation and semantic segmentation  
-- **world_reconstructor**: For 3D mesh generation
+## Development Integration Path
 
-Make sure all required models are available before running workflows.
+### Phase 1: Model Loading (Current)
+- ✅ Framework recognizes .safetensors files
+- ✅ Model loading architecture complete
+- ❌ Actual weight loading and GPU allocation
 
-### Performance Tips
-- Start with lower resolutions (512x256) for testing
-- Use fp16 precision to save VRAM
-- Enable model caching for batch processing
-- Monitor GPU memory usage during generation
+### Phase 2: Inference Integration (Next)
+1. Replace `torch.randn()` with real HunyuanWorld API calls
+2. Implement proper `.safetensors` loading in model classes
+3. Add real panorama generation algorithms
+4. Integrate scene inpainting and sky replacement
 
-## Customization Guide
+### Phase 3: Production Features (Future)
+1. Add layered scene decomposition (HunyuanWorld's key feature)
+2. Implement high-resolution pipeline (3840x1920)
+3. Add advanced object labeling and semantic segmentation
+4. Optimize for production batch processing
 
-### Modifying Prompts
-- Edit text in `HunyuanTextInput` nodes
-- Adjust `HunyuanPromptProcessor` settings for different styles
-- Use negative prompts to avoid unwanted elements
+## Current Limitations
 
-### Quality vs Speed Trade-offs
-- **Higher Quality**: More inference steps, higher resolutions, fp32 precision
-- **Faster Generation**: Fewer steps, lower resolutions, fp16 precision
-- **Balanced**: 30-50 steps, 1024x512 resolution, fp16 precision
+- **No real AI inference** - all generation uses placeholder data
+- **Model files recognized but not used** for actual processing
+- **Export and viewer work perfectly** with any mesh data
+- **Node architecture is production-ready** for integration
 
-### Export Formats
-- **OBJ**: Widely supported, good for editing
-- **PLY**: Simple geometry, smaller files
-- **GLB**: Modern standard, includes materials
-- **FBX**: Animation support, professional tools
+## Future Integration
 
-### Memory Optimization
-- Use smaller batch sizes if running out of VRAM
-- Unload unused models between different workflow stages
-- Consider using CPU for less critical operations
+When HunyuanWorld models are integrated:
+1. Replace placeholder functions in `model_manager.py`
+2. Add real inference code to model classes
+3. Test workflows will become production workflows
+4. All export and viewer functionality will work unchanged
 
-## Troubleshooting
+## Performance Testing
 
-### Common Issues
-1. **Out of Memory**: Reduce resolution, batch size, or use fp16 precision
-2. **Model Not Found**: Check model paths in `HunyuanLoader` nodes
-3. **Slow Generation**: Reduce inference steps or resolution
-4. **Export Failures**: Check output directory permissions
+Use workflows to test:
+- **Memory Usage**: Monitor VRAM consumption with placeholder data
+- **Node Execution Speed**: Time framework overhead vs future AI inference
+- **Export Performance**: Test real mesh export speed and file sizes
+- **Viewer Responsiveness**: Validate Three.js performance with test data
 
-### Performance Monitoring
-- Use Task Manager/Activity Monitor to watch VRAM usage
-- Monitor ComfyUI console for error messages
-- Check generated files for quality issues
+## Support
 
-## Advanced Usage
-
-### Custom Node Combinations
-You can mix and match nodes from different workflows:
-- Use image input with text enhancement
-- Combine multiple panoramas before 3D generation
-- Add custom post-processing nodes
-
-### Integration with Other Nodes
-HunyuanWorld nodes work well with standard ComfyUI nodes:
-- Image preprocessing nodes
-- Upscaling nodes for higher quality
-- Video generation for animated worlds
-
-### Workflow Optimization
-- Cache loaded models across different generations
-- Use workflow groups to organize complex pipelines
-- Save frequently used configurations as presets
-
-## Support and Resources
-
-- Check the main README for installation instructions
-- Review node tooltips for parameter explanations
-- Monitor ComfyUI logs for debugging information
-- Experiment with different parameter combinations
-
-Happy world building! 🌍✨
+- **Framework Issues**: Check node loading and data flow
+- **Export Problems**: Verify file permissions and output directories
+- **Viewer Issues**: Test browser compatibility and WebGL support
+- **Integration Questions**: Refer to HunyuanWorld-1.0 official repository

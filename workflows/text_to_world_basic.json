@@ -1,4 +1,12 @@
 {
+  "workflow_metadata": {
+    "name": "HunyuanWorld Framework Basic Test",
+    "description": "⚠️ FRAMEWORK TEST - Generates placeholder data to test node architecture. NOT actual HunyuanWorld inference.",
+    "version": "1.0.0",
+    "status": "Framework testing only - placeholder output",
+    "functional_components": ["Node architecture", "Data flow", "Export pipeline", "3D viewer"],
+    "placeholder_components": ["Model inference", "AI generation", "Real panorama output"]
+  },
   "last_node_id": 12,
   "last_link_id": 16,
   "nodes": [

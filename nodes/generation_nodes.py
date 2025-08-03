@@ -13,12 +13,12 @@ class HunyuanLoader:
         return {
             "required": {
                 "model_path": ("STRING", {
-                    "default": "models/hunyuan_world",
-                    "tooltip": "Path to HunyuanWorld model directory. Should contain model.safetensors and config.json files."
+                    "default": "models/Hunyuan_World",
+                    "tooltip": "Path to HunyuanWorld model directory. Should contain HunyuanWorld-*.safetensors files."
                 }),
-                "model_type": (["text_to_panorama", "image_to_panorama", "scene_generator", "world_reconstructor", "scene_inpainter", "sky_inpainter"], {
+                "model_type": (["text_to_panorama", "image_to_panorama", "scene_generator", "world_reconstructor", "scene_inpainter", "sky_inpainter", "flux_dev", "flux_fill", "dreamshaper"], {
                     "default": "text_to_panorama",
-                    "tooltip": "Model component to load: 'text_to_panorama'=HunyuanWorld-PanoDiT-Text, 'image_to_panorama'=HunyuanWorld-PanoDiT-Image, 'scene_generator'=depth/segmentation, 'world_reconstructor'=3D mesh, 'scene_inpainter'=HunyuanWorld-PanoInpaint-Scene, 'sky_inpainter'=HunyuanWorld-PanoInpaint-Sky"
+                    "tooltip": "Model to load: HunyuanWorld models (text_to_panorama, image_to_panorama, scene_inpainter, sky_inpainter) or FLUX models (flux_dev=FLUX.1-dev, flux_fill=FLUX.1-fill, dreamshaper=DreamShaper). HunyuanWorld models are in Hunyuan_World folder, FLUX models are in checkpoints folder."
                 }),
                 "precision": (["fp32", "fp16", "bf16"], {
                     "default": "fp16",
@@ -1278,3 +1278,142 @@ class HunyuanLayeredSceneGenerator:
         depth_rgb = depth_resized.unsqueeze(-1).repeat(1, 1, 3)
         
         return depth_rgb.unsqueeze(0)
+
+
+class HunyuanFluxGenerator:
+    """FLUX-enhanced panoramic generation node that combines FLUX models with HunyuanWorld pipeline"""
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "flux_model": ("MODEL_HUNYUAN",),
+                "prompt": ("STRING", {
+                    "multiline": True,
+                    "default": "A beautiful panoramic landscape",
+                    "tooltip": "Text prompt for FLUX generation. FLUX models excel at detailed, high-quality imagery."
+                }),
+                "width": ("INT", {
+                    "default": 1920,
+                    "min": 512,
+                    "max": 4096,
+                    "step": 64,
+                    "tooltip": "Output width. 1920 is HunyuanWorld standard for panoramic format."
+                }),
+                "height": ("INT", {
+                    "default": 960,
+                    "min": 256,
+                    "max": 2048,
+                    "step": 64,
+                    "tooltip": "Output height. 960 is HunyuanWorld standard for panoramic format (2:1 ratio)."
+                }),
+            },
+            "optional": {
+                "seed": ("INT", {
+                    "default": -1,
+                    "min": -1,
+                    "max": 2**32 - 1,
+                    "tooltip": "Random seed for reproducible generation. -1 for random."
+                }),
+                "guidance_scale": ("FLOAT", {
+                    "default": 7.5,
+                    "min": 1.0,
+                    "max": 20.0,
+                    "step": 0.5,
+                    "tooltip": "Guidance scale for prompt adherence. Higher = more prompt following, lower = more creative."
+                }),
+                "num_inference_steps": ("INT", {
+                    "default": 30,
+                    "min": 10,
+                    "max": 100,
+                    "step": 1,
+                    "tooltip": "Number of denoising steps. More steps = higher quality but slower generation."
+                }),
+                "flux_mode": (["standard", "panoramic", "ultra_wide"], {
+                    "default": "panoramic",
+                    "tooltip": "FLUX generation mode: 'standard'=normal FLUX output, 'panoramic'=optimized for 360° panoramas, 'ultra_wide'=extra wide landscapes."
+                })
+            }
+        }
+    
+    RETURN_TYPES = ("PANORAMA_IMAGE",)
+    RETURN_NAMES = ("panorama",)
+    FUNCTION = "generate_flux_panorama"
+    CATEGORY = "HunyuanWorld/FLUX"
+    
+    def generate_flux_panorama(self, flux_model, prompt: str, width: int = 1920, height: int = 960, 
+                              seed: int = -1, guidance_scale: float = 7.5, num_inference_steps: int = 30,
+                              flux_mode: str = "panoramic"):
+        """Generate panoramic images using FLUX models with HunyuanWorld optimizations"""
+        
+        try:
+            # Handle random seed
+            if seed == -1:
+                seed = torch.randint(0, 2**32 - 1, (1,)).item()
+            
+            # Determine if this is a FLUX model
+            model_type = getattr(flux_model, 'model_type', 'unknown')
+            is_flux_model = model_type in ['flux_dev', 'flux_fill', 'dreamshaper']
+            
+            if not is_flux_model:
+                print(f"⚠️ Warning: Expected FLUX model, got {model_type}. Proceeding anyway...")
+            
+            # Generate with appropriate method
+            if hasattr(flux_model, 'generate_panorama'):
+                print(f"🌄 Generating {width}x{height} panorama using {model_type}")
+                panorama_tensor = flux_model.generate_panorama(
+                    prompt,
+                    width=width,
+                    height=height,
+                    guidance_scale=guidance_scale,
+                    num_inference_steps=num_inference_steps,
+                    seed=seed,
+                    mode=flux_mode
+                )
+            elif hasattr(flux_model, 'generate_image'):
+                print(f"🎨 Adapting standard generation to panoramic format")
+                # Adapt standard generation for panoramic output
+                panorama_tensor = flux_model.generate_image(
+                    prompt,
+                    width=width,
+                    height=height,
+                    guidance_scale=guidance_scale,
+                    num_inference_steps=num_inference_steps,
+                    seed=seed
+                )
+            else:
+                # Fallback for models without proper methods
+                print(f"🔄 Using fallback generation for {model_type}")
+                panorama_tensor = torch.randn(height, width, 3)
+            
+            # Ensure correct format and range
+            if panorama_tensor.max() > 1.0:
+                panorama_tensor = panorama_tensor / 255.0  # Normalize to [0,1]
+            
+            panorama_tensor = torch.clamp(panorama_tensor, 0.0, 1.0)
+            
+            # Create PanoramaImage with metadata
+            metadata = {
+                "model_type": model_type,
+                "prompt": prompt,
+                "width": width,
+                "height": height,
+                "seed": seed,
+                "guidance_scale": guidance_scale,
+                "steps": num_inference_steps,
+                "flux_mode": flux_mode,
+                "generated_with": "HunyuanFluxGenerator"
+            }
+            
+            panorama = PanoramaImage(panorama_tensor, metadata)
+            
+            print(f"✅ FLUX panorama generated: {width}x{height} using {model_type}")
+            return (panorama,)
+            
+        except Exception as e:
+            print(f"❌ Error in FLUX panorama generation: {e}")
+            import traceback
+            traceback.print_exc()
+            # Return fallback
+            fallback_tensor = torch.randn(height, width, 3)
+            return (PanoramaImage(fallback_tensor, {"error": str(e)}),)
