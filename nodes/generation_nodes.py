@@ -152,9 +152,21 @@ class HunyuanTextToPanorama:
                          scheduler: str = "DPMSolverMultistep"):
         """Generate panoramic image from text prompt"""
         
+        # Input validation and type conversion
+        try:
+            true_cfg_scale = float(true_cfg_scale) if not isinstance(true_cfg_scale, float) else true_cfg_scale
+            guidance_scale = float(guidance_scale) if not isinstance(guidance_scale, float) else guidance_scale
+            blend_extend = int(blend_extend) if not isinstance(blend_extend, int) else blend_extend
+        except (ValueError, TypeError) as e:
+            print(f"⚠️ Parameter conversion error: {e}")
+            # Use defaults if conversion fails
+            true_cfg_scale = 1.0
+            guidance_scale = 30.0
+            blend_extend = 6
+        
         # Validate model type
-        if model.model_type != "text_to_panorama":
-            raise ValueError(f"Expected text_to_panorama model, got {model.model_type}")
+        if hasattr(model, 'model_type') and model.model_type != "text_to_panorama":
+            print(f"⚠️ Expected text_to_panorama model, got {model.model_type}")
         
         # Set seed for reproducibility
         torch.manual_seed(seed)
