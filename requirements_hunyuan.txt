@@ -36,5 +36,9 @@ basicsr>=1.4.2
 facexlib>=0.3.0
 gfpgan>=1.3.8
 
-# ZIM for inpainting (optional)
+# ZIM for zero-shot image matting
+zim-anything>=0.1
 onnxruntime>=1.16.0
+
+# NumPy compatibility fix
+numpy<2  # Required for ONNX/package compatibility
