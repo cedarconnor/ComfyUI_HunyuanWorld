@@ -124,7 +124,7 @@ class ModelManager:
     def _load_model_by_type(self, model_path: str, model_type: str, precision: Optional[str]) -> Any:
         """Load specific model type - actual HunyuanWorld model files"""
         
-        # Map model types to actual model filenames
+        # Map model types to actual model filenames based on user's setup
         hunyuan_model_files = {
             "text_to_panorama": "HunyuanWorld-PanoDiT-Text.safetensors",
             "image_to_panorama": "HunyuanWorld-PanoDiT-Image.safetensors", 
@@ -134,9 +134,9 @@ class ModelManager:
             "world_reconstructor": "HunyuanWorld-WorldReconstructor.safetensors"  # If you add this later
         }
         
-        # Map FLUX model types to checkpoint files
+        # Map FLUX model types to checkpoint files - updated paths per user setup
         flux_model_files = {
-            "flux_dev": "flux1-dev-fp8.safetensors",
+            "flux_dev": "flux1-dev.safetensors",  # In models/unet per user setup
             "flux_fill": "flux1-fill-dev.safetensors", 
             "dreamshaper": "DreamShaper_8_pruned.safetensors"
         }
@@ -147,8 +147,8 @@ class ModelManager:
             # HunyuanWorld models are in the specified model_path
         elif model_type in flux_model_files:
             model_files = flux_model_files
-            # FLUX models are in checkpoints directory
-            model_path = "models/checkpoints"
+            # FLUX models are in unet directory per user setup
+            model_path = "models/unet"
         else:
             raise ValueError(f"Unknown model type: {model_type}")
         

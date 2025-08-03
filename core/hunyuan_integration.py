@@ -68,10 +68,13 @@ class HunyuanTextToPanoramaModel:
                 torch.float16 if self.precision == "fp16" else torch.float32
             )
             
+            # Use device_map strategy that HunyuanWorld supports
+            device_strategy = "balanced" if "cuda" in self.device else "auto"
+            
             self.pipeline = Text2PanoramaPipelines.from_pretrained(
                 base_model_path,
                 torch_dtype=dtype,
-                device_map=self.device
+                device_map=device_strategy
             )
             
             # Load HunyuanWorld LoRA
@@ -171,10 +174,13 @@ class HunyuanImageToPanoramaModel:
                 torch.float16 if self.precision == "fp16" else torch.float32
             )
             
+            # Use device_map strategy that HunyuanWorld supports
+            device_strategy = "balanced" if "cuda" in self.device else "auto"
+            
             self.pipeline = Image2PanoramaPipelines.from_pretrained(
                 base_model_path,
                 torch_dtype=dtype,
-                device_map=self.device
+                device_map=device_strategy
             )
             
             # Load HunyuanWorld LoRA
