@@ -42,16 +42,41 @@ try:
     exec(data_types_code, globals())
     print("✅ Data types loaded")
     
+    # Import hunyuan_integration next
+    with open(os.path.join(core_path, "hunyuan_integration.py"), 'r', encoding='utf-8') as f:
+        integration_code = f.read()
+    
+    integration_namespace = {
+        '__builtins__': __builtins__,
+        '__name__': 'hunyuan_integration',
+        '__file__': os.path.join(core_path, "hunyuan_integration.py"),
+        'os': os,
+        'sys': sys,
+        'torch': __import__('torch'),
+        'typing': __import__('typing'),
+        'Dict': __import__('typing').Dict,
+        'Any': __import__('typing').Any,
+        'Optional': __import__('typing').Optional,
+        'Union': __import__('typing').Union,
+        'Path': __import__('pathlib').Path,
+    }
+    
+    exec(integration_code, integration_namespace)
+    print("✅ Hunyuan integration loaded")
+    
     # Import model manager with fixed imports
     with open(os.path.join(core_path, "model_manager.py"), 'r', encoding='utf-8') as f:
         model_manager_code = f.read()
     
-    # Fix the relative import in model_manager.py
+    # Fix the relative imports in model_manager.py
     model_manager_code = model_manager_code.replace("from .data_types import ModelHunyuan", "# from .data_types import ModelHunyuan")
+    model_manager_code = model_manager_code.replace("from .hunyuan_integration import", "# from .hunyuan_integration import")
     
     # Create namespace with required objects
     model_manager_namespace = {
         '__builtins__': __builtins__,
+        '__name__': 'model_manager',
+        '__file__': os.path.join(core_path, "model_manager.py"),
         'os': os,
         'torch': __import__('torch'),
         'gc': __import__('gc'),
@@ -61,6 +86,9 @@ try:
         'Optional': __import__('typing').Optional,
         'Union': __import__('typing').Union,
         'ModelHunyuan': ModelHunyuan,  # From data_types loaded above
+        # From hunyuan_integration
+        'get_hunyuan_model_class': integration_namespace['get_hunyuan_model_class'],
+        'HUNYUAN_AVAILABLE': integration_namespace['HUNYUAN_AVAILABLE'],
     }
     
     exec(model_manager_code, model_manager_namespace)
