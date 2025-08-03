@@ -365,7 +365,7 @@ class HunyuanObjectLabeler:
             }
         }
     
-    RETURN_TYPES = ("OBJECT_LABELS",)
+    RETURN_TYPES = ("*",)
     RETURN_NAMES = ("object_labels",)
     FUNCTION = "create_object_labels"
     CATEGORY = "HunyuanWorld/Input"
@@ -451,7 +451,7 @@ class HunyuanMaskCreator:
             }
         }
     
-    RETURN_TYPES = ("SCENE_MASK", "IMAGE")
+    RETURN_TYPES = ("*", "IMAGE")
     RETURN_NAMES = ("scene_mask", "preview_mask")
     FUNCTION = "create_mask"
     CATEGORY = "HunyuanWorld/Input"

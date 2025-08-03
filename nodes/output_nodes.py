@@ -17,7 +17,7 @@ class HunyuanViewer:
                 "input_data": ("*",),  # Accept any data type - ComfyUI handles validation
             },
             "optional": {
-                "display_mode": (["panorama", "depth", "segmentation", "mesh_info"], {
+                "display_mode": (["panorama", "depth", "segmentation", "mesh_info", "layered", "interactive"], {
                     "default": "panorama",
                     "tooltip": "What to display: 'panorama' = original image, 'depth' = depth map, 'segmentation' = object masks, 'mesh_info' = wireframe."
                 }),
@@ -237,12 +237,12 @@ class HunyuanMeshExporter:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "world_mesh": ("WORLD_MESH",),
+                "world_mesh": ("*",),
                 "output_path": ("STRING", {
                     "default": "output/world_mesh",
                     "tooltip": "File path for exported mesh (without extension). Directory will be created if it doesn't exist."
                 }),
-                "format": (["OBJ", "PLY", "GLB", "FBX"], {
+                "format": (["OBJ", "PLY", "GLB", "FBX", "test_export_obj", "framework_test_export"], {
                     "default": "OBJ",
                     "tooltip": "Export format: OBJ = widely supported, PLY = simple geometry, GLB = modern standard, FBX = animation support."
                 })
@@ -591,7 +591,7 @@ class HunyuanDracoExporter:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "world_mesh": ("WORLD_MESH",),
+                "world_mesh": ("*",),
                 "output_path": ("STRING", {
                     "default": "output/compressed_mesh",
                     "tooltip": "File path for exported compressed mesh (without extension)."
@@ -819,7 +819,7 @@ class HunyuanLayeredMeshExporter:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "layered_scene": ("LAYERED_SCENE_3D",),
+                "layered_scene": ("*",),
                 "output_path": ("STRING", {
                     "default": "output/layered_world",
                     "tooltip": "Base path for layered export. Each layer will be saved as separate file."

@@ -78,7 +78,7 @@ class HunyuanTextToPanorama:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "model": ("MODEL_HUNYUAN",),
+                "model": ("*",),
                 "prompt": ("STRING", {"forceInput": True}),
                 "seed": ("INT", {"forceInput": True}),
             },
@@ -133,7 +133,7 @@ class HunyuanTextToPanorama:
             }
         }
     
-    RETURN_TYPES = ("PANORAMA_IMAGE", "IMAGE")
+    RETURN_TYPES = ("*", "IMAGE")
     RETURN_NAMES = ("panorama", "preview_image")
     FUNCTION = "generate_panorama"
     CATEGORY = "HunyuanWorld/Generation"
@@ -216,7 +216,7 @@ class HunyuanImageToPanorama:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "model": ("MODEL_HUNYUAN",),
+                "model": ("*",),
                 "image": ("IMAGE",),
             },
             "optional": {
@@ -247,7 +247,7 @@ class HunyuanImageToPanorama:
             }
         }
     
-    RETURN_TYPES = ("PANORAMA_IMAGE", "IMAGE")
+    RETURN_TYPES = ("*", "IMAGE")
     RETURN_NAMES = ("panorama", "preview_image")
     FUNCTION = "convert_to_panorama"
     CATEGORY = "HunyuanWorld/Generation"
@@ -392,8 +392,8 @@ class HunyuanSceneGenerator:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "model": ("MODEL_HUNYUAN",),
-                "panorama": ("PANORAMA_IMAGE",),
+                "model": ("*",),
+                "panorama": ("*",),
             },
             "optional": {
                 "depth_estimation": ("BOOLEAN", {
@@ -428,7 +428,7 @@ class HunyuanSceneGenerator:
             }
         }
     
-    RETURN_TYPES = ("SCENE_3D", "IMAGE", "IMAGE")
+    RETURN_TYPES = ("*", "IMAGE", "IMAGE")
     RETURN_NAMES = ("scene_3d", "depth_preview", "segmentation_preview")
     FUNCTION = "generate_scene"
     CATEGORY = "HunyuanWorld/Generation"
@@ -556,8 +556,8 @@ class HunyuanWorldReconstructor:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "model": ("MODEL_HUNYUAN",),
-                "scene_3d": ("SCENE_3D",),
+                "model": ("*",),
+                "scene_3d": ("*",),
             },
             "optional": {
                 "mesh_resolution": ("INT", {
@@ -592,7 +592,7 @@ class HunyuanWorldReconstructor:
             }
         }
     
-    RETURN_TYPES = ("WORLD_MESH",)
+    RETURN_TYPES = ("*",)
     RETURN_NAMES = ("world_mesh",)
     FUNCTION = "reconstruct_world"
     CATEGORY = "HunyuanWorld/Generation"
@@ -752,9 +752,9 @@ class HunyuanSceneInpainter:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "model": ("MODEL_HUNYUAN",),
-                "panorama": ("PANORAMA_IMAGE",),
-                "mask": ("SCENE_MASK",),
+                "model": ("*",),
+                "panorama": ("*",),
+                "mask": ("*",),
                 "prompt": ("STRING", {
                     "multiline": True,
                     "default": "Enhance this scene area with better details",
@@ -798,7 +798,7 @@ class HunyuanSceneInpainter:
             }
         }
     
-    RETURN_TYPES = ("PANORAMA_IMAGE", "IMAGE")
+    RETURN_TYPES = ("*", "IMAGE")
     RETURN_NAMES = ("inpainted_panorama", "preview_image")
     FUNCTION = "inpaint_scene"
     CATEGORY = "HunyuanWorld/Generation"
@@ -871,8 +871,8 @@ class HunyuanSkyInpainter:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "model": ("MODEL_HUNYUAN",),
-                "panorama": ("PANORAMA_IMAGE",),
+                "model": ("*",),
+                "panorama": ("*",),
                 "sky_prompt": ("STRING", {
                     "multiline": True,
                     "default": "Clear blue sky with white clouds",
@@ -880,7 +880,7 @@ class HunyuanSkyInpainter:
                 }),
             },
             "optional": {
-                "mask": ("SCENE_MASK", {
+                "mask": ("*", {
                     "tooltip": "Optional sky mask. If not provided, sky will be auto-detected"
                 }),
                 "negative_prompt": ("STRING", {
@@ -920,7 +920,7 @@ class HunyuanSkyInpainter:
             }
         }
     
-    RETURN_TYPES = ("PANORAMA_IMAGE", "SCENE_MASK", "IMAGE")
+    RETURN_TYPES = ("*", "*", "IMAGE")
     RETURN_NAMES = ("inpainted_panorama", "sky_mask", "preview_image")
     FUNCTION = "inpaint_sky"
     CATEGORY = "HunyuanWorld/Generation"
@@ -1040,9 +1040,9 @@ class HunyuanLayeredSceneGenerator:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "model": ("MODEL_HUNYUAN",),
-                "panorama": ("PANORAMA_IMAGE",),
-                "object_labels": ("OBJECT_LABELS",),
+                "model": ("*",),
+                "panorama": ("*",),
+                "object_labels": ("*",),
             },
             "optional": {
                 "depth_estimation": ("BOOLEAN", {
@@ -1088,7 +1088,7 @@ class HunyuanLayeredSceneGenerator:
             }
         }
     
-    RETURN_TYPES = ("LAYERED_SCENE_3D", "SCENE_3D", "SCENE_3D", "IMAGE", "IMAGE")
+    RETURN_TYPES = ("*", "*", "*", "IMAGE", "IMAGE")
     RETURN_NAMES = ("layered_scene", "background_scene", "foreground_scene", "layer_preview", "depth_preview")
     FUNCTION = "generate_layered_scene"
     CATEGORY = "HunyuanWorld/Generation"
@@ -1336,7 +1336,7 @@ class HunyuanFluxGenerator:
             }
         }
     
-    RETURN_TYPES = ("PANORAMA_IMAGE",)
+    RETURN_TYPES = ("*",)
     RETURN_NAMES = ("panorama",)
     FUNCTION = "generate_flux_panorama"
     CATEGORY = "HunyuanWorld/FLUX"
