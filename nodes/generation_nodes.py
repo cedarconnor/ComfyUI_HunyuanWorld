@@ -37,7 +37,7 @@ class HunyuanLoader:
             }
         }
     
-    RETURN_TYPES = ("MODEL_HUNYUAN",)
+    RETURN_TYPES = ("*",)
     RETURN_NAMES = ("model",)
     FUNCTION = "load_model"
     CATEGORY = "HunyuanWorld/Loaders"
