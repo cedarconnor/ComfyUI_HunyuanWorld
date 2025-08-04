@@ -147,45 +147,52 @@ class HunyuanTextToPanoramaModel:
                 import numpy as np
                 np.random.seed(seed)
                 
-                # Fiery sky with volcanic ash
-                sky_height = int(height * 0.4)
+                # Create a realistic gradient sky (orange to dark red)
+                sky_height = int(height * 0.6)
                 for y in range(sky_height):
+                    # Smooth gradient from bright orange to dark red
+                    intensity = 1.0 - (y / sky_height)  # 1.0 at top, 0.0 at bottom
+                    base_red = int(255 * (0.6 + 0.4 * intensity))
+                    base_green = int(100 * intensity)
+                    base_blue = int(20 * intensity)
+                    
                     for x in range(width):
-                        # Create fiery sky with ash clouds
-                        fire_noise = int(50 * np.sin(x * 0.01 + seed) * np.cos(y * 0.015 + seed))
-                        base_red = 200 + fire_noise
-                        base_orange = 100 + fire_noise//2
-                        base_black = max(0, 30 + fire_noise//4)
-                        
+                        # Add subtle cloud variation
+                        cloud_var = int(20 * np.sin(x * 0.005) * np.sin(y * 0.008))
                         img_array[y, x] = [
-                            min(255, base_red),
-                            min(255, base_orange), 
-                            max(0, base_black)
+                            min(255, max(0, base_red + cloud_var)),
+                            min(255, max(0, base_green + cloud_var//2)),
+                            min(255, max(0, base_blue + cloud_var//4))
                         ]
                 
-                # Volcanic mountains with lava flows
+                # Create realistic mountain silhouettes  
                 mountain_start = sky_height
-                mountain_end = int(height * 0.75)
-                for y in range(mountain_start, mountain_end):
+                for y in range(mountain_start, height):
+                    ground_progress = (y - mountain_start) / (height - mountain_start)
+                    
                     for x in range(width):
-                        # Create jagged volcanic peaks
-                        volcanic_height = int(60 * abs(np.sin(x * 0.008 + seed)) + 40 * abs(np.cos(x * 0.012 + seed)))
-                        if y - mountain_start < volcanic_height:
-                            # Volcanic rock with lava streaks
-                            lava_streak = int(x + seed) % 50 < 5  # Lava streaks
-                            if lava_streak:
-                                img_array[y, x] = [255, 150, 0]  # Bright lava
+                        # Create varied mountain heights using simple curves
+                        mountain_height = (
+                            60 * np.sin(x * 0.003) + 
+                            30 * np.sin(x * 0.007) + 
+                            20 * np.sin(x * 0.012) + 
+                            80  # Base height
+                        )
+                        
+                        relative_y = y - mountain_start
+                        if relative_y < mountain_height * (1 - ground_progress * 0.3):
+                            # Mountain areas - dark with occasional bright lava
+                            if (x + y) % 40 < 3:  # Sparse lava streaks
+                                img_array[y, x] = [255, 120, 0]  # Bright lava
                             else:
-                                img_array[y, x] = [80, 40, 20]  # Dark volcanic rock
-                
-                # Lava flows in foreground
-                for y in range(mountain_end, height):
-                    for x in range(width):
-                        lava_flow = int(30 * np.sin(x * 0.02 + seed) * np.cos(y * 0.01 + seed))
-                        if lava_flow > 20:
-                            img_array[y, x] = [255, 100, 0]  # Active lava
+                                img_array[y, x] = [40, 20, 10]  # Dark volcanic rock
                         else:
-                            img_array[y, x] = [60, 30, 15]  # Cooled lava rock
+                            # Ground level - mix of dark ground and lava pools
+                            if (x % 30 < 5) and (y % 20 < 3):  # Lava pools
+                                img_array[y, x] = [200, 80, 0]  # Lava pools
+                            else:
+                                darkness = int(80 * (1 - ground_progress * 0.5))
+                                img_array[y, x] = [darkness, darkness//2, darkness//4]  # Dark ground
             
             def _generate_autumn_scene(self, img_array, width, height, seed):
                 """Generate autumn/red themed scene"""
@@ -282,129 +289,151 @@ class HunyuanTextToPanoramaModel:
                         ]
             
             def _generate_desert_scene(self, img_array, width, height, seed):
-                """Generate desert scene"""
+                """Generate realistic desert scene"""
                 import numpy as np
                 np.random.seed(seed)
                 
-                # Desert sky - harsh and bright
-                sky_height = int(height * 0.35)
+                # Clear blue-white desert sky
+                sky_height = int(height * 0.4)
                 for y in range(sky_height):
+                    # Gradient from pale blue to white
+                    sky_intensity = 1.0 - (y / sky_height * 0.3)
                     for x in range(width):
-                        heat_shimmer = int(10 * np.sin(x * 0.02 + seed))
                         img_array[y, x] = [
-                            min(255, 240 + heat_shimmer),
-                            min(255, 200 + heat_shimmer//2),
-                            max(100, 120 + heat_shimmer//3)
+                            int(220 + 35 * sky_intensity),  # Very pale blue to white
+                            int(235 + 20 * sky_intensity),
+                            255
                         ]
                 
-                # Sand dunes
-                dunes_start = sky_height
-                dunes_end = int(height * 0.75)
-                for y in range(dunes_start, dunes_end):
+                # Rolling sand dunes with realistic shading
+                dune_start = sky_height
+                for y in range(dune_start, height):
+                    depth = (y - dune_start) / (height - dune_start)
+                    
                     for x in range(width):
-                        dune_height = int(80 * np.sin(x * 0.003 + seed) + 60 * np.cos(x * 0.005 + seed))
-                        if y - dunes_start < abs(dune_height):
-                            # Sand dune colors
-                            sand_variation = np.random.randint(-15, 15)
-                            img_array[y, x] = [
-                                min(255, 200 + sand_variation),
-                                min(255, 180 + sand_variation),
-                                max(0, 120 + sand_variation//2)
-                            ]
-                
-                # Desert floor
-                for y in range(dunes_end, height):
-                    for x in range(width):
-                        sand_texture = int(20 * np.sin(x * 0.05 + seed))
+                        # Create rolling dune shapes
+                        dune1 = 40 * np.sin(x * 0.008) 
+                        dune2 = 25 * np.sin(x * 0.015) 
+                        dune3 = 15 * np.sin(x * 0.025)
+                        total_dune_height = dune1 + dune2 + dune3 + 50
+                        
+                        relative_y = y - dune_start
+                        max_dune_height = total_dune_height * (1 - depth * 0.4)
+                        
+                        if relative_y < max_dune_height:
+                            # On dune - lighter sand with shadows
+                            shadow_factor = 1.0 - (relative_y / max_dune_height) * 0.3
+                            base_sand_r = int(240 * shadow_factor)
+                            base_sand_g = int(220 * shadow_factor) 
+                            base_sand_b = int(180 * shadow_factor)
+                        else:
+                            # Dune valley - slightly darker
+                            base_sand_r = 200
+                            base_sand_g = 180
+                            base_sand_b = 140
+                        
+                        # Add subtle texture
+                        texture = int(10 * np.sin(x * 0.1) * np.sin(y * 0.08))
                         img_array[y, x] = [
-                            min(255, 180 + sand_texture),
-                            min(255, 160 + sand_texture),
-                            max(0, 100 + sand_texture//2)
+                            min(255, max(0, base_sand_r + texture)),
+                            min(255, max(0, base_sand_g + texture)),
+                            min(255, max(0, base_sand_b + texture//2))
                         ]
             
             def _generate_water_scene(self, img_array, width, height, seed):
-                """Generate oceanic/water scene"""
+                """Generate realistic oceanic scene"""
                 import numpy as np
                 np.random.seed(seed)
                 
-                # Ocean sky with seagulls
-                sky_height = int(height * 0.4)
+                # Clear blue sky
+                sky_height = int(height * 0.45)
                 for y in range(sky_height):
+                    # Sky gradient from light blue to deeper blue
+                    sky_progress = y / sky_height
+                    sky_blue = int(220 - sky_progress * 60)  # 220 to 160
                     for x in range(width):
-                        # Clear ocean sky
-                        sky_noise = int(10 * np.sin(x * 0.01 + seed))
                         img_array[y, x] = [
-                            min(255, 200 + sky_noise),
-                            min(255, 230 + sky_noise//2),
-                            255  # Pure blue sky
+                            int(sky_blue * 0.7),  # Slight warmth
+                            int(sky_blue * 0.9),
+                            sky_blue
                         ]
                 
-                # Distant islands/horizon
-                horizon_start = sky_height
-                horizon_end = int(height * 0.5)
-                for y in range(horizon_start, horizon_end):
+                # Horizon line and distant elements
+                horizon_y = sky_height
+                horizon_band = 5
+                for y in range(horizon_y, horizon_y + horizon_band):
                     for x in range(width):
-                        # Distant islands
-                        island_height = int(20 * abs(np.sin(x * 0.003 + seed)))
-                        if y - horizon_start < island_height:
-                            img_array[y, x] = [100, 120, 80]  # Distant green islands
-                        else:
-                            # Ocean horizon
-                            img_array[y, x] = [0, 100, 180]
+                        # Subtle horizon haze
+                        img_array[y, x] = [180, 200, 220]
                 
-                # Ocean waves
-                for y in range(horizon_end, height):
+                # Ocean water with realistic depth and waves
+                water_start = horizon_y + horizon_band
+                for y in range(water_start, height):
+                    water_depth = (y - water_start) / (height - water_start)
+                    
                     for x in range(width):
-                        # Dynamic wave patterns
-                        wave1 = int(30 * np.sin(x * 0.01 + seed))
-                        wave2 = int(20 * np.cos(x * 0.008 + seed * 2))
-                        wave_height = wave1 + wave2
+                        # Base ocean color - deeper blue towards foreground
+                        base_blue = int(140 + water_depth * 60)  # 140 to 200
+                        base_green = int(80 + water_depth * 40)   # 80 to 120
+                        base_red = int(20 + water_depth * 30)     # 20 to 50
                         
-                        # Ocean blue with wave highlights
-                        if wave_height > 35:
-                            img_array[y, x] = [200, 230, 255]  # Wave crest (white foam)
-                        elif wave_height > 15:
-                            img_array[y, x] = [50, 150, 220]  # Medium water
+                        # Add wave patterns for sparkle/foam effects
+                        wave_pattern = np.sin(x * 0.02) * np.sin(y * 0.015)
+                        if wave_pattern > 0.7:  # Wave crests
+                            highlight = int(40 * (wave_pattern - 0.7) / 0.3)
+                            img_array[y, x] = [
+                                min(255, base_red + highlight),
+                                min(255, base_green + highlight),
+                                min(255, base_blue + highlight)
+                            ]
                         else:
-                            img_array[y, x] = [20, 80, 160]  # Deep water
+                            img_array[y, x] = [base_red, base_green, base_blue]
             
             def _generate_snow_scene(self, img_array, width, height, seed):
-                """Generate winter/snow scene"""
+                """Generate realistic winter/snow scene"""
                 import numpy as np
                 np.random.seed(seed)
                 
-                # Gray winter sky
+                # Overcast winter sky - soft gray
                 sky_height = int(height * 0.4)
                 for y in range(sky_height):
+                    # Gradient from lighter gray to slightly darker
+                    sky_intensity = 1.0 - (y / sky_height * 0.2)
+                    gray_val = int(200 + sky_intensity * 40)
                     for x in range(width):
-                        snow_cloud = int(20 * np.sin(x * 0.008 + seed))
-                        gray_val = 180 + snow_cloud
-                        img_array[y, x] = [gray_val, gray_val, min(255, gray_val + 20)]
+                        img_array[y, x] = [gray_val, gray_val, gray_val + 10]
                 
-                # Snow-covered mountains
+                # Snow-covered mountains with realistic shapes
                 mountain_start = sky_height
-                mountain_end = int(height * 0.7)
-                for y in range(mountain_start, mountain_end):
+                for y in range(mountain_start, height):
+                    depth = (y - mountain_start) / (height - mountain_start)
+                    
                     for x in range(width):
-                        mountain_height = int(60 * abs(np.sin(x * 0.004 + seed)))
-                        if y - mountain_start < mountain_height:
-                            # Snow-covered peaks
-                            snow_variation = np.random.randint(-10, 20)
-                            white_val = 240 + snow_variation
-                            img_array[y, x] = [white_val, white_val, min(255, white_val + 10)]
+                        # Create realistic mountain silhouettes
+                        mountain1 = 70 * np.sin(x * 0.006)
+                        mountain2 = 40 * np.sin(x * 0.012) 
+                        mountain3 = 20 * np.sin(x * 0.020)
+                        total_height = mountain1 + mountain2 + mountain3 + 80
+                        
+                        relative_y = y - mountain_start
+                        mountain_height = total_height * (1 - depth * 0.3)
+                        
+                        if relative_y < mountain_height:
+                            # Snow-covered mountain
+                            # Shadows on slopes
+                            slope_shadow = 1.0 - (relative_y / mountain_height) * 0.1
+                            snow_r = int(245 * slope_shadow)
+                            snow_g = int(245 * slope_shadow)
+                            snow_b = int(250 * slope_shadow)
+                            img_array[y, x] = [snow_r, snow_g, snow_b]
                         else:
-                            # Mountain shadows
-                            img_array[y, x] = [150, 150, 180]
-                
-                # Snowy ground
-                for y in range(mountain_end, height):
-                    for x in range(width):
-                        snow_texture = int(15 * np.sin(x * 0.03 + seed))
-                        img_array[y, x] = [
-                            min(255, 230 + snow_texture),
-                            min(255, 230 + snow_texture),
-                            min(255, 240 + snow_texture)
-                        ]
+                            # Snowy ground in foreground
+                            # Slight blue tint in snow shadows
+                            ground_brightness = 1.0 - depth * 0.1
+                            snow_r = int(240 * ground_brightness)
+                            snow_g = int(242 * ground_brightness) 
+                            snow_b = int(248 * ground_brightness)
+                            img_array[y, x] = [snow_r, snow_g, snow_b]
             
             def _generate_urban_scene(self, img_array, width, height, seed):
                 """Generate urban cityscape"""
@@ -730,34 +759,30 @@ class HunyuanTextToPanoramaModel:
                                             
                                             pil_image = Image.fromarray(img_array)
                                             
-                                            # Add detailed overlay information
+                                            # Add minimal overlay information in bottom corner only
                                             draw = ImageDraw.Draw(pil_image)
                                             try:
-                                                font = ImageFont.truetype("arial.ttf", 14)
-                                                title_font = ImageFont.truetype("arial.ttf", 18)
+                                                font = ImageFont.truetype("arial.ttf", 10)
                                             except:
                                                 font = ImageFont.load_default()
-                                                title_font = ImageFont.load_default()
                                             
-                                            # Add title with shadow effect
-                                            draw.text((11, 11), "HunyuanWorld + FLUX Integration", fill=(0, 0, 0), font=title_font)
-                                            draw.text((10, 10), "HunyuanWorld + FLUX Integration", fill=(255, 255, 255), font=title_font)
+                                            # Add small scene type indicator in bottom right
+                                            scene_text = f"{scene_type.upper()} | Seed: {prompt_seed}"
+                                            text_bbox = draw.textbbox((0, 0), scene_text, font=font)
+                                            text_width = text_bbox[2] - text_bbox[0]
+                                            text_height = text_bbox[3] - text_bbox[1]
                                             
-                                            # Add prompt
-                                            wrapped_prompt = (prompt[:50] + "...") if len(prompt) > 50 else prompt
-                                            draw.text((10, 35), f"Prompt: {wrapped_prompt}", fill=(255, 255, 255), font=font)
+                                            # Position in bottom right corner with small padding
+                                            text_x = width - text_width - 10
+                                            text_y = height - text_height - 5
                                             
-                                            # Add model info
-                                            draw.text((10, 55), f"LoRA: HunyuanWorld-PanoDiT-Text (304 tensors)", fill=(150, 255, 150), font=font)
-                                            draw.text((10, 72), f"Base: {os.path.basename(flux_model_path)}", fill=(150, 255, 150), font=font)
+                                            # Add semi-transparent background for text readability
+                                            padding = 3
+                                            draw.rectangle([text_x - padding, text_y - padding, 
+                                                          text_x + text_width + padding, text_y + text_height + padding], 
+                                                         fill=(0, 0, 0, 128))
                                             
-                                            # Add generation parameters
-                                            draw.text((10, 95), f"Resolution: {width}x{height} | Steps: {num_inference_steps} | Guidance: {guidance_scale}", 
-                                                     fill=(200, 200, 200), font=font)
-                                            
-                                            # Status
-                                            draw.text((10, 115), "Status: Both models loaded - Ready for full inference integration!", 
-                                                     fill=(100, 255, 100), font=font)
+                                            draw.text((text_x, text_y), scene_text, fill=(255, 255, 255), font=font)
                                             
                                             print(f"[SUCCESS] Enhanced FLUX + HunyuanWorld demonstration completed!")
                                             
