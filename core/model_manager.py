@@ -11,7 +11,7 @@ from .hunyuan_integration import (
 )
 
 if HUNYUAN_AVAILABLE:
-    print("✅ HunyuanWorld integration available")
+    print("[SUCCESS] HunyuanWorld integration available")
 else:
     raise ImportError("HunyuanWorld integration required. Please follow setup instructions in README.md")
 
