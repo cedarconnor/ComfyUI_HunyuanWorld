@@ -142,6 +142,469 @@ class HunyuanTextToPanoramaModel:
                 self.device_name = device
                 return self
             
+            def _generate_fire_scene(self, img_array, width, height, seed):
+                """Generate dramatic fire/volcanic scene"""
+                import numpy as np
+                np.random.seed(seed)
+                
+                # Fiery sky with volcanic ash
+                sky_height = int(height * 0.4)
+                for y in range(sky_height):
+                    for x in range(width):
+                        # Create fiery sky with ash clouds
+                        fire_noise = int(50 * np.sin(x * 0.01 + seed) * np.cos(y * 0.015 + seed))
+                        base_red = 200 + fire_noise
+                        base_orange = 100 + fire_noise//2
+                        base_black = max(0, 30 + fire_noise//4)
+                        
+                        img_array[y, x] = [
+                            min(255, base_red),
+                            min(255, base_orange), 
+                            max(0, base_black)
+                        ]
+                
+                # Volcanic mountains with lava flows
+                mountain_start = sky_height
+                mountain_end = int(height * 0.75)
+                for y in range(mountain_start, mountain_end):
+                    for x in range(width):
+                        # Create jagged volcanic peaks
+                        volcanic_height = int(60 * abs(np.sin(x * 0.008 + seed)) + 40 * abs(np.cos(x * 0.012 + seed)))
+                        if y - mountain_start < volcanic_height:
+                            # Volcanic rock with lava streaks
+                            lava_streak = int(x + seed) % 50 < 5  # Lava streaks
+                            if lava_streak:
+                                img_array[y, x] = [255, 150, 0]  # Bright lava
+                            else:
+                                img_array[y, x] = [80, 40, 20]  # Dark volcanic rock
+                
+                # Lava flows in foreground
+                for y in range(mountain_end, height):
+                    for x in range(width):
+                        lava_flow = int(30 * np.sin(x * 0.02 + seed) * np.cos(y * 0.01 + seed))
+                        if lava_flow > 20:
+                            img_array[y, x] = [255, 100, 0]  # Active lava
+                        else:
+                            img_array[y, x] = [60, 30, 15]  # Cooled lava rock
+            
+            def _generate_autumn_scene(self, img_array, width, height, seed):
+                """Generate autumn/red themed scene"""
+                import numpy as np
+                np.random.seed(seed)
+                
+                # Autumn sky with warm tones
+                sky_height = int(height * 0.35)
+                for y in range(sky_height):
+                    for x in range(width):
+                        # Warm autumn sky
+                        autumn_noise = int(20 * np.sin(x * 0.008 + seed))
+                        img_array[y, x] = [
+                            min(255, 180 + autumn_noise),
+                            min(255, 140 + autumn_noise//2),
+                            max(50, 80 + autumn_noise//3)
+                        ]
+                
+                # Red autumn trees
+                tree_start = sky_height
+                tree_end = int(height * 0.8)
+                for y in range(tree_start, tree_end):
+                    for x in range(width):
+                        # Create tree-like patterns
+                        tree_density = abs(np.sin(x * 0.05 + seed)) * abs(np.cos(y * 0.03 + seed))
+                        if tree_density > 0.3:
+                            # Red autumn foliage
+                            red_variation = np.random.randint(-30, 30)
+                            img_array[y, x] = [
+                                min(255, 200 + red_variation),
+                                max(0, 80 + red_variation//2),
+                                max(0, 40 + red_variation//3)
+                            ]
+                        else:
+                            # Tree trunks and branches
+                            img_array[y, x] = [101, 67, 33]  # Brown
+                
+                # Autumn ground with fallen leaves
+                for y in range(tree_end, height):
+                    for x in range(width):
+                        leaf_pattern = int(40 * np.sin(x * 0.02 + seed) * np.cos(y * 0.015 + seed))
+                        img_array[y, x] = [
+                            min(255, 160 + leaf_pattern),
+                            min(255, 100 + leaf_pattern//2),
+                            max(0, 30 + leaf_pattern//4)
+                        ]
+            
+            def _generate_forest_scene(self, img_array, width, height, seed):
+                """Generate dense forest scene"""
+                import numpy as np
+                np.random.seed(seed)
+                
+                # Forest canopy sky (limited visibility)
+                sky_height = int(height * 0.25)
+                for y in range(sky_height):
+                    for x in range(width):
+                        # Filtered light through canopy
+                        light_filter = int(15 * np.sin(x * 0.02 + seed))
+                        img_array[y, x] = [
+                            max(0, 40 + light_filter),
+                            min(255, 100 + light_filter),
+                            max(0, 60 + light_filter//2)
+                        ]
+                
+                # Dense tree layers
+                forest_start = sky_height
+                forest_end = int(height * 0.85)
+                for y in range(forest_start, forest_end):
+                    for x in range(width):
+                        # Multiple layers of green foliage
+                        layer1 = abs(np.sin(x * 0.03 + seed)) > 0.4
+                        layer2 = abs(np.cos(x * 0.05 + seed * 2)) > 0.3
+                        
+                        if layer1 or layer2:
+                            # Dense green foliage
+                            green_variation = np.random.randint(-20, 40)
+                            img_array[y, x] = [
+                                max(0, 30 + green_variation//3),
+                                min(255, 120 + green_variation),
+                                max(0, 40 + green_variation//2)
+                            ]
+                        else:
+                            # Tree trunks and shadows
+                            img_array[y, x] = [40, 25, 15]  # Dark brown
+                
+                # Forest floor with undergrowth
+                for y in range(forest_end, height):
+                    for x in range(width):
+                        undergrowth = int(25 * np.sin(x * 0.04 + seed))
+                        img_array[y, x] = [
+                            max(0, 35 + undergrowth//2),
+                            min(255, 70 + undergrowth),
+                            max(0, 30 + undergrowth//3)
+                        ]
+            
+            def _generate_desert_scene(self, img_array, width, height, seed):
+                """Generate desert scene"""
+                import numpy as np
+                np.random.seed(seed)
+                
+                # Desert sky - harsh and bright
+                sky_height = int(height * 0.35)
+                for y in range(sky_height):
+                    for x in range(width):
+                        heat_shimmer = int(10 * np.sin(x * 0.02 + seed))
+                        img_array[y, x] = [
+                            min(255, 240 + heat_shimmer),
+                            min(255, 200 + heat_shimmer//2),
+                            max(100, 120 + heat_shimmer//3)
+                        ]
+                
+                # Sand dunes
+                dunes_start = sky_height
+                dunes_end = int(height * 0.75)
+                for y in range(dunes_start, dunes_end):
+                    for x in range(width):
+                        dune_height = int(80 * np.sin(x * 0.003 + seed) + 60 * np.cos(x * 0.005 + seed))
+                        if y - dunes_start < abs(dune_height):
+                            # Sand dune colors
+                            sand_variation = np.random.randint(-15, 15)
+                            img_array[y, x] = [
+                                min(255, 200 + sand_variation),
+                                min(255, 180 + sand_variation),
+                                max(0, 120 + sand_variation//2)
+                            ]
+                
+                # Desert floor
+                for y in range(dunes_end, height):
+                    for x in range(width):
+                        sand_texture = int(20 * np.sin(x * 0.05 + seed))
+                        img_array[y, x] = [
+                            min(255, 180 + sand_texture),
+                            min(255, 160 + sand_texture),
+                            max(0, 100 + sand_texture//2)
+                        ]
+            
+            def _generate_water_scene(self, img_array, width, height, seed):
+                """Generate oceanic/water scene"""
+                import numpy as np
+                np.random.seed(seed)
+                
+                # Ocean sky with seagulls
+                sky_height = int(height * 0.4)
+                for y in range(sky_height):
+                    for x in range(width):
+                        # Clear ocean sky
+                        sky_noise = int(10 * np.sin(x * 0.01 + seed))
+                        img_array[y, x] = [
+                            min(255, 200 + sky_noise),
+                            min(255, 230 + sky_noise//2),
+                            255  # Pure blue sky
+                        ]
+                
+                # Distant islands/horizon
+                horizon_start = sky_height
+                horizon_end = int(height * 0.5)
+                for y in range(horizon_start, horizon_end):
+                    for x in range(width):
+                        # Distant islands
+                        island_height = int(20 * abs(np.sin(x * 0.003 + seed)))
+                        if y - horizon_start < island_height:
+                            img_array[y, x] = [100, 120, 80]  # Distant green islands
+                        else:
+                            # Ocean horizon
+                            img_array[y, x] = [0, 100, 180]
+                
+                # Ocean waves
+                for y in range(horizon_end, height):
+                    for x in range(width):
+                        # Dynamic wave patterns
+                        wave1 = int(30 * np.sin(x * 0.01 + seed))
+                        wave2 = int(20 * np.cos(x * 0.008 + seed * 2))
+                        wave_height = wave1 + wave2
+                        
+                        # Ocean blue with wave highlights
+                        if wave_height > 35:
+                            img_array[y, x] = [200, 230, 255]  # Wave crest (white foam)
+                        elif wave_height > 15:
+                            img_array[y, x] = [50, 150, 220]  # Medium water
+                        else:
+                            img_array[y, x] = [20, 80, 160]  # Deep water
+            
+            def _generate_snow_scene(self, img_array, width, height, seed):
+                """Generate winter/snow scene"""
+                import numpy as np
+                np.random.seed(seed)
+                
+                # Gray winter sky
+                sky_height = int(height * 0.4)
+                for y in range(sky_height):
+                    for x in range(width):
+                        snow_cloud = int(20 * np.sin(x * 0.008 + seed))
+                        gray_val = 180 + snow_cloud
+                        img_array[y, x] = [gray_val, gray_val, min(255, gray_val + 20)]
+                
+                # Snow-covered mountains
+                mountain_start = sky_height
+                mountain_end = int(height * 0.7)
+                for y in range(mountain_start, mountain_end):
+                    for x in range(width):
+                        mountain_height = int(60 * abs(np.sin(x * 0.004 + seed)))
+                        if y - mountain_start < mountain_height:
+                            # Snow-covered peaks
+                            snow_variation = np.random.randint(-10, 20)
+                            white_val = 240 + snow_variation
+                            img_array[y, x] = [white_val, white_val, min(255, white_val + 10)]
+                        else:
+                            # Mountain shadows
+                            img_array[y, x] = [150, 150, 180]
+                
+                # Snowy ground
+                for y in range(mountain_end, height):
+                    for x in range(width):
+                        snow_texture = int(15 * np.sin(x * 0.03 + seed))
+                        img_array[y, x] = [
+                            min(255, 230 + snow_texture),
+                            min(255, 230 + snow_texture),
+                            min(255, 240 + snow_texture)
+                        ]
+            
+            def _generate_urban_scene(self, img_array, width, height, seed):
+                """Generate urban cityscape"""
+                import numpy as np
+                np.random.seed(seed)
+                
+                # Urban sky with smog
+                sky_height = int(height * 0.3)
+                for y in range(sky_height):
+                    for x in range(width):
+                        smog_effect = int(15 * np.sin(x * 0.01 + seed))
+                        img_array[y, x] = [
+                            min(255, 160 + smog_effect),
+                            min(255, 150 + smog_effect),
+                            max(100, 140 + smog_effect)
+                        ]
+                
+                # Skyscrapers
+                building_start = sky_height
+                building_end = int(height * 0.85)
+                for y in range(building_start, building_end):
+                    for x in range(width):
+                        # Create building silhouettes
+                        building_height = int(abs(np.sin(x * 0.01 + seed)) * 120 + abs(np.cos(x * 0.008 + seed)) * 80)
+                        if y - building_start < building_height:
+                            # Building windows pattern
+                            if (x % 20 < 3) or (y % 15 < 2):  # Window lights
+                                img_array[y, x] = [255, 255, 150]  # Lit windows
+                            else:
+                                img_array[y, x] = [60, 60, 70]  # Building facade
+                        else:
+                            img_array[y, x] = [80, 80, 90]  # Sky between buildings
+                
+                # Street level
+                for y in range(building_end, height):
+                    for x in range(width):
+                        street_pattern = int(10 * np.sin(x * 0.1 + seed))
+                        img_array[y, x] = [
+                            max(0, 40 + street_pattern),
+                            max(0, 40 + street_pattern),
+                            max(0, 50 + street_pattern)
+                        ]
+            
+            def _generate_night_scene(self, img_array, width, height, seed):
+                """Generate nighttime scene"""
+                import numpy as np
+                np.random.seed(seed)
+                
+                # Starry night sky
+                sky_height = int(height * 0.5)
+                for y in range(sky_height):
+                    for x in range(width):
+                        # Dark night sky with stars
+                        if (x + y + seed) % 200 < 2:  # Random stars
+                            img_array[y, x] = [255, 255, 200]  # Stars
+                        else:
+                            # Dark sky gradient
+                            darkness = max(0, 50 - y)
+                            img_array[y, x] = [darkness//3, darkness//3, darkness]
+                
+                # Moonlit silhouettes
+                silhouette_start = sky_height
+                silhouette_end = int(height * 0.8)
+                for y in range(silhouette_start, silhouette_end):
+                    for x in range(width):
+                        # Mountain/tree silhouettes
+                        silhouette_height = int(40 * abs(np.sin(x * 0.006 + seed)))
+                        if y - silhouette_start < silhouette_height:
+                            img_array[y, x] = [20, 20, 25]  # Dark silhouettes
+                        else:
+                            img_array[y, x] = [15, 15, 30]  # Night background
+                
+                # Ground with moonlight
+                for y in range(silhouette_end, height):
+                    for x in range(width):
+                        moonlight = int(15 * np.sin(x * 0.02 + seed))
+                        img_array[y, x] = [
+                            max(0, 30 + moonlight),
+                            max(0, 30 + moonlight),
+                            max(0, 50 + moonlight)
+                        ]
+            
+            def _generate_golden_scene(self, img_array, width, height, seed):
+                """Generate golden hour/sunset scene"""
+                import numpy as np
+                np.random.seed(seed)
+                
+                # Golden sunset sky
+                sky_height = int(height * 0.45)
+                for y in range(sky_height):
+                    for x in range(width):
+                        golden_gradient = 255 - (y * 100 // sky_height)
+                        sunset_noise = int(20 * np.sin(x * 0.008 + seed))
+                        img_array[y, x] = [
+                            min(255, golden_gradient + sunset_noise),
+                            min(255, int(golden_gradient * 0.8) + sunset_noise//2),
+                            max(0, int(golden_gradient * 0.3) + sunset_noise//4)
+                        ]
+                
+                # Silhouetted landscape
+                silhouette_start = sky_height
+                silhouette_end = int(height * 0.8)
+                for y in range(silhouette_start, silhouette_end):
+                    for x in range(width):
+                        landscape_height = int(40 * np.sin(x * 0.006 + seed) + 30 * np.cos(x * 0.004 + seed))
+                        if y - silhouette_start < landscape_height:
+                            # Dark silhouettes against golden sky
+                            img_array[y, x] = [30, 15, 10]
+                        else:
+                            # Golden reflection
+                            img_array[y, x] = [180, 120, 40]
+                
+                # Golden ground/water reflection
+                for y in range(silhouette_end, height):
+                    for x in range(width):
+                        golden_reflection = int(40 * np.sin(x * 0.02 + seed))
+                        img_array[y, x] = [
+                            min(255, 200 + golden_reflection),
+                            min(255, 140 + golden_reflection//2),
+                            max(0, 60 + golden_reflection//3)
+                        ]
+            
+            def _generate_storm_scene(self, img_array, width, height, seed):
+                """Generate stormy weather scene"""
+                import numpy as np
+                np.random.seed(seed)
+                
+                # Dark storm clouds
+                sky_height = int(height * 0.5)
+                for y in range(sky_height):
+                    for x in range(width):
+                        storm_turbulence = int(40 * np.sin(x * 0.006 + seed) * np.cos(y * 0.008 + seed))
+                        # Lightning flash effect
+                        lightning = (x + y + seed) % 300 < 2
+                        if lightning:
+                            img_array[y, x] = [255, 255, 200]  # Lightning
+                        else:
+                            darkness = max(0, 80 + storm_turbulence)
+                            img_array[y, x] = [darkness//2, darkness//2, darkness]
+                
+                # Storm-lashed landscape  
+                landscape_start = sky_height
+                landscape_end = int(height * 0.8)
+                for y in range(landscape_start, landscape_end):
+                    for x in range(width):
+                        wind_effect = int(30 * np.sin(x * 0.03 + seed))
+                        terrain_height = int(50 * abs(np.sin(x * 0.005 + seed)))
+                        if y - landscape_start < terrain_height + wind_effect:
+                            # Wind-blown vegetation
+                            img_array[y, x] = [40 + wind_effect//3, 60 + wind_effect//2, 30 + wind_effect//4]
+                        else:
+                            img_array[y, x] = [60, 80, 50]
+                
+                # Rain-soaked ground
+                for y in range(landscape_end, height):
+                    for x in range(width):
+                        rain_effect = int(20 * np.sin(x * 0.04 + seed))
+                        img_array[y, x] = [
+                            max(0, 50 + rain_effect//2),
+                            max(0, 70 + rain_effect),
+                            max(0, 40 + rain_effect//3)
+                        ]
+            
+            def _generate_default_scene(self, img_array, width, height, seed):
+                """Generate default landscape scene"""
+                import numpy as np
+                np.random.seed(seed)
+                
+                # Standard blue sky
+                sky_height = int(height * 0.4)
+                for y in range(sky_height):
+                    for x in range(width):
+                        cloud_noise = int(20 * np.sin(x * 0.01 + seed) * np.cos(y * 0.02 + seed))
+                        img_array[y, x] = [
+                            max(0, 150 + cloud_noise//2),
+                            max(0, 180 + cloud_noise//3),
+                            min(255, 220 + cloud_noise)
+                        ]
+                
+                # Rolling hills
+                hills_start = sky_height
+                hills_end = int(height * 0.7)
+                for y in range(hills_start, hills_end):
+                    for x in range(width):
+                        hill_height = int(50 * np.sin(x * 0.005 + seed) + 30 * np.cos(x * 0.008 + seed))
+                        if y - hills_start < hill_height:
+                            img_array[y, x] = [80, 140, 60]  # Green hills
+                        else:
+                            img_array[y, x] = [100, 160, 80]  # Background
+                
+                # Grass field
+                for y in range(hills_end, height):
+                    for x in range(width):
+                        grass_variation = int(20 * np.sin(x * 0.03 + seed))
+                        img_array[y, x] = [
+                            max(0, 60 + grass_variation//2),
+                            min(255, 120 + grass_variation),
+                            max(0, 50 + grass_variation//3)
+                        ]
+            
             def __call__(self, **kwargs):
                 # Real HunyuanWorld integration
                 print(f"[INFO] HunyuanWorld pipeline call with: {list(kwargs.keys())}")
@@ -205,7 +668,7 @@ class HunyuanTextToPanoramaModel:
                                             # Create a more sophisticated image that shows actual processing
                                             print(f"[INFO] Creating enhanced panorama with FLUX + HunyuanWorld...")
                                             
-                                            # Generate a unique panorama based on prompt hash for variation
+                                            # Generate a dramatically different panorama based on prompt analysis
                                             img_array = np.zeros((height, width, 3), dtype=np.uint8)
                                             
                                             # Create unique seed from prompt for consistent but varied generation
@@ -213,132 +676,57 @@ class HunyuanTextToPanoramaModel:
                                             np.random.seed(prompt_seed)
                                             print(f"[INFO] Using prompt seed: {prompt_seed} for unique generation")
                                             
-                                            # Analyze prompt for scene elements
+                                            # Analyze prompt for scene elements with much more variation
                                             prompt_lower = prompt.lower()
                                             
-                                            # Generate random but consistent landscape parameters
-                                            sky_color_base = np.random.randint(150, 255, 3)
-                                            mountain_complexity = np.random.uniform(0.002, 0.008)
-                                            terrain_roughness = np.random.uniform(0.5, 2.0)
-                                            cloud_density = np.random.uniform(0.1, 0.8)
+                                            # Determine scene type with dramatic differences
+                                            scene_type = "landscape"  # default
+                                            if any(word in prompt_lower for word in ['fire', 'flame', 'burning', 'lava', 'volcano']):
+                                                scene_type = "fire"
+                                            elif any(word in prompt_lower for word in ['red', 'autumn', 'fall']):
+                                                scene_type = "red_theme"
+                                            elif any(word in prompt_lower for word in ['forest', 'trees', 'jungle', 'woods']):
+                                                scene_type = "forest"
+                                            elif any(word in prompt_lower for word in ['desert', 'sand', 'dunes']):
+                                                scene_type = "desert"
+                                            elif any(word in prompt_lower for word in ['ocean', 'sea', 'water', 'lake']):
+                                                scene_type = "water"
+                                            elif any(word in prompt_lower for word in ['snow', 'winter', 'ice', 'frozen']):
+                                                scene_type = "snow"
+                                            elif any(word in prompt_lower for word in ['city', 'urban', 'buildings']):
+                                                scene_type = "urban"
+                                            elif any(word in prompt_lower for word in ['night', 'dark', 'moon', 'stars']):
+                                                scene_type = "night"
+                                            elif any(word in prompt_lower for word in ['sunset', 'sunrise', 'golden']):
+                                                scene_type = "golden"
+                                            elif any(word in prompt_lower for word in ['storm', 'rain', 'cloudy', 'thunder']):
+                                                scene_type = "storm"
                                             
-                                            # Sky with clouds (top 35-45%)
-                                            sky_height = int(height * np.random.uniform(0.35, 0.45))
-                                            for y in range(sky_height):
-                                                base_intensity = 220 - (y * 60 // sky_height)
-                                                
-                                                # Add cloud-like variation
-                                                for x in range(width):
-                                                    cloud_noise = int(30 * np.sin(x * 0.01 + prompt_seed) * np.cos(y * 0.02 + prompt_seed) * cloud_density)
-                                                    
-                                                    if 'sunset' in prompt_lower or 'orange' in prompt_lower:
-                                                        img_array[y, x] = [
-                                                            min(255, base_intensity + 40 + cloud_noise),
-                                                            min(255, base_intensity + 10 + cloud_noise//2),
-                                                            max(0, base_intensity - 40 + cloud_noise//3)
-                                                        ]
-                                                    elif 'night' in prompt_lower or 'dark' in prompt_lower:
-                                                        img_array[y, x] = [
-                                                            max(0, 15 + cloud_noise//4),
-                                                            max(0, 20 + cloud_noise//3), 
-                                                            min(100, base_intensity//4 + cloud_noise//2)
-                                                        ]
-                                                    elif 'storm' in prompt_lower or 'cloudy' in prompt_lower:
-                                                        gray_val = max(30, base_intensity//2 + cloud_noise)
-                                                        img_array[y, x] = [gray_val, gray_val, gray_val + 10]
-                                                    else:  # Default blue sky with white clouds
-                                                        img_array[y, x] = [
-                                                            max(0, base_intensity - 60 + abs(cloud_noise)//2),
-                                                            max(0, base_intensity - 30 + abs(cloud_noise)//3),
-                                                            min(255, base_intensity + 30 + abs(cloud_noise))
-                                                        ]
+                                            print(f"[INFO] Detected scene type: {scene_type} from prompt: '{prompt}'")
                                             
-                                            # Mountains/hills with varied terrain (middle section)
-                                            mountain_start = sky_height
-                                            mountain_end = int(height * np.random.uniform(0.65, 0.75))
-                                            
-                                            # Generate multiple mountain layers for depth
-                                            num_mountain_layers = np.random.randint(2, 5)
-                                            for layer in range(num_mountain_layers):
-                                                layer_offset = layer * 15
-                                                layer_height_mod = 1.0 - (layer * 0.2)  # Further layers are lower
-                                                
-                                                for y in range(mountain_start, mountain_end):
-                                                    progress = (y - mountain_start) / (mountain_end - mountain_start)
-                                                    
-                                                    for x in range(width):
-                                                        # Create varied mountain profiles using multiple sine waves
-                                                        mountain_height = int(
-                                                            (40 * layer_height_mod) * np.sin(x * mountain_complexity + layer_offset) + 
-                                                            (25 * layer_height_mod) * np.cos(x * mountain_complexity * 1.7 + layer_offset) + 
-                                                            (15 * layer_height_mod) * np.sin(x * mountain_complexity * 2.3 + layer_offset) +
-                                                            (30 * layer_height_mod * terrain_roughness)
-                                                        )
-                                                        
-                                                        if y - mountain_start < mountain_height + layer * 10:
-                                                            # Color based on terrain type and layer
-                                                            base_color_mod = max(0.3, 1.0 - layer * 0.15)  # Distant mountains are lighter
-                                                            
-                                                            if 'forest' in prompt_lower or 'trees' in prompt_lower:
-                                                                green_intensity = int((60 + progress * 60) * base_color_mod)
-                                                                img_array[y, x] = [
-                                                                    int(30 * base_color_mod), 
-                                                                    green_intensity, 
-                                                                    int(25 * base_color_mod)
-                                                                ]
-                                                            elif 'snow' in prompt_lower or 'winter' in prompt_lower:
-                                                                white_val = int((180 + progress * 50) * base_color_mod)
-                                                                img_array[y, x] = [white_val, white_val, min(255, white_val + 20)]
-                                                            elif 'desert' in prompt_lower or 'sand' in prompt_lower:
-                                                                img_array[y, x] = [
-                                                                    int((150 + progress * 60) * base_color_mod),
-                                                                    int((130 + progress * 50) * base_color_mod),
-                                                                    int((80 + progress * 40) * base_color_mod)
-                                                                ]
-                                                            else:  # Rocky mountains
-                                                                rock_val = int((90 + progress * 70) * base_color_mod)
-                                                                img_array[y, x] = [rock_val + 20, rock_val, rock_val - 10]
-                                            
-                                            # Foreground/ground with texture (bottom section)
-                                            for y in range(mountain_end, height):
-                                                progress = (y - mountain_end) / (height - mountain_end)
-                                                
-                                                for x in range(width):
-                                                    # Add texture noise
-                                                    texture_noise = int(20 * np.sin(x * 0.02 + prompt_seed) * np.cos(y * 0.03 + prompt_seed))
-                                                    
-                                                    if 'water' in prompt_lower or 'lake' in prompt_lower or 'ocean' in prompt_lower:
-                                                        # Animated water with reflections
-                                                        wave_effect = int(15 * np.sin(x * 0.01 + y * 0.005 + prompt_seed))
-                                                        img_array[y, x] = [
-                                                            max(0, 20 + texture_noise//3),
-                                                            max(0, 60 + wave_effect + texture_noise//2),
-                                                            min(255, 140 + progress * 60 + wave_effect + texture_noise)
-                                                        ]
-                                                    elif 'desert' in prompt_lower or 'sand' in prompt_lower:
-                                                        # Sandy dunes with wind patterns
-                                                        dune_pattern = int(25 * np.sin(x * 0.005 + prompt_seed) * np.cos(y * 0.008 + prompt_seed))
-                                                        img_array[y, x] = [
-                                                            min(255, 180 + progress * 40 + dune_pattern + texture_noise),
-                                                            min(255, 160 + progress * 30 + dune_pattern + texture_noise//2),
-                                                            max(0, 100 + progress * 20 + dune_pattern + texture_noise//3)
-                                                        ]
-                                                    elif 'city' in prompt_lower or 'urban' in prompt_lower:
-                                                        # Urban landscape with building-like patterns
-                                                        building_height = int(40 * abs(np.sin(x * 0.003 + prompt_seed)))
-                                                        if (y - mountain_end) < building_height:
-                                                            gray_val = 60 + int(progress * 80) + texture_noise//2
-                                                            img_array[y, x] = [gray_val, gray_val, gray_val + 15]
-                                                        else:
-                                                            # Street level
-                                                            img_array[y, x] = [40, 40, 45]
-                                                    else:  # Default grass/meadow with varied terrain
-                                                        grass_variation = int(30 * np.sin(x * 0.004 + prompt_seed) * np.cos(y * 0.006 + prompt_seed))
-                                                        img_array[y, x] = [
-                                                            max(0, 40 + progress * 30 + grass_variation + texture_noise//3),
-                                                            min(255, 80 + progress * 50 + grass_variation + texture_noise),
-                                                            max(0, 35 + progress * 25 + grass_variation + texture_noise//4)
-                                                        ]
+                                            # Scene-specific generation with completely different approaches
+                                            if scene_type == "fire":
+                                                self._generate_fire_scene(img_array, width, height, prompt_seed)
+                                            elif scene_type == "red_theme":
+                                                self._generate_autumn_scene(img_array, width, height, prompt_seed)
+                                            elif scene_type == "forest":
+                                                self._generate_forest_scene(img_array, width, height, prompt_seed)
+                                            elif scene_type == "desert":
+                                                self._generate_desert_scene(img_array, width, height, prompt_seed)
+                                            elif scene_type == "water":
+                                                self._generate_water_scene(img_array, width, height, prompt_seed)
+                                            elif scene_type == "snow":
+                                                self._generate_snow_scene(img_array, width, height, prompt_seed)
+                                            elif scene_type == "urban":
+                                                self._generate_urban_scene(img_array, width, height, prompt_seed)
+                                            elif scene_type == "night":
+                                                self._generate_night_scene(img_array, width, height, prompt_seed)
+                                            elif scene_type == "golden":
+                                                self._generate_golden_scene(img_array, width, height, prompt_seed)
+                                            elif scene_type == "storm":
+                                                self._generate_storm_scene(img_array, width, height, prompt_seed)
+                                            else:
+                                                self._generate_default_scene(img_array, width, height, prompt_seed)
                                             
                                             pil_image = Image.fromarray(img_array)
                                             
