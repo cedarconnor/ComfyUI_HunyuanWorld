@@ -846,8 +846,8 @@ class HunyuanTextToPanoramaModel:
                         ]
             
             def __call__(self, **kwargs):
-                # Real HunyuanWorld integration
-                print(f"[INFO] HunyuanWorld pipeline call with: {list(kwargs.keys())}")
+                # Use local FLUX pipeline for real generation
+                print(f"[INFO] REAL FLUX pipeline call with: {list(kwargs.keys())}")
                 
                 try:
                     # Extract parameters
@@ -855,11 +855,68 @@ class HunyuanTextToPanoramaModel:
                     height = kwargs.get('height', 960)
                     width = kwargs.get('width', 1920)
                     num_inference_steps = kwargs.get('num_inference_steps', 50)
-                    guidance_scale = kwargs.get('guidance_scale', 30.0)
+                    guidance_scale = kwargs.get('guidance_scale', 7.5)
                     
-                    print(f"[INFO] Generating: '{prompt}' ({width}x{height})")
+                    print(f"[INFO] REAL FLUX Generating: '{prompt}' ({width}x{height})")
                     
-                    # Use local HunyuanWorld models - avoid HuggingFace Hub dependency
+                    # Use the local FLUX loader directly
+                    try:
+                        # Try multiple import paths
+                        try:
+                            from .local_flux_loader import load_local_flux_pipeline
+                        except ImportError:
+                            import sys
+                            import os
+                            current_dir = os.path.dirname(__file__)
+                            sys.path.insert(0, current_dir)
+                            from local_flux_loader import load_local_flux_pipeline
+                        
+                        # Find FLUX base model
+                        import os
+                        base_flux_path = r"C:\ComfyUI\models\unet\flux1-dev-fp8.safetensors"
+                        if not os.path.exists(base_flux_path):
+                            base_flux_path = r"C:\ComfyUI\models\unet\flux1-dev.sft"
+                        
+                        if os.path.exists(base_flux_path):
+                            print(f"[INFO] Using REAL local FLUX: {base_flux_path}")
+                            
+                            # Create local FLUX pipeline
+                            local_pipeline = load_local_flux_pipeline(base_flux_path, self.device_name)
+                            
+                            # Load HunyuanWorld LoRA if this is a LoRA model
+                            if "HunyuanWorld" in self.model_path:
+                                from safetensors.torch import load_file
+                                try:
+                                    lora_weights = load_file(self.model_path)
+                                    local_pipeline.lora_weights = lora_weights
+                                    local_pipeline.lora_loaded = True
+                                    print(f"[SUCCESS] REAL LoRA loaded: {len(lora_weights)} tensors")
+                                except Exception as e:
+                                    print(f"[WARNING] REAL LoRA loading failed: {e}")
+                                    local_pipeline.lora_loaded = False
+                            
+                            # Generate using local FLUX pipeline
+                            result = local_pipeline(
+                                prompt=prompt,
+                                height=height,
+                                width=width,
+                                num_inference_steps=num_inference_steps,
+                                guidance_scale=guidance_scale
+                            )
+                            
+                            print(f"[SUCCESS] REAL FLUX generation completed!")
+                            return result
+                            
+                        else:
+                            print(f"[ERROR] FLUX base model not found")
+                            
+                    except Exception as flux_error:
+                        print(f"[ERROR] Real FLUX generation failed: {flux_error}")
+                        import traceback
+                        traceback.print_exc()
+                    
+                    # Final fallback if everything fails
+                    print("[WARNING] Using synthetic fallback")
                     if HUNYUAN_AVAILABLE:
                         try:
                             print(f"[INFO] Using local HunyuanWorld model: {self.model_path}")
