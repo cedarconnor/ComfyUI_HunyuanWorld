@@ -12,6 +12,40 @@ from pathlib import Path
 def create_real_flux_pipeline(model_path: str, device: str = "cuda"):
     """Create a real FLUX pipeline with LoRA support"""
     
+    # Use local model loader for better reliability
+    from .local_flux_loader import load_local_flux_pipeline
+    
+    # Check if this is a HunyuanWorld LoRA or FLUX base model
+    if "HunyuanWorld" in model_path:
+        # This is a LoRA - find FLUX base model
+        base_flux_path = r"C:\ComfyUI\models\unet\flux1-dev-fp8.safetensors"
+        if not os.path.exists(base_flux_path):
+            base_flux_path = r"C:\ComfyUI\models\unet\flux1-dev.sft"
+        
+        print(f"[INFO] Loading FLUX base + HunyuanWorld LoRA")
+        print(f"[INFO] Base model: {base_flux_path}")
+        print(f"[INFO] LoRA model: {model_path}")
+        
+        # Load local FLUX pipeline
+        pipeline = load_local_flux_pipeline(base_flux_path, device)
+        
+        # Load LoRA weights
+        try:
+            from safetensors.torch import load_file
+            lora_weights = load_file(model_path)
+            pipeline.lora_weights = lora_weights
+            pipeline.lora_loaded = True
+            print(f"[SUCCESS] LoRA loaded: {len(lora_weights)} tensors")
+        except Exception as e:
+            print(f"[WARNING] LoRA loading failed: {e}")
+            pipeline.lora_loaded = False
+        
+        return pipeline
+    else:
+        # This is a FLUX base model
+        print(f"[INFO] Loading FLUX base model: {model_path}")
+        return load_local_flux_pipeline(model_path, device)
+    
     class RealFluxPipeline:
         def __init__(self, model_path, device):
             self.model_path = model_path
