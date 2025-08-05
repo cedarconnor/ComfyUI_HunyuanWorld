@@ -91,11 +91,17 @@ def create_working_flux_pipeline(model_path: str, device: str = "cpu"):
                 print(f"[INFO] Loading FLUX pipeline on {device} with {dtype}")
                 
                 # Load FLUX pipeline
-                pipe = FluxPipeline.from_pretrained(
-                    "black-forest-labs/FLUX.1-dev",
-                    torch_dtype=dtype,
-                    device_map="auto" if device == "cuda" else None
-                )
+                if device == "cuda":
+                    pipe = FluxPipeline.from_pretrained(
+                        "black-forest-labs/FLUX.1-dev",
+                        torch_dtype=dtype,
+                        device_map="balanced"
+                    )
+                else:
+                    pipe = FluxPipeline.from_pretrained(
+                        "black-forest-labs/FLUX.1-dev",
+                        torch_dtype=dtype
+                    )
                 
                 if device == "cpu":
                     pipe = pipe.to("cpu")
@@ -201,6 +207,8 @@ def create_working_flux_pipeline(model_path: str, device: str = "cpu"):
             
             try:
                 # Try to import ComfyUI FLUX nodes
+                import sys
+                import os
                 sys.path.append(r"C:\ComfyUI\custom_nodes")
                 sys.path.append(r"C:\ComfyUI")
                 

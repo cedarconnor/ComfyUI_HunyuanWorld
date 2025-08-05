@@ -135,14 +135,29 @@ class HunyuanTextToPanoramaModel:
         try:
             # Try different import paths for ComfyUI compatibility
             try:
-                from .real_flux_integration import create_real_flux_pipeline
-            except ImportError:
-                # Alternative import path
-                import sys
-                import os
-                current_dir = os.path.dirname(__file__)
-                sys.path.insert(0, current_dir)
-                from real_flux_integration import create_real_flux_pipeline
+                # Try relative import first
+                try:
+                    from .real_flux_integration import create_real_flux_pipeline
+                except ImportError:
+                    # Alternative import path
+                    import sys
+                    import os
+                    current_dir = os.path.dirname(__file__)
+                    sys.path.insert(0, current_dir)
+                    from real_flux_integration import create_real_flux_pipeline
+            except ImportError as import_error:
+                print(f"[INFO] real_flux_integration import failed: {import_error}")
+                # Try working_flux_pipeline directly
+                try:
+                    from .working_flux_pipeline import create_working_flux_pipeline
+                    return create_working_flux_pipeline(self.model_path, self.device)
+                except ImportError:
+                    import sys
+                    import os
+                    current_dir = os.path.dirname(__file__)
+                    sys.path.insert(0, current_dir)
+                    from working_flux_pipeline import create_working_flux_pipeline
+                    return create_working_flux_pipeline(self.model_path, self.device)
             
             print("[SUCCESS] Real FLUX integration loaded")
             return create_real_flux_pipeline(self.model_path, self.device)
