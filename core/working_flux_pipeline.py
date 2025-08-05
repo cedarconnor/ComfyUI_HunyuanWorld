@@ -427,30 +427,60 @@ def create_working_flux_pipeline(model_path: str, device: str = "cpu"):
                 # Use ComfyUI's FLUX sampling
                 print(f"[INFO] Running FLUX sampling ({steps} steps, guidance {guidance})")
                 
-                # Get FLUX sampler
-                sampler = comfy.samplers.KSampler(model, steps=steps, device=device)
+                # Use ComfyUI's direct sampling function instead of KSampler wrapper
+                import comfy.sample
                 
-                # Sample using FLUX model - use correct ComfyUI KSampler API
+                # Set up sampler and scheduler
+                sampler_name = "euler"  # FLUX works well with Euler sampler
+                scheduler = "normal"
+                
                 try:
-                    samples = sampler.sample(
+                    # Use ComfyUI's sample function directly
+                    # For txt2img, we pass zeros as latent_image and our noise as the actual starting point
+                    empty_latent = {"samples": torch.zeros_like(latent)}
+                    
+                    samples = comfy.sample.sample(
+                        model=model,
                         noise=latent,
+                        steps=steps,
+                        cfg=guidance,
+                        sampler_name=sampler_name,
+                        scheduler=scheduler,
                         positive=positive_conditioning,
                         negative=negative_conditioning,
-                        cfg=guidance,
-                        disable_noise=False,
+                        latent_image=empty_latent,
                         start_step=0,
                         last_step=steps,
-                        force_full_denoise=True
+                        force_full_denoise=True,
+                        noise_mask=None,
+                        callback=None,
+                        disable_pbar=False,
+                        seed=None
                     )
-                except TypeError as api_error:
-                    print(f"[INFO] Trying alternative KSampler API: {api_error}")
-                    # Try with simplified parameters
-                    samples = sampler.sample(
-                        noise=latent,
-                        positive=positive_conditioning,
-                        negative=negative_conditioning,
-                        cfg=guidance
-                    )
+                    print(f"[SUCCESS] ComfyUI sample function completed")
+                    
+                except Exception as sample_error:
+                    print(f"[INFO] Direct sample failed: {sample_error}")
+                    
+                    # Try with the latent as both noise and latent_image (pure txt2img approach)
+                    try:
+                        latent_dict = {"samples": latent}
+                        samples = comfy.sample.sample(
+                            model=model,
+                            noise=latent,
+                            steps=steps,
+                            cfg=guidance,
+                            sampler_name=sampler_name,
+                            scheduler=scheduler,
+                            positive=positive_conditioning,
+                            negative=negative_conditioning,
+                            latent_image=latent_dict
+                        )
+                        print(f"[SUCCESS] ComfyUI txt2img sample completed")
+                        
+                    except Exception as minimal_error:
+                        print(f"[ERROR] All ComfyUI sampling methods failed: {minimal_error}")
+                        raise RuntimeError(f"ComfyUI FLUX sampling failed: {minimal_error}")
                 
                 print(f"[SUCCESS] FLUX sampling completed: {samples.shape}")
                 
