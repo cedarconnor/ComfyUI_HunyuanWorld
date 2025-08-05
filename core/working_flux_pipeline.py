@@ -105,36 +105,45 @@ def create_working_flux_pipeline(model_path: str, device: str = "cpu"):
                     comfyui_available = False
                     print(f"[INFO] ComfyUI not available, using direct file access")
                 
-                # Find FLUX models in ComfyUI
+                # Find FLUX models in ComfyUI - always use direct access for reliability
+                unet_dir = r"C:\ComfyUI\models\unet"
                 try:
-                    if comfyui_available:
-                        unet_files = folder_paths.get_filename_list("unet")
+                    if os.path.exists(unet_dir):
+                        unet_files = [f for f in os.listdir(unet_dir) if f.endswith('.safetensors') or f.endswith('.sft')]
                         flux_files = [f for f in unet_files if "flux" in f.lower()]
+                        
+                        print(f"[INFO] Found files in unet directory: {unet_files}")
+                        print(f"[INFO] FLUX files detected: {flux_files}")
                         
                         if flux_files:
                             flux_model_file = flux_files[0]
-                            flux_model_path = folder_paths.get_full_path("unet", flux_model_file)
-                            print(f"[INFO] Using ComfyUI FLUX model: {flux_model_file}")
+                            flux_model_path = os.path.join(unet_dir, flux_model_file)
+                            print(f"[INFO] Using FLUX model: {flux_model_file}")
                         else:
-                            raise FileNotFoundError("No FLUX models in ComfyUI unet folder")
+                            print(f"[CRITICAL ERROR] No FLUX models found in {unet_dir}")
+                            print(f"[AVAILABLE MODELS] Found: {unet_files}")
+                            raise FileNotFoundError("No FLUX models found")
                     else:
-                        # Direct file system access
-                        unet_dir = r"C:\ComfyUI\models\unet"
-                        if os.path.exists(unet_dir):
-                            unet_files = [f for f in os.listdir(unet_dir) if f.endswith('.safetensors')]
-                            flux_files = [f for f in unet_files if "flux" in f.lower()]
+                        print(f"[CRITICAL ERROR] ComfyUI unet directory not found: {unet_dir}")
+                        raise FileNotFoundError("ComfyUI unet directory not found")
+                        
+                    # Also try ComfyUI folder_paths if available
+                    if comfyui_available:
+                        try:
+                            comfy_unet_files = folder_paths.get_filename_list("unet")
+                            print(f"[INFO] ComfyUI folder_paths detected: {len(comfy_unet_files)} unet files")
+                        except Exception as folder_error:
+                            print(f"[WARNING] ComfyUI folder_paths failed: {folder_error}")
                             
-                            if flux_files:
-                                flux_model_file = flux_files[0]
-                                flux_model_path = os.path.join(unet_dir, flux_model_file)
-                                print(f"[INFO] Using direct FLUX model: {flux_model_file}")
-                            else:
-                                print(f"[CRITICAL ERROR] No FLUX models found in {unet_dir}")
-                                print(f"[AVAILABLE MODELS] Found: {unet_files}")
-                                raise FileNotFoundError("No FLUX models found")
-                        else:
-                            print(f"[CRITICAL ERROR] ComfyUI unet directory not found: {unet_dir}")
-                            raise FileNotFoundError("ComfyUI unet directory not found")
+                except Exception as dir_error:
+                    print(f"[ERROR] Directory access failed: {dir_error}")
+                    # Try using the provided model path directly
+                    if os.path.exists(flux_path):
+                        flux_model_path = flux_path
+                        flux_model_file = os.path.basename(flux_path)
+                        print(f"[INFO] Using provided FLUX model path: {flux_model_file}")
+                    else:
+                        raise FileNotFoundError(f"Cannot find FLUX model: {flux_path}")
                     
                 except Exception as folder_error:
                     print(f"[CRITICAL ERROR] FLUX model access failed: {folder_error}")
@@ -226,11 +235,22 @@ def create_working_flux_pipeline(model_path: str, device: str = "cpu"):
                 
                 # Import ComfyUI FLUX components
                 try:
+                    # Add ComfyUI to path first
+                    import sys
+                    comfy_paths = [
+                        r"C:\ComfyUI",
+                        r"C:\Users\Administrator\AppData\Local\Programs\@comfyorgcomfyui-electron\resources\ComfyUI"
+                    ]
+                    
+                    for path in comfy_paths:
+                        if path not in sys.path and os.path.exists(path):
+                            sys.path.insert(0, path)
+                            print(f"[INFO] Added ComfyUI path: {path}")
+                    
                     import comfy.model_management
                     import comfy.utils
                     import nodes
                     from comfy import model_management
-                    from comfy.sd import load_model_weights
                     from comfy.model_management import get_torch_device
                     print(f"[SUCCESS] Imported ComfyUI FLUX components")
                     
@@ -263,41 +283,208 @@ def create_working_flux_pipeline(model_path: str, device: str = "cpu"):
         
         def _execute_comfyui_flux_inference(self, prompt: str, width: int, height: int, steps: int, 
                                           guidance: float, flux_path: str, lora_path: str, device):
-            """Execute FLUX inference using ComfyUI's actual implementation"""
+            """Execute FLUX inference using ComfyUI's actual FLUX model system"""
             
-            print(f"[INFO] Executing ComfyUI FLUX neural network with prompt: '{prompt}'")
+            print(f"[INFO] Executing REAL ComfyUI FLUX model inference: '{prompt}'")
             
             try:
-                # Load FLUX model weights
-                from safetensors.torch import load_file
-                flux_weights = load_file(flux_path)
-                print(f"[INFO] Loaded FLUX weights: {len(flux_weights)} tensors")
+                # Use ComfyUI's actual FLUX model loading system
+                import comfy.model_management as mm
+                import comfy.utils
+                import comfy.sd
                 
-                # Load LoRA weights if available
-                lora_weights = None
-                if os.path.exists(lora_path):
-                    lora_weights = load_file(lora_path)
-                    print(f"[INFO] Loaded LoRA weights: {len(lora_weights)} tensors")
+                print(f"[INFO] Loading FLUX model through ComfyUI system: {flux_path}")
                 
-                # Create FLUX generation using actual neural network
-                # This is simplified but represents real FLUX diffusion process
-                result_tensor = self._run_flux_diffusion_process(
-                    prompt, width, height, steps, guidance, flux_weights, lora_weights, device
+                # Load FLUX model using ComfyUI's model loading system
+                try:
+                    # Try ComfyUI's model loading approach
+                    from comfy.sd import load_checkpoint_guess_config
+                    model, clip, vae, clip_vision = load_checkpoint_guess_config(
+                        flux_path, 
+                        output_vae=True, 
+                        output_clip=True,
+                        embedding_directory=None
+                    )
+                    print(f"[SUCCESS] ComfyUI loaded FLUX model components using checkpoint loader")
+                    
+                except Exception as load_error:
+                    print(f"[INFO] Checkpoint loader failed: {load_error}")
+                    print(f"[INFO] Trying alternative ComfyUI model loading...")
+                    
+                    # Alternative: Use ComfyUI's UNet loader directly
+                    import folder_paths
+                    from comfy import model_management
+                    
+                    # Get the model file
+                    model_file = os.path.basename(flux_path)
+                    
+                    # Load using ComfyUI's UNet loader
+                    from nodes import UNETLoader, CLIPLoader, VAELoader
+                    
+                    # Load FLUX UNet
+                    unet_loader = UNETLoader()
+                    model = unet_loader.load_unet(model_file, "fp8_e4m3fn")[0]
+                    
+                    # Load CLIP and VAE (try to find compatible ones)
+                    clip_files = folder_paths.get_filename_list("clip")
+                    vae_files = folder_paths.get_filename_list("vae")
+                    
+                    # Use first available CLIP and VAE
+                    if clip_files:
+                        clip_loader = CLIPLoader()
+                        clip = clip_loader.load_clip(clip_files[0])[0]
+                        print(f"[INFO] Loaded CLIP: {clip_files[0]}")
+                    else:
+                        print(f"[WARNING] No CLIP found, using placeholder")
+                        clip = None
+                    
+                    if vae_files:
+                        vae_loader = VAELoader()
+                        vae = vae_loader.load_vae(vae_files[0])[0]
+                        print(f"[INFO] Loaded VAE: {vae_files[0]}")
+                    else:
+                        print(f"[WARNING] No VAE found, using placeholder")
+                        vae = None
+                
+                print(f"[SUCCESS] ComfyUI model components loaded")
+                print(f"[INFO] Model: {type(model)}")
+                print(f"[INFO] CLIP: {type(clip)}")
+                print(f"[INFO] VAE: {type(vae)}")
+                
+                # Move models to device
+                mm.load_model_gpu(model)
+                
+                # Create FLUX inference pipeline using ComfyUI components
+                result_image = self._run_comfyui_flux_pipeline(
+                    model, clip, vae, prompt, width, height, steps, guidance, device
                 )
                 
-                # Convert tensor to PIL Image
-                if result_tensor.max() <= 1.0:
-                    image_np = (result_tensor.cpu().numpy() * 255).astype(np.uint8)
-                else:
-                    image_np = result_tensor.cpu().numpy().astype(np.uint8)
-                
-                result_image = Image.fromarray(image_np)
-                print(f"[SUCCESS] FLUX neural network generated image: {result_image.size}")
+                print(f"[SUCCESS] ComfyUI FLUX model generated image: {result_image.size}")
                 return result_image
                 
             except Exception as e:
-                print(f"[ERROR] ComfyUI FLUX execution failed: {e}")
-                raise RuntimeError(f"ComfyUI FLUX execution failed: {e}")
+                print(f"[ERROR] ComfyUI FLUX model execution failed: {e}")
+                print(f"[INFO] Falling back to manual implementation")
+                import traceback
+                traceback.print_exc()
+                # Fallback to manual implementation
+                return self._manual_flux_inference(prompt, width, height, steps, guidance, flux_path, lora_path, device)
+        
+        def _run_comfyui_flux_pipeline(self, model, clip, vae, prompt: str, width: int, height: int, 
+                                     steps: int, guidance: float, device: str):
+            """Run FLUX generation using ComfyUI's actual pipeline components"""
+            
+            print(f"[INFO] Running ComfyUI FLUX pipeline with real neural network")
+            
+            try:
+                # Import ComfyUI sampling components
+                import comfy.sample
+                import comfy.samplers
+                import comfy.latent_formats
+                from comfy.model_management import get_torch_device
+                
+                # Encode text using CLIP
+                print(f"[INFO] Encoding text with CLIP: '{prompt}'")
+                tokens = clip.tokenize(prompt)
+                cond, pooled = clip.encode_from_tokens(tokens, return_pooled=True)
+                
+                # Create unconditional conditioning for CFG
+                uncond_tokens = clip.tokenize("")
+                uncond, uncond_pooled = clip.encode_from_tokens(uncond_tokens, return_pooled=True)
+                
+                print(f"[INFO] Text encoded - cond: {cond.shape}, pooled: {pooled.shape}")
+                
+                # Generate latent noise in FLUX latent space
+                latent_width = width // 8  # FLUX uses 8x downsampling
+                latent_height = height // 8
+                
+                # Try different FLUX latent format names
+                try:
+                    latent_format = comfy.latent_formats.FLUX()
+                except AttributeError:
+                    try:
+                        latent_format = comfy.latent_formats.Flux()
+                    except AttributeError:
+                        # Fallback - use standard latent format
+                        print(f"[WARNING] FLUX latent format not found, using fallback")
+                        latent_format = None
+                
+                # Create random latent noise
+                batch_size = 1
+                if latent_format and hasattr(latent_format, 'latent_channels'):
+                    latent_channels = latent_format.latent_channels
+                else:
+                    latent_channels = 16  # Standard FLUX latent channels
+                
+                print(f"[INFO] Creating latent noise: {batch_size}x{latent_channels}x{latent_height}x{latent_width}")
+                latent = torch.randn(batch_size, latent_channels, latent_height, latent_width, 
+                                   device=get_torch_device(), dtype=torch.float32)
+                
+                # Set up sampling parameters
+                positive_conditioning = [[cond, {"pooled_output": pooled}]]
+                negative_conditioning = [[uncond, {"pooled_output": uncond_pooled}]]
+                
+                # Use ComfyUI's FLUX sampling
+                print(f"[INFO] Running FLUX sampling ({steps} steps, guidance {guidance})")
+                
+                # Get FLUX sampler
+                sampler = comfy.samplers.KSampler(model, steps=steps, device=device)
+                
+                # Sample using FLUX model - use correct ComfyUI KSampler API
+                try:
+                    samples = sampler.sample(
+                        noise=latent,
+                        positive=positive_conditioning,
+                        negative=negative_conditioning,
+                        cfg=guidance,
+                        disable_noise=False,
+                        start_step=0,
+                        last_step=steps,
+                        force_full_denoise=True
+                    )
+                except TypeError as api_error:
+                    print(f"[INFO] Trying alternative KSampler API: {api_error}")
+                    # Try with simplified parameters
+                    samples = sampler.sample(
+                        noise=latent,
+                        positive=positive_conditioning,
+                        negative=negative_conditioning,
+                        cfg=guidance
+                    )
+                
+                print(f"[SUCCESS] FLUX sampling completed: {samples.shape}")
+                
+                # Decode latents to image using VAE
+                print(f"[INFO] Decoding latents with VAE")
+                decoded = vae.decode(samples)
+                
+                print(f"[SUCCESS] VAE decoded image: {decoded.shape}")
+                
+                # Convert to PIL Image
+                # ComfyUI tensors are typically in (B, C, H, W) format, range [-1, 1]
+                if len(decoded.shape) == 4:
+                    decoded = decoded[0]  # Remove batch dimension
+                
+                # Convert from (C, H, W) to (H, W, C)
+                if decoded.shape[0] == 3:
+                    decoded = decoded.permute(1, 2, 0)
+                
+                # Convert to [0, 1] range
+                decoded = (decoded + 1.0) / 2.0
+                decoded = torch.clamp(decoded, 0.0, 1.0)
+                
+                # Convert to numpy and PIL
+                image_np = (decoded.cpu().numpy() * 255).astype(np.uint8)
+                result_image = Image.fromarray(image_np)
+                
+                print(f"[SUCCESS] ComfyUI FLUX pipeline generated real AI image: {result_image.size}")
+                return result_image
+                
+            except Exception as e:
+                print(f"[ERROR] ComfyUI FLUX pipeline failed: {e}")
+                import traceback
+                traceback.print_exc()
+                raise RuntimeError(f"ComfyUI FLUX pipeline failed: {e}")
         
         def _run_flux_diffusion_process(self, prompt: str, width: int, height: int, steps: int,
                                       guidance: float, flux_weights: dict, lora_weights: dict, device: str):
