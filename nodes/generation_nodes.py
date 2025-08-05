@@ -215,11 +215,10 @@ class HunyuanTextToPanorama:
             return (panorama, preview_image)
             
         except Exception as e:
-            print(f"Error generating panorama: {str(e)}")
-            # Return fallback panorama
-            fallback_tensor = torch.randn(height, width, 3)
-            fallback_panorama = PanoramaImage(fallback_tensor, {"error": str(e)})
-            return (fallback_panorama, fallback_tensor.unsqueeze(0))
+            print(f"[CRITICAL ERROR] Panorama generation failed: {str(e)}")
+            print(f"[NO FALLBACK] Real FLUX + LoRA required - refusing to generate placeholder noise")
+            # Re-raise the exception to fail the ComfyUI workflow properly
+            raise RuntimeError(f"FLUX + LoRA panorama generation failed: {str(e)}")
 
 class HunyuanImageToPanorama:
     """Image-to-panorama conversion node"""
@@ -323,11 +322,9 @@ class HunyuanImageToPanorama:
             return (panorama, preview_image)
             
         except Exception as e:
-            print(f"Error converting to panorama: {str(e)}")
-            # Return fallback
-            fallback_tensor = torch.randn(512, 1024, 3)
-            fallback_panorama = PanoramaImage(fallback_tensor, {"error": str(e)})
-            return (fallback_panorama, fallback_tensor.unsqueeze(0))
+            print(f"[CRITICAL ERROR] Image-to-panorama conversion failed: {str(e)}")
+            print(f"[NO FALLBACK] Real AI inference required - refusing to generate placeholder content")
+            raise RuntimeError(f"Image-to-panorama conversion failed: {str(e)}")
     
     def _create_seamless_panorama(self, image: torch.Tensor, target_w: int, target_h: int) -> torch.Tensor:
         """Create seamless panorama by tiling and blending"""
@@ -507,17 +504,9 @@ class HunyuanSceneGenerator:
             return (scene_3d, depth_preview, seg_preview)
             
         except Exception as e:
-            print(f"Error generating scene: {str(e)}")
-            # Return fallback scene
-            h, w = panorama.image.shape[:2]
-            fallback_depth = torch.randn(h, w)
-            fallback_scene = Scene3D(
-                panorama=panorama,
-                depth_map=fallback_depth,
-                metadata={"error": str(e)}
-            )
-            fallback_preview = fallback_depth.unsqueeze(0).unsqueeze(-1).repeat(1, 1, 1, 3)
-            return (fallback_scene, fallback_preview, fallback_preview)
+            print(f"[CRITICAL ERROR] Scene generation failed: {str(e)}")
+            print(f"[NO FALLBACK] Real AI inference required - refusing to generate placeholder content")
+            raise RuntimeError(f"Scene generation failed: {str(e)}")
     
     def _create_depth_preview(self, depth_map: torch.Tensor) -> torch.Tensor:
         """Create depth visualization for preview"""
@@ -669,16 +658,9 @@ class HunyuanWorldReconstructor:
             return (world_mesh,)
             
         except Exception as e:
-            print(f"Error reconstructing world: {str(e)}")
-            # Return fallback mesh
-            fallback_vertices = torch.randn(1000, 3)
-            fallback_faces = torch.randint(0, 1000, (1800, 3))
-            fallback_mesh = WorldMesh(
-                vertices=fallback_vertices,
-                faces=fallback_faces,
-                metadata={"error": str(e)}
-            )
-            return (fallback_mesh,)
+            print(f"[CRITICAL ERROR] World reconstruction failed: {str(e)}")
+            print(f"[NO FALLBACK] Real AI inference required - refusing to generate placeholder content")
+            raise RuntimeError(f"World reconstruction failed: {str(e)}")
     
     def _generate_texture_coords(self, vertices: torch.Tensor, faces: torch.Tensor) -> torch.Tensor:
         """Generate UV texture coordinates"""
@@ -871,10 +853,9 @@ class HunyuanSceneInpainter:
             return (inpainted_panorama, preview_image)
             
         except Exception as e:
-            print(f"Error during scene inpainting: {str(e)}")
-            # Return original panorama as fallback
-            preview_image = panorama.image.unsqueeze(0) if len(panorama.image.shape) == 3 else panorama.image
-            return (panorama, preview_image)
+            print(f"[CRITICAL ERROR] Scene inpainting failed: {str(e)}")
+            print(f"[NO FALLBACK] Real AI inference required - refusing to return unchanged image")
+            raise RuntimeError(f"Scene inpainting failed: {str(e)}")
 
 class HunyuanSkyInpainter:
     """Sky inpainting node for replacing/enhancing sky regions"""
@@ -1004,11 +985,9 @@ class HunyuanSkyInpainter:
             return (inpainted_panorama, sky_mask, preview_image)
             
         except Exception as e:
-            print(f"Error during sky inpainting: {str(e)}")
-            # Return original panorama as fallback
-            fallback_mask = SceneMask(torch.zeros_like(panorama.image[:, :, 0]), mask_type="sky")
-            preview_image = panorama.image.unsqueeze(0) if len(panorama.image.shape) == 3 else panorama.image
-            return (panorama, fallback_mask, preview_image)
+            print(f"[CRITICAL ERROR] Sky inpainting failed: {str(e)}")
+            print(f"[NO FALLBACK] Real AI inference required - refusing to return unchanged image")
+            raise RuntimeError(f"Sky inpainting failed: {str(e)}")
     
     def _auto_detect_sky(self, panorama_tensor: torch.Tensor) -> torch.Tensor:
         """Auto-detect sky region in panorama (simplified implementation)"""
@@ -1204,16 +1183,9 @@ class HunyuanLayeredSceneGenerator:
             return (layered_scene, background_scene, foreground_scene, layer_preview, depth_preview)
             
         except Exception as e:
-            print(f"Error generating layered scene: {str(e)}")
-            # Return fallback scenes
-            fallback_depth = torch.randn(panorama.image.shape[0], panorama.image.shape[1])
-            fallback_scene = Scene3D(panorama, fallback_depth, metadata={"error": str(e)})
-            fallback_layered = LayeredScene3D(
-                panorama, fallback_scene, [], {}, {}, object_labels,
-                metadata={"error": str(e)}
-            )
-            fallback_preview = torch.zeros(1, height//4, width//4, 3)
-            return (fallback_layered, fallback_scene, fallback_scene, fallback_preview, fallback_preview)
+            print(f"[CRITICAL ERROR] Layered scene generation failed: {str(e)}")
+            print(f"[NO FALLBACK] Real AI inference required - refusing to generate placeholder content")
+            raise RuntimeError(f"Layered scene generation failed: {str(e)}")
     
     def _combine_layer_depths(self, layer_depth_maps: Dict[str, torch.Tensor], labels: List[str]) -> torch.Tensor:
         """Combine multiple layer depth maps into single depth map"""
@@ -1426,6 +1398,5 @@ class HunyuanFluxGenerator:
             print(f"❌ Error in FLUX panorama generation: {e}")
             import traceback
             traceback.print_exc()
-            # Return fallback
-            fallback_tensor = torch.randn(height, width, 3)
-            return (PanoramaImage(fallback_tensor, {"error": str(e)}),)
+            print(f"[NO FALLBACK] Real FLUX inference required - refusing to generate placeholder content")
+            raise RuntimeError(f"FLUX panorama generation failed: {str(e)}")
