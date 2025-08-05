@@ -12,8 +12,8 @@ from pathlib import Path
 def create_real_flux_pipeline(model_path: str, device: str = "cuda"):
     """Create a real FLUX pipeline with LoRA support"""
     
-    # Use local model loader for better reliability
-    from .local_flux_loader import load_local_flux_pipeline
+    # Use working FLUX diffusion pipeline
+    from .working_flux_pipeline import create_working_flux_pipeline
     
     # Check if this is a HunyuanWorld LoRA or FLUX base model
     if "HunyuanWorld" in model_path:
@@ -26,8 +26,8 @@ def create_real_flux_pipeline(model_path: str, device: str = "cuda"):
         print(f"[INFO] Base model: {base_flux_path}")
         print(f"[INFO] LoRA model: {model_path}")
         
-        # Load local FLUX pipeline
-        pipeline = load_local_flux_pipeline(base_flux_path, device)
+        # Load working FLUX pipeline
+        pipeline = create_working_flux_pipeline(base_flux_path, device)
         
         # Load LoRA weights
         try:

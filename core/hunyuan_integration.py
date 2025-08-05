@@ -863,13 +863,13 @@ class HunyuanTextToPanoramaModel:
                     try:
                         # Try multiple import paths
                         try:
-                            from .local_flux_loader import load_local_flux_pipeline
+                            from .working_flux_pipeline import create_working_flux_pipeline
                         except ImportError:
                             import sys
                             import os
                             current_dir = os.path.dirname(__file__)
                             sys.path.insert(0, current_dir)
-                            from local_flux_loader import load_local_flux_pipeline
+                            from working_flux_pipeline import create_working_flux_pipeline
                         
                         # Find FLUX base model
                         import os
@@ -878,10 +878,10 @@ class HunyuanTextToPanoramaModel:
                             base_flux_path = r"C:\ComfyUI\models\unet\flux1-dev.sft"
                         
                         if os.path.exists(base_flux_path):
-                            print(f"[INFO] Using REAL local FLUX: {base_flux_path}")
+                            print(f"[INFO] Using WORKING FLUX pipeline: {base_flux_path}")
                             
-                            # Create local FLUX pipeline
-                            local_pipeline = load_local_flux_pipeline(base_flux_path, self.device_name)
+                            # Create working FLUX pipeline
+                            local_pipeline = create_working_flux_pipeline(base_flux_path, self.device_name)
                             
                             # Load HunyuanWorld LoRA if this is a LoRA model
                             if "HunyuanWorld" in self.model_path:
@@ -889,11 +889,9 @@ class HunyuanTextToPanoramaModel:
                                 try:
                                     lora_weights = load_file(self.model_path)
                                     local_pipeline.lora_weights = lora_weights
-                                    local_pipeline.lora_loaded = True
-                                    print(f"[SUCCESS] REAL LoRA loaded: {len(lora_weights)} tensors")
+                                    print(f"[SUCCESS] WORKING FLUX LoRA loaded: {len(lora_weights)} tensors")
                                 except Exception as e:
-                                    print(f"[WARNING] REAL LoRA loading failed: {e}")
-                                    local_pipeline.lora_loaded = False
+                                    print(f"[WARNING] WORKING FLUX LoRA loading failed: {e}")
                             
                             # Generate using local FLUX pipeline
                             result = local_pipeline(
