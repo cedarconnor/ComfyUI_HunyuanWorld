@@ -1,0 +1,25 @@
+{
+  "model_paths": {
+    "pano_text": "tencent/HunyuanWorld-1",
+    "pano_image": "tencent/HunyuanWorld-1", 
+    "flux_text": "black-forest-labs/FLUX.1-dev",
+    "flux_image": "black-forest-labs/FLUX.1-Fill-dev"
+  },
+  "device": "cuda:0",
+  "dtype": "bfloat16",
+  "defaults": {
+    "pano_size": [1920, 960],
+    "sampler": "euler",
+    "cfg": 6.5,
+    "steps": 30,
+    "guidance_scale": 30,
+    "blend_extend": 6,
+    "shifting_extend": 0,
+    "true_cfg_scale": 0.0
+  },
+  "optimization": {
+    "enable_model_cpu_offload": true,
+    "enable_vae_tiling": true,
+    "enable_xformers": true
+  }
+}

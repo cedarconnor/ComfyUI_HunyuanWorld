@@ -1,311 +1,203 @@
-# ComfyUI HunyuanWorld - Professional 3D World Generation
+# ComfyUI HunyuanWorld Node Pack
 
-A comprehensive ComfyUI custom node package for [Tencent's HunyuanWorld-1.0](https://github.com/Tencent-Hunyuan/HunyuanWorld-1.0) with complete AI inference integration for professional 3D world generation.
+A comprehensive ComfyUI node pack for HunyuanWorld-1.0, enabling text-to-panorama generation and 3D world reconstruction directly within ComfyUI.
 
-## 🚀 **Quick Start**
+## Features
 
+- **Text-to-Panorama**: Generate high-quality 360° panoramas from text prompts
+- **Image-to-Panorama**: Convert perspective images to panoramic views  
+- **3D World Reconstruction**: Transform panoramas into layered 3D meshes
+- **Advanced Inpainting**: Scene and sky inpainting for panorama refinement
+- **Texture Baking**: Generate PBR textures from panoramas
+- **Multiple Export Formats**: GLB, GLTF, OBJ, PLY, STL support
+- **Quality Tools**: Validation, seamless wrapping, and mesh analysis
+
+## Installation
+
+1. Clone this repository into your ComfyUI custom_nodes directory:
 ```bash
-git clone https://github.com/cedarconnor/ComfyUI_HunyuanWorld.git
-cd ComfyUI_HunyuanWorld
-git clone https://github.com/Tencent-Hunyuan/HunyuanWorld-1.0.git
-pip install -r requirements_hunyuan.txt
-# Restart ComfyUI → Load workflows → Create real 3D worlds with AI!
+cd ComfyUI/custom_nodes/
+git clone https://github.com/your-repo/ComfyUI_HunyuanWorld.git
 ```
 
-## 🎯 **Features**
-
-| Feature | Model | Status |
-|---------|-------|--------|
-| **Text→Panorama** | FLUX.1-dev + HunyuanWorld LoRA | ✅ Production Ready |
-| **Image→Panorama** | FLUX.1-fill + HunyuanWorld LoRA | ✅ Production Ready |
-| **Scene Generation** | LayerDecomposition + WorldComposer | ✅ Production Ready |
-| **3D Export & Viewer** | Three.js + Draco Compression | ✅ Production Ready |
-| **Panorama Inpainting** | HunyuanWorld-PanoInpaint | 🔄 Coming Soon |
-
-## 🌟 **Key Features**
-
-### **Complete AI Integration**
-- **15+ Professional Nodes**: Full pipeline from text/image → 3D world
-- **Real HunyuanWorld Models**: FLUX.1-dev base with HunyuanWorld LoRA adapters
-- **Local Inference Only**: No web calls - everything runs on your machine
-- **Production Workflows**: Batch processing, advanced parameters, professional export
-
-### **AI Capabilities**
-- **Text-to-World Generation**: Create 360° environments from text descriptions
-- **Image-to-Panorama**: AI-powered panoramic extension of regular images  
-- **Advanced Scene Processing**: Multi-layer decomposition and 3D reconstruction
-- **Professional Export**: OBJ, PLY, GLB with Draco compression
-
-### **Professional Features**
-- **Interactive 3D Viewer**: Three.js-based real-time visualization
-- **Professional Export Pipeline**: Multiple formats with compression
-- **Performance Monitoring**: Real-time memory and processing analytics
-- **Workflow Templates**: Pre-configured professional workflows
-
-## 📋 **System Requirements**
-
-### **Recommended Configuration**
-- **GPU**: NVIDIA RTX 4080+ (16GB+ VRAM recommended)
-- **RAM**: 32GB+ for large panorama processing
-- **Storage**: 50GB+ (models: ~10GB, working space: ~40GB)
-- **CUDA**: 11.8 or newer
-- **OS**: Windows 10+, Linux Ubuntu 20.04+, macOS 12+
-
-### **Minimum Requirements**
-- **GPU**: NVIDIA RTX 3080 (10GB VRAM)
-- **RAM**: 16GB system memory
-- **Storage**: 25GB free space
-- **CUDA**: 11.0 or newer
-
-## 🔧 **Installation & Setup**
-
-### **Step 1: Basic Installation**
-
+2. Install required dependencies:
 ```bash
-# Install in ComfyUI custom_nodes directory
-cd ComfyUI/custom_nodes/
-git clone https://github.com/cedarconnor/ComfyUI_HunyuanWorld.git
 cd ComfyUI_HunyuanWorld
-
-# Install basic dependencies
 pip install -r requirements.txt
 ```
 
-### **Step 2: AI Model Integration**
+3. Download HunyuanWorld models:
+   - The nodes will automatically download models from Hugging Face on first use
+   - Models: `tencent/HunyuanWorld-1` (LoRA weights)
+   - Base models: `black-forest-labs/FLUX.1-dev`, `black-forest-labs/FLUX.1-Fill-dev`
 
-```bash
-# 1. Install AI dependencies
-pip install -r requirements_hunyuan.txt
+4. Restart ComfyUI to load the new nodes.
 
-# 2. Clone official HunyuanWorld repository
-git clone https://github.com/Tencent-Hunyuan/HunyuanWorld-1.0.git
+## Node Categories
 
-# 3. Optional: Install performance optimizations
-pip install xformers  # Memory-efficient attention
+### 🔧 **Loaders**
+- **HYW_ModelLoader**: Load and configure HunyuanWorld models
+- **HYW_Config**: Create reusable parameter configurations  
+- **HYW_SettingsLoader**: Load settings from JSON file
 
-# Your directory structure should be:
-# ComfyUI_HunyuanWorld/
-#   ├── HunyuanWorld-1.0/          ← Official repository
-#   ├── core/
-#   ├── nodes/
-#   └── workflows/
+### 🎨 **Generation** 
+- **HYW_PanoGen**: Text/Image-to-panorama generation
+- **HYW_PanoGenBatch**: Batch panorama generation
+- **HYW_PanoInpaint_Scene**: Scene element inpainting
+- **HYW_PanoInpaint_Advanced**: Advanced multi-region inpainting
+- **HYW_PanoInpaint_Sky**: Specialized sky inpainting
+
+### 🏗️ **Reconstruction**
+- **HYW_WorldReconstructor**: Convert panorama to layered 3D world
+- **HYW_MeshProcessor**: Process and refine mesh geometry
+- **HYW_MeshAnalyzer**: Analyze mesh quality and properties
+
+### 📦 **Export**
+- **HYW_TextureBaker**: Bake PBR textures from panoramas  
+- **HYW_MeshExport**: Export meshes to various 3D formats
+- **HYW_Thumbnailer**: Generate 3D world previews
+
+### 🛠️ **Utils**
+- **HYW_SeamlessWrap360**: Make panoramas seamless
+- **HYW_SkyMaskGenerator**: Generate sky masks automatically
+- **HYW_PanoramaValidator**: Validate panorama quality
+- **HYW_MetadataManager**: Track workflow metadata
+
+## Quick Start
+
+### Basic Text-to-Panorama
+1. Add **HYW_ModelLoader** node
+2. Add **HYW_PanoGen** node  
+3. Connect ModelLoader output to PanoGen input
+4. Set your text prompt in PanoGen
+5. Add **SaveImage** node to save result
+
+### Full 3D Pipeline
+1. **HYW_ModelLoader** → **HYW_PanoGen** (generate panorama)
+2. **HYW_WorldReconstructor** (create 3D world from panorama)
+3. **HYW_TextureBaker** (bake textures)
+4. **HYW_MeshExport** (export to GLB/OBJ)
+
+## Configuration
+
+### Model Settings
+Edit `settings.json` to configure default model paths and parameters:
+
+```json
+{
+  "model_paths": {
+    "pano_text": "tencent/HunyuanWorld-1",
+    "pano_image": "tencent/HunyuanWorld-1",
+    "flux_text": "black-forest-labs/FLUX.1-dev", 
+    "flux_image": "black-forest-labs/FLUX.1-Fill-dev"
+  },
+  "device": "cuda:0",
+  "dtype": "bfloat16",
+  "defaults": {
+    "pano_size": [1920, 960],
+    "guidance_scale": 30.0,
+    "steps": 50
+  }
+}
 ```
 
-### **Step 3: Optional Dependencies**
+### Performance Optimization
+- Enable CPU offloading to save VRAM
+- Use VAE tiling for large images
+- Adjust target mesh complexity based on hardware
 
-For full 3D functionality, install utils3d (may have dependency conflicts on some systems):
+## Supported Formats
 
-```bash
-# Option 1: Try direct install (may fail due to conflicts)
-pip install utils3d
+### Input
+- Text prompts (for generation)
+- Images: PNG, JPG, WebP
+- Panoramas: Equirectangular format (2:1 aspect ratio recommended)
 
-# Option 2: Install from source (recommended)
-python install_utils3d.py
+### Output  
+- **Images**: PNG, JPG  
+- **3D Meshes**: GLB, GLTF, OBJ, PLY, STL
+- **Textures**: PNG, JPG with PBR maps (albedo, normal, AO, roughness)
 
-# Option 3: Manual install from GitHub
-pip install git+https://github.com/EasternJournalist/utils3d.git
-```
+## Example Workflows
 
-### **Step 4: Model Downloads**
+See the `examples/` directory for detailed workflow guides:
+- `text_to_panorama.md` - Basic panorama generation
+- `panorama_to_3d_world.md` - Full 3D reconstruction pipeline
 
-Models download automatically on first use:
+## Hardware Requirements
 
-- **Base Models**: `black-forest-labs/FLUX.1-dev`, `black-forest-labs/FLUX.1-fill-dev`
-- **HunyuanWorld LoRA**: `tencent/HunyuanWorld-1`
-- **Total Size**: ~10GB (downloads once, caches locally)
+### Minimum
+- GPU: 8GB VRAM (RTX 3070 / RTX 4060)
+- RAM: 16GB system memory
+- Storage: 10GB for models
 
-### **Step 5: Verify Installation**
+### Recommended  
+- GPU: 12GB+ VRAM (RTX 4070 Ti / RTX 4080)
+- RAM: 32GB system memory
+- Storage: 20GB+ for models and outputs
 
-```bash
-# Test the integration
-python test_integration.py
+## Troubleshooting
 
-# Expected output:
-# ✅ Integration module imported
-# HunyuanWorld Available: ✅ Yes
-# ✅ Model manager created
-```
+### Common Issues
 
-## 🚀 **Usage Guide**
+**"HunyuanWorld modules not available"**
+- Ensure HunyuanWorld-1.0 is cloned in the correct directory
+- Check that all dependencies are installed
 
-### **Basic Workflow**
+**CUDA out of memory**
+- Enable model CPU offloading
+- Reduce panorama resolution
+- Use lower mesh target sizes
 
-1. **Load Workflow**: Import any `.json` from `workflows/` folder
-2. **Configure Prompts**: Use HunyuanTextInput or HunyuanImageInput nodes
-3. **Run Pipeline**: Generate real AI-powered 3D worlds
-4. **View Results**: Interactive 3D viewer with export options
+**Poor panorama quality**
+- Increase guidance scale (25-35)
+- Use more inference steps (50-100)
+- Adjust prompt for better descriptions
 
-**Console Output**:
-```
-✅ HunyuanWorld integration available
-🔄 Loading real HunyuanWorld Text2Panorama model...
-✅ HunyuanWorld Text2Panorama loaded successfully
-🎨 Generating panorama: 'Mountain landscape'
-✅ Generated panorama: torch.Size([960, 1920, 3])
-```
+**Mesh export fails**
+- Check output directory permissions
+- Reduce mesh complexity
+- Try different export formats
 
-### **Recommended Workflows**
+### Performance Tips
+- Use bfloat16 dtype for best VRAM efficiency  
+- Enable VAE tiling for large panoramas
+- Process in batches for multiple outputs
+- Use preview quality for testing workflows
 
-| Workflow | Purpose | AI Features |
-|----------|---------|-------------|
-| `framework_testing_basic.json` | Test all nodes | Complete pipeline validation |
-| `export_pipeline_test.json` | Test 3D export | Real mesh export with compression |
-| `viewer_functionality_test.json` | Test 3D viewer | Interactive visualization |
-| `text_to_world_basic.json` | Text→3D world | FLUX.1-dev + HunyuanWorld |
-| `image_to_panorama_basic.json` | Image→panorama | FLUX.1-fill + HunyuanWorld |
+## Data Types
 
-## 📚 **Node Reference**
+The node pack uses custom data types for efficient processing:
+- **HYW_RUNTIME**: Model runtime instance
+- **HYW_CONFIG**: Configuration parameters
+- **HYW_METADATA**: Processing metadata
+- **HYW_MESH_LAYERS**: Layered 3D mesh data
+- **HYW_BAKED_TEXTURES**: Texture atlas data
 
-### **Input Processing**
-- **HunyuanTextInput**: Text prompt processing with enhancement
-- **HunyuanImageInput**: Image preprocessing and optimization
-- **HunyuanPromptProcessor**: Advanced prompt styling and control
-- **HunyuanObjectLabeler**: Automated object detection and labeling
-- **HunyuanMaskCreator**: Mask creation for inpainting workflows
+## Contributing
 
-### **Core Generation**
-- **HunyuanLoader**: AI model loading and management
-- **HunyuanTextToPanorama**: Text→360° panorama (FLUX.1-dev + HunyuanWorld)
-- **HunyuanImageToPanorama**: Image→panorama extension (FLUX.1-fill + HunyuanWorld)
-- **HunyuanSceneInpainter**: Professional scene editing and inpainting
-- **HunyuanSkyInpainter**: Sky replacement and atmospheric control
-- **HunyuanLayeredSceneGenerator**: Multi-layer 3D scene decomposition
-- **HunyuanWorldReconstructor**: 3D mesh generation and optimization
+Contributions welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality  
+4. Submit a pull request
 
-### **Export & Visualization**
-- **HunyuanViewer**: Interactive Three.js 3D visualization
-- **HunyuanMeshExporter**: Standard 3D export (OBJ, PLY, GLB)
-- **HunyuanDracoExporter**: Professional compressed export
-- **HunyuanLayeredMeshExporter**: Multi-layer export pipeline
-- **HunyuanDataInfo**: Real-time analytics and performance monitoring
+## License
 
-## ⚙️ **Advanced Configuration**
+This project follows the HunyuanWorld-1.0 Community License. See the original repository for details.
 
-### **Performance Optimization**
+## Credits
 
-```python
-# High Quality (16GB+ VRAM)
-precision = "fp16"
-num_inference_steps = 50
-guidance_scale = 30.0
-width, height = 3840, 1920
+- **HunyuanWorld-1.0**: Tencent AI Lab
+- **FLUX Models**: Black Forest Labs  
+- **ComfyUI Integration**: Community contribution
 
-# Balanced (12GB VRAM)  
-precision = "fp16"
-num_inference_steps = 30
-guidance_scale = 25.0
-width, height = 1920, 960
+## Support
 
-# Fast/Low Memory (8GB VRAM)
-precision = "fp16" 
-num_inference_steps = 20
-guidance_scale = 15.0
-width, height = 1024, 512
-```
-
-### **Model Parameters**
-
-#### Text-to-Panorama (HunyuanWorld Optimized):
-- `width`: 1920 (HunyuanWorld standard)
-- `height`: 960 (2:1 panoramic ratio)
-- `guidance_scale`: 30.0 (HunyuanWorld optimized)
-- `num_inference_steps`: 50 (high quality)
-- `true_cfg_scale`: 0.0 (HunyuanWorld default)
-- `blend_extend`: 6 (seamless panorama blending)
-
-#### Image-to-Panorama:
-- `strength`: 0.8 (modification intensity)
-- `num_inference_steps`: 30
-- `guidance_scale`: 7.5
-
-## 🔍 **Troubleshooting**
-
-### **Common Issues**
-
-#### 1. **"HunyuanWorld integration not available"**
-```bash
-# Check if HunyuanWorld-1.0 directory exists
-ls HunyuanWorld-1.0/
-# If missing: git clone https://github.com/Tencent-Hunyuan/HunyuanWorld-1.0.git
-```
-
-#### 2. **"CUDA out of memory"**
-- Reduce image resolution (1024x512 instead of 1920x960)
-- Use `precision="fp16"`
-- Reduce `num_inference_steps`
-- Close other GPU applications
-
-#### 3. **"Model download failed"**
-```bash
-# Login to Hugging Face
-pip install huggingface-hub
-huggingface-cli login
-# Check internet connection and disk space (10GB+ needed)
-```
-
-#### 4. **"Node not found in ComfyUI"**
-- Restart ComfyUI completely
-- Check `custom_nodes/ComfyUI_HunyuanWorld` is in correct location
-- Verify Python dependencies: `pip install -r requirements_hunyuan.txt`
-
-### **Verification Commands**
-
-```bash
-# Test integration
-python test_integration.py
-
-# Check dependencies
-pip list | grep -E "(torch|diffusers|transformers)"
-
-# Check CUDA
-python -c "import torch; print(f'CUDA: {torch.cuda.is_available()}')"
-
-# Check models (after first use)
-ls ~/.cache/huggingface/transformers/  # Linux/Mac
-# or C:\Users\%USERNAME%\.cache\huggingface\transformers\  # Windows
-```
-
-## 📊 **Performance Benchmarks**
-
-| Model Type | Resolution | Steps | VRAM | Time (RTX 4090) |
-|------------|------------|-------|------|------------------|
-| Text→Panorama | 1920x960 | 50 | 14GB | 45s |
-| Text→Panorama | 1024x512 | 30 | 8GB | 20s |
-| Image→Panorama | 1920x960 | 30 | 12GB | 25s |
-| Scene Generation | Variable | - | 6GB | 10s |
-
-## 🎯 **Development & Contributing**
-
-### **AI Integration Architecture**
-- Real models automatically loaded when HunyuanWorld-1.0 repository present
-- Smart error handling with detailed logging
-- Modify `core/hunyuan_integration.py` for model improvements
-
-### **Contributing**
-1. Test complete AI inference pipeline
-2. Ensure all dependencies work correctly
-3. Add comprehensive error handling
-4. Update workflows and documentation
-
-## 🔗 **Resources & Support**
-
-- **🏠 Official HunyuanWorld**: https://github.com/Tencent-Hunyuan/HunyuanWorld-1.0
-- **💬 ComfyUI Community**: https://github.com/comfyanonymous/ComfyUI
-- **🐛 Bug Reports**: [GitHub Issues](https://github.com/cedarconnor/ComfyUI_HunyuanWorld/issues)
-- **💡 Feature Requests**: [GitHub Discussions](https://github.com/cedarconnor/ComfyUI_HunyuanWorld/discussions)
-- **📖 FLUX Models**: https://huggingface.co/black-forest-labs
-- **🤗 HunyuanWorld LoRA**: https://huggingface.co/tencent/HunyuanWorld-1
-
-## 📄 **License & Credits**
-
-**License**: Apache 2.0 License
-
-**Credits**:
-- **HunyuanWorld-1.0**: [Tencent Hunyuan Team](https://github.com/Tencent-Hunyuan/HunyuanWorld-1.0)
-- **FLUX Models**: [Black Forest Labs](https://huggingface.co/black-forest-labs)
-- **ComfyUI Framework**: [ComfyUI Community](https://github.com/comfyanonymous/ComfyUI)
-- **Integration Development**: Community contributions
+- Documentation: See `examples/` directory
+- Issues: GitHub issue tracker
+- Community: ComfyUI Discord server
 
 ---
 
-**🎯 Production Ready**: Complete ComfyUI integration with real HunyuanWorld-1.0 AI inference for professional 3D world generation!
+*Built with ❤️ for the ComfyUI community*
