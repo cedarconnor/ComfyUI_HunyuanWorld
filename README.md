@@ -17,7 +17,7 @@ A comprehensive ComfyUI node pack for HunyuanWorld-1.0, enabling text-to-panoram
 1. Clone this repository into your ComfyUI custom_nodes directory:
 ```bash
 cd ComfyUI/custom_nodes/
-git clone https://github.com/your-repo/ComfyUI_HunyuanWorld.git
+git clone https://github.com/cedarconnor/ComfyUI_HunyuanWorld.git
 ```
 
 2. Install required dependencies:
@@ -26,10 +26,34 @@ cd ComfyUI_HunyuanWorld
 pip install -r requirements.txt
 ```
 
-3. Download HunyuanWorld models:
-   - The nodes will automatically download models from Hugging Face on first use
-   - Models: `tencent/HunyuanWorld-1` (LoRA weights)
-   - Base models: `black-forest-labs/FLUX.1-dev`, `black-forest-labs/FLUX.1-Fill-dev`
+3. **Download Required Models** - All models must be downloaded manually to specific locations:
+
+### FLUX Base Models (Required)
+Place in `C:\ComfyUI\models\unet\`:
+- **FLUX.1-dev**: Download `flux1-dev.safetensors` from [Black Forest Labs FLUX.1-dev](https://huggingface.co/black-forest-labs/FLUX.1-dev)
+- **FLUX.1-Fill-dev**: Download `flux1-fill-dev.safetensors` from [Black Forest Labs FLUX.1-Fill-dev](https://huggingface.co/black-forest-labs/FLUX.1-Fill-dev)
+
+### HunyuanWorld LoRA Models (Required)  
+Place in `C:\ComfyUI\models\Hunyuan_World\`:
+- **Text-to-Panorama LoRA**: Download `HunyuanWorld-PanoDiT-Text-lora.safetensors` from [tencent/HunyuanWorld-1](https://huggingface.co/tencent/HunyuanWorld-1/tree/main/HunyuanWorld-PanoDiT-Text)
+- **Image-to-Panorama LoRA**: Download `HunyuanWorld-PanoDiT-Image-lora.safetensors` from [tencent/HunyuanWorld-1](https://huggingface.co/tencent/HunyuanWorld-1/tree/main/HunyuanWorld-PanoDiT-Image)
+
+### Additional Models for 3D Reconstruction (Optional)
+The following models will be downloaded automatically by the HunyuanWorld library when first used:
+- **MoGe depth estimation**: Used for 3D reconstruction
+- **Depth Anything**: Used for depth estimation
+- **Various segmentation models**: Used for layer decomposition
+
+### Expected File Structure:
+```
+C:\ComfyUI\models\
+├── unet\
+│   ├── flux1-dev.safetensors
+│   └── flux1-fill-dev.safetensors
+└── Hunyuan_World\
+    ├── HunyuanWorld-PanoDiT-Text-lora.safetensors
+    └── HunyuanWorld-PanoDiT-Image-lora.safetensors
+```
 
 4. Restart ComfyUI to load the new nodes.
 
@@ -86,10 +110,10 @@ Edit `settings.json` to configure default model paths and parameters:
 ```json
 {
   "model_paths": {
-    "pano_text": "tencent/HunyuanWorld-1",
-    "pano_image": "tencent/HunyuanWorld-1",
-    "flux_text": "black-forest-labs/FLUX.1-dev", 
-    "flux_image": "black-forest-labs/FLUX.1-Fill-dev"
+    "flux_text": "C:\\ComfyUI\\models\\unet\\flux1-dev.safetensors",
+    "flux_image": "C:\\ComfyUI\\models\\unet\\flux1-fill-dev.safetensors",
+    "pano_text_lora": "C:\\ComfyUI\\models\\Hunyuan_World\\HunyuanWorld-PanoDiT-Text-lora.safetensors",
+    "pano_image_lora": "C:\\ComfyUI\\models\\Hunyuan_World\\HunyuanWorld-PanoDiT-Image-lora.safetensors"
   },
   "device": "cuda:0",
   "dtype": "bfloat16",

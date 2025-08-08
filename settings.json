@@ -1,9 +1,9 @@
 {
   "model_paths": {
-    "pano_text": "tencent/HunyuanWorld-1",
-    "pano_image": "tencent/HunyuanWorld-1", 
-    "flux_text": "black-forest-labs/FLUX.1-dev",
-    "flux_image": "black-forest-labs/FLUX.1-Fill-dev"
+    "flux_text": "C:\\ComfyUI\\models\\unet\\flux1-dev.safetensors",
+    "flux_image": "C:\\ComfyUI\\models\\unet\\flux1-fill-dev.safetensors",
+    "pano_text_lora": "C:\\ComfyUI\\models\\Hunyuan_World\\HunyuanWorld-PanoDiT-Text-lora.safetensors",
+    "pano_image_lora": "C:\\ComfyUI\\models\\Hunyuan_World\\HunyuanWorld-PanoDiT-Image-lora.safetensors"
   },
   "device": "cuda:0",
   "dtype": "bfloat16",

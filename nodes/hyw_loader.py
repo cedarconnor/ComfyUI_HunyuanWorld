@@ -18,9 +18,10 @@ class HYW_ModelLoader:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "flux_text_model": ("STRING", {"default": "black-forest-labs/FLUX.1-dev"}),
-                "flux_image_model": ("STRING", {"default": "black-forest-labs/FLUX.1-Fill-dev"}),
-                "hunyuanworld_lora": ("STRING", {"default": "tencent/HunyuanWorld-1"}),
+                "flux_text_model": ("STRING", {"default": "C:\\ComfyUI\\models\\unet\\flux1-dev.safetensors"}),
+                "flux_image_model": ("STRING", {"default": "C:\\ComfyUI\\models\\unet\\flux1-fill-dev.safetensors"}),
+                "text_lora_path": ("STRING", {"default": "C:\\ComfyUI\\models\\Hunyuan_World\\HunyuanWorld-PanoDiT-Text-lora.safetensors"}),
+                "image_lora_path": ("STRING", {"default": "C:\\ComfyUI\\models\\Hunyuan_World\\HunyuanWorld-PanoDiT-Image-lora.safetensors"}),
                 "device": ("STRING", {"default": "cuda:0"}),
                 "dtype": (["bfloat16", "float16", "float32"], {"default": "bfloat16"}),
             },
@@ -31,7 +32,7 @@ class HYW_ModelLoader:
             }
         }
 
-    def load_models(self, flux_text_model, flux_image_model, hunyuanworld_lora, 
+    def load_models(self, flux_text_model, flux_image_model, text_lora_path, image_lora_path,
                    device, dtype, enable_cpu_offload=True, enable_vae_tiling=True, 
                    enable_xformers=True):
         """Load HunyuanWorld models and return runtime instance"""
@@ -40,8 +41,8 @@ class HYW_ModelLoader:
         model_paths = {
             "flux_text": flux_text_model,
             "flux_image": flux_image_model,
-            "pano_text": hunyuanworld_lora,
-            "pano_image": hunyuanworld_lora
+            "pano_text_lora": text_lora_path,
+            "pano_image_lora": image_lora_path
         }
         
         optimization = {

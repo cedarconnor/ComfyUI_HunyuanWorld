@@ -47,7 +47,9 @@
       "Bash(C:ComfyUI.venvScriptspython.exe -c \"\nimport sys\nimport os\nsys.path.insert(0, r''C:\\ComfyUI\\custom_nodes\\ComfyUI_HunyuanWorld\\HunyuanWorld-1.0'')\nos.chdir(r''C:\\ComfyUI\\custom_nodes\\ComfyUI_HunyuanWorld'')\n\ntry:\n    from core.hunyuan_integration import HunyuanTextToPanoramaModel\n    \n    # Test with FLUX model\n    model_path = r''C:\\ComfyUI\\models\\unet\\flux1-dev-fp8.safetensors''\n    print(f''Testing REAL FLUX neural network inference...'')\n    \n    model = HunyuanTextToPanoramaModel(model_path, device=''cpu'')\n    \n    # Test with a simple prompt to verify we get real neural network output\n    test_prompt = ''A beautiful mountain landscape with snow and forests''\n    print(f''Generating with real FLUX neural network: \"\"{test_prompt}\"\"'')\n    \n    result = model.generate_panorama(test_prompt, height=240, width=480, num_inference_steps=5)\n    print(f''SUCCESS: Real FLUX neural network generated panorama: {result.shape}'')\n    \n    # Test different prompts to ensure variety\n    test_prompts = [\n        ''Desert landscape with sand dunes'',\n        ''Ocean view with waves and islands'',\n        ''Forest landscape with red trees on fire''\n    ]\n    \n    for prompt in test_prompts:\n        print(f''\\nTesting neural network with: \"\"{prompt}\"\"'')\n        result = model.generate_panorama(prompt, height=240, width=480, num_inference_steps=3)\n        print(f''Generated unique result: {result.shape}'')\n    \n    print(''\\nSUCCESS: REAL FLUX neural network inference now implemented!'')\n    print(''Each prompt should generate completely different AI-generated images'')\n    print(''No more procedural patterns or noise - only real neural network outputs!'')\n        \nexcept Exception as e:\n    print(f''ERROR: {e}'')\n    import traceback\n    traceback.print_exc()\n\")",
       "Bash(dir:*)",
       "Bash(git clone:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(git remote add:*)",
+      "Bash(git remote set-url:*)"
     ],
     "deny": []
   }

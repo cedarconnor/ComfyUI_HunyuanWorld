@@ -56,21 +56,23 @@ class HYWRuntime:
         if self._text2pano_pipe is None:
             print("Loading Text2Panorama pipeline...")
             
-            flux_model = self.cfg.model_paths.get("flux_text", "black-forest-labs/FLUX.1-dev")
-            lora_path = self.cfg.model_paths.get("pano_text", "tencent/HunyuanWorld-1")
+            flux_model_path = self.cfg.model_paths.get("flux_text", r"C:\ComfyUI\models\unet\flux1-dev.safetensors")
+            lora_path = self.cfg.model_paths.get("pano_text_lora", r"C:\ComfyUI\models\Hunyuan_World\HunyuanWorld-PanoDiT-Text-lora.safetensors")
             
-            self._text2pano_pipe = Text2PanoramaPipelines.from_pretrained(
-                flux_model,
+            # Check if model files exist
+            if not os.path.exists(flux_model_path):
+                raise FileNotFoundError(f"FLUX text model not found at: {flux_model_path}")
+            if not os.path.exists(lora_path):
+                raise FileNotFoundError(f"HunyuanWorld text LoRA not found at: {lora_path}")
+            
+            # Load from local files
+            self._text2pano_pipe = Text2PanoramaPipelines.from_single_file(
+                flux_model_path,
                 torch_dtype=self.torch_dtype
             ).to(self.cfg.device)
             
-            # Load LoRA weights
-            self._text2pano_pipe.load_lora_weights(
-                lora_path,
-                subfolder="HunyuanWorld-PanoDiT-Text",
-                weight_name="lora.safetensors",
-                torch_dtype=self.torch_dtype
-            )
+            # Load LoRA weights from local file
+            self._text2pano_pipe.load_lora_weights(lora_path, adapter_name="hunyuanworld_text")
             
             # Apply optimizations
             if self.cfg.optimization.get("enable_model_cpu_offload", True):
@@ -85,21 +87,23 @@ class HYWRuntime:
         if self._image2pano_pipe is None:
             print("Loading Image2Panorama pipeline...")
             
-            flux_model = self.cfg.model_paths.get("flux_image", "black-forest-labs/FLUX.1-Fill-dev")
-            lora_path = self.cfg.model_paths.get("pano_image", "tencent/HunyuanWorld-1")
+            flux_model_path = self.cfg.model_paths.get("flux_image", r"C:\ComfyUI\models\unet\flux1-fill-dev.safetensors")
+            lora_path = self.cfg.model_paths.get("pano_image_lora", r"C:\ComfyUI\models\Hunyuan_World\HunyuanWorld-PanoDiT-Image-lora.safetensors")
             
-            self._image2pano_pipe = Image2PanoramaPipelines.from_pretrained(
-                flux_model,
+            # Check if model files exist
+            if not os.path.exists(flux_model_path):
+                raise FileNotFoundError(f"FLUX image model not found at: {flux_model_path}")
+            if not os.path.exists(lora_path):
+                raise FileNotFoundError(f"HunyuanWorld image LoRA not found at: {lora_path}")
+            
+            # Load from local files
+            self._image2pano_pipe = Image2PanoramaPipelines.from_single_file(
+                flux_model_path,
                 torch_dtype=self.torch_dtype
             ).to(self.cfg.device)
             
-            # Load LoRA weights
-            self._image2pano_pipe.load_lora_weights(
-                lora_path,
-                subfolder="HunyuanWorld-PanoDiT-Image", 
-                weight_name="lora.safetensors",
-                torch_dtype=self.torch_dtype
-            )
+            # Load LoRA weights from local file
+            self._image2pano_pipe.load_lora_weights(lora_path, adapter_name="hunyuanworld_image")
             
             # Apply optimizations
             if self.cfg.optimization.get("enable_model_cpu_offload", True):
