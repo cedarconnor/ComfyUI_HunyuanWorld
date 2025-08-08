@@ -15,8 +15,8 @@ HYW_ModelLoader -> HYW_PanoGen -> HYW_SeamlessWrap360 -> SaveImage
 
 ## Configuration:
 - **Model Loader Settings**:
-  - FLUX Text Model: "C:\ComfyUI\models\unet\flux1-dev.safetensors"  
-  - Text LoRA Path: "C:\ComfyUI\models\Hunyuan_World\HunyuanWorld-PanoDiT-Text-lora.safetensors"
+  - FLUX Text Model: "models/unet/flux1-dev.safetensors"  
+  - Text LoRA Path: "models/Hunyuan_World/HunyuanWorld-PanoDiT-Text-lora.safetensors"
   - Device: "cuda:0" or "cpu"
   - Dtype: "bfloat16" 
 

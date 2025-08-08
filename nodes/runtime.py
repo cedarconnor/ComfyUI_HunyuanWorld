@@ -51,13 +51,42 @@ class HYWRuntime:
         if not HUNYUANWORLD_AVAILABLE:
             raise RuntimeError("HunyuanWorld modules are not available. Please check installation.")
     
+    def _find_comfyui_root(self):
+        """Find ComfyUI root directory by looking for characteristic files/folders"""
+        # Start from current file location
+        current_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        
+        # Look for ComfyUI markers (main.py, web/, custom_nodes/)
+        for _ in range(10):  # Limit search depth
+            if (os.path.exists(os.path.join(current_dir, "main.py")) and 
+                os.path.exists(os.path.join(current_dir, "web")) and
+                os.path.exists(os.path.join(current_dir, "custom_nodes"))):
+                return current_dir
+            parent = os.path.dirname(current_dir)
+            if parent == current_dir:  # Reached root
+                break
+            current_dir = parent
+        
+        # Fallback: assume we're in a standard ComfyUI installation
+        return os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    
     def load_text2pano_pipeline(self):
         """Load text-to-panorama pipeline"""
         if self._text2pano_pipe is None:
             print("Loading Text2Panorama pipeline...")
             
-            flux_model_path = self.cfg.model_paths.get("flux_text", r"C:\ComfyUI\models\unet\flux1-dev.safetensors")
-            lora_path = self.cfg.model_paths.get("pano_text_lora", r"C:\ComfyUI\models\Hunyuan_World\HunyuanWorld-PanoDiT-Text-lora.safetensors")
+            flux_model_path = self.cfg.model_paths.get("flux_text", "models/unet/flux1-dev.safetensors")
+            lora_path = self.cfg.model_paths.get("pano_text_lora", "models/Hunyuan_World/HunyuanWorld-PanoDiT-Text-lora.safetensors")
+            
+            # Convert relative paths to absolute paths from ComfyUI root
+            if not os.path.isabs(flux_model_path):
+                # Try to find ComfyUI root directory
+                comfyui_root = self._find_comfyui_root()
+                flux_model_path = os.path.join(comfyui_root, flux_model_path)
+                
+            if not os.path.isabs(lora_path):
+                comfyui_root = self._find_comfyui_root()
+                lora_path = os.path.join(comfyui_root, lora_path)
             
             # Check if model files exist
             if not os.path.exists(flux_model_path):
@@ -87,8 +116,17 @@ class HYWRuntime:
         if self._image2pano_pipe is None:
             print("Loading Image2Panorama pipeline...")
             
-            flux_model_path = self.cfg.model_paths.get("flux_image", r"C:\ComfyUI\models\unet\flux1-fill-dev.safetensors")
-            lora_path = self.cfg.model_paths.get("pano_image_lora", r"C:\ComfyUI\models\Hunyuan_World\HunyuanWorld-PanoDiT-Image-lora.safetensors")
+            flux_model_path = self.cfg.model_paths.get("flux_image", "models/unet/flux1-fill-dev.safetensors")
+            lora_path = self.cfg.model_paths.get("pano_image_lora", "models/Hunyuan_World/HunyuanWorld-PanoDiT-Image-lora.safetensors")
+            
+            # Convert relative paths to absolute paths from ComfyUI root
+            if not os.path.isabs(flux_model_path):
+                comfyui_root = self._find_comfyui_root()
+                flux_model_path = os.path.join(comfyui_root, flux_model_path)
+                
+            if not os.path.isabs(lora_path):
+                comfyui_root = self._find_comfyui_root()
+                lora_path = os.path.join(comfyui_root, lora_path)
             
             # Check if model files exist
             if not os.path.exists(flux_model_path):

@@ -29,12 +29,12 @@ pip install -r requirements.txt
 3. **Download Required Models** - All models must be downloaded manually to specific locations:
 
 ### FLUX Base Models (Required)
-Place in `C:\ComfyUI\models\unet\`:
+Place in `ComfyUI/models/unet/`:
 - **FLUX.1-dev**: Download `flux1-dev.safetensors` from [Black Forest Labs FLUX.1-dev](https://huggingface.co/black-forest-labs/FLUX.1-dev)
 - **FLUX.1-Fill-dev**: Download `flux1-fill-dev.safetensors` from [Black Forest Labs FLUX.1-Fill-dev](https://huggingface.co/black-forest-labs/FLUX.1-Fill-dev)
 
 ### HunyuanWorld LoRA Models (Required)  
-Place in `C:\ComfyUI\models\Hunyuan_World\`:
+Place in `ComfyUI/models/Hunyuan_World/`:
 - **Text-to-Panorama LoRA**: Download `HunyuanWorld-PanoDiT-Text-lora.safetensors` from [tencent/HunyuanWorld-1](https://huggingface.co/tencent/HunyuanWorld-1/tree/main/HunyuanWorld-PanoDiT-Text)
 - **Image-to-Panorama LoRA**: Download `HunyuanWorld-PanoDiT-Image-lora.safetensors` from [tencent/HunyuanWorld-1](https://huggingface.co/tencent/HunyuanWorld-1/tree/main/HunyuanWorld-PanoDiT-Image)
 
@@ -46,11 +46,11 @@ The following models will be downloaded automatically by the HunyuanWorld librar
 
 ### Expected File Structure:
 ```
-C:\ComfyUI\models\
-├── unet\
+ComfyUI/models/
+├── unet/
 │   ├── flux1-dev.safetensors
 │   └── flux1-fill-dev.safetensors
-└── Hunyuan_World\
+└── Hunyuan_World/
     ├── HunyuanWorld-PanoDiT-Text-lora.safetensors
     └── HunyuanWorld-PanoDiT-Image-lora.safetensors
 ```
@@ -110,10 +110,10 @@ Edit `settings.json` to configure default model paths and parameters:
 ```json
 {
   "model_paths": {
-    "flux_text": "C:\\ComfyUI\\models\\unet\\flux1-dev.safetensors",
-    "flux_image": "C:\\ComfyUI\\models\\unet\\flux1-fill-dev.safetensors",
-    "pano_text_lora": "C:\\ComfyUI\\models\\Hunyuan_World\\HunyuanWorld-PanoDiT-Text-lora.safetensors",
-    "pano_image_lora": "C:\\ComfyUI\\models\\Hunyuan_World\\HunyuanWorld-PanoDiT-Image-lora.safetensors"
+    "flux_text": "models/unet/flux1-dev.safetensors",
+    "flux_image": "models/unet/flux1-fill-dev.safetensors",
+    "pano_text_lora": "models/Hunyuan_World/HunyuanWorld-PanoDiT-Text-lora.safetensors",
+    "pano_image_lora": "models/Hunyuan_World/HunyuanWorld-PanoDiT-Image-lora.safetensors"
   },
   "device": "cuda:0",
   "dtype": "bfloat16",

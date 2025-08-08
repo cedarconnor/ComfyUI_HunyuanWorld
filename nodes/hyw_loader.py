@@ -18,10 +18,10 @@ class HYW_ModelLoader:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "flux_text_model": ("STRING", {"default": "C:\\ComfyUI\\models\\unet\\flux1-dev.safetensors"}),
-                "flux_image_model": ("STRING", {"default": "C:\\ComfyUI\\models\\unet\\flux1-fill-dev.safetensors"}),
-                "text_lora_path": ("STRING", {"default": "C:\\ComfyUI\\models\\Hunyuan_World\\HunyuanWorld-PanoDiT-Text-lora.safetensors"}),
-                "image_lora_path": ("STRING", {"default": "C:\\ComfyUI\\models\\Hunyuan_World\\HunyuanWorld-PanoDiT-Image-lora.safetensors"}),
+                "flux_text_model": ("STRING", {"default": "models/unet/flux1-dev.safetensors"}),
+                "flux_image_model": ("STRING", {"default": "models/unet/flux1-fill-dev.safetensors"}),
+                "text_lora_path": ("STRING", {"default": "models/Hunyuan_World/HunyuanWorld-PanoDiT-Text-lora.safetensors"}),
+                "image_lora_path": ("STRING", {"default": "models/Hunyuan_World/HunyuanWorld-PanoDiT-Image-lora.safetensors"}),
                 "device": ("STRING", {"default": "cuda:0"}),
                 "dtype": (["bfloat16", "float16", "float32"], {"default": "bfloat16"}),
             },
