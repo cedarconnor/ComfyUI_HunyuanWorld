@@ -2,6 +2,8 @@
 
 A comprehensive ComfyUI node pack for HunyuanWorld offering text-to-panorama generation, 3D world reconstruction, and related utilities directly within ComfyUI.
 
+**🔒 Completely Local Operation** - No internet connection required. All processing runs locally using your downloaded model files with no web requests to Hugging Face or other services.
+
 ## Requirements
 
 - **ComfyUI** (latest)

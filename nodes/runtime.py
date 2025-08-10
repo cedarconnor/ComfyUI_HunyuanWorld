@@ -39,6 +39,12 @@ class HYWRuntime:
         self._layer_decomposer = None
         self._world_composer = None
         
+        # Force offline mode for all operations
+        os.environ["HF_HUB_OFFLINE"] = "1"
+        os.environ["TRANSFORMERS_OFFLINE"] = "1" 
+        os.environ["HF_DATASETS_OFFLINE"] = "1"
+        print("HunyuanWorld: Operating in complete offline mode - no web requests will be made")
+        
         # Set torch dtype
         if cfg.dtype == "bfloat16":
             self.torch_dtype = torch.bfloat16
@@ -106,10 +112,14 @@ class HYWRuntime:
             if not os.path.exists(lora_path):
                 raise FileNotFoundError(f"HunyuanWorld text LoRA not found at: {lora_path}")
             
-            # Load from local files
+            # Load from local files with complete offline mode
             self._text2pano_pipe = Text2PanoramaPipelines.from_single_file(
                 flux_model_path,
-                torch_dtype=self.torch_dtype
+                torch_dtype=self.torch_dtype,
+                local_files_only=True,
+                use_safetensors=True,
+                load_safety_checker=False,
+                requires_safety_checker=False
             ).to(self.cfg.device)
             
             # Load LoRA weights from local file
@@ -146,10 +156,14 @@ class HYWRuntime:
             if not os.path.exists(lora_path):
                 raise FileNotFoundError(f"HunyuanWorld image LoRA not found at: {lora_path}")
             
-            # Load from local files
+            # Load from local files with complete offline mode
             self._image2pano_pipe = Image2PanoramaPipelines.from_single_file(
                 flux_model_path,
-                torch_dtype=self.torch_dtype
+                torch_dtype=self.torch_dtype,
+                local_files_only=True,
+                use_safetensors=True,
+                load_safety_checker=False,
+                requires_safety_checker=False
             ).to(self.cfg.device)
             
             # Load LoRA weights from local file
