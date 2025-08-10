@@ -2,9 +2,9 @@
 
 A comprehensive ComfyUI node pack for HunyuanWorld offering text-to-panorama generation, 3D world reconstruction, and related utilities directly within ComfyUI.
 
-**⚠️ Current Status: Offline Mode Under Development** 
+**🔒 Complete Offline Operation** 
 
-This node pack is designed for local operation but currently requires internet access during initial model loading to download FLUX configuration files. Complete offline mode is under development.
+This node pack operates entirely offline using your locally installed ComfyUI FLUX model components. No internet connection required after initial ComfyUI setup.
 
 ## Requirements
 
@@ -65,13 +65,14 @@ C:\ComfyUI\.venv\Scripts\python.exe -m pip install basicsr realesrgan zim-anythi
 C:\ComfyUI\.venv\Scripts\python.exe install.py
 ```
 
-**Model Path Issues**: The node pack automatically detects your ComfyUI installation directory. If you see "model not found" errors, ensure:
-- FLUX models are in `C:\ComfyUI\models\unet\`
-- HunyuanWorld models are in `C:\ComfyUI\models\Hunyuan_World\`
+**Model Requirements**: The node pack automatically detects your ComfyUI installation and loads components from standard directories:
+- FLUX models: `C:\ComfyUI\models\unet\` (flux1-dev-fp8.safetensors, flux1-fill-dev.safetensors)
+- HunyuanWorld LoRAs: `C:\ComfyUI\models\Hunyuan_World\` (HunyuanWorld-PanoDiT-Text.safetensors, HunyuanWorld-PanoDiT-Image.safetensors)
+- CLIP encoder: `C:\ComfyUI\models\clip\clip_l.safetensors`
+- T5 encoder: `C:\ComfyUI\models\text_encoders\t5xxl_fp16.safetensors`
+- FLUX VAE: `C:\ComfyUI\models\vae\ae.safetensors`
 
-**Offline Mode Limitation**: Currently requires internet access during first-time model loading to download FLUX configuration files. If you see "403 Forbidden" or "local configs not found" errors, this is expected. Complete offline mode is under development.
-
-**Temporary Workaround**: For offline panorama generation, use ComfyUI's native FLUX nodes with HunyuanWorld LoRA weights loaded separately.
+**Offline Operation**: Loads all components from your existing ComfyUI model files. No internet required.
 
 **VRAM Issues**: Use CPU offloading and VAE tiling in the model loader settings for systems with limited VRAM.
 
