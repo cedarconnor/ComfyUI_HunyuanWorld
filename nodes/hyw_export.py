@@ -35,20 +35,43 @@ class HYW_TextureBaker:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "world_layers": ("HYW_MESH_LAYERS",),
-                "texture_resolution": ("INT", {"default": 1024, "min": 256, "max": 4096, "step": 256}),
+                "world_layers": ("HYW_MESH_LAYERS", {
+                    "tooltip": "3D mesh layers from reconstruction to bake textures for. Each layer gets individual texture maps."
+                }),
+                "texture_resolution": ("INT", {
+                    "default": 1024, "min": 256, "max": 4096, "step": 256,
+                    "tooltip": "Resolution of baked texture maps in pixels. Higher values = more detail but larger files. 1024-2048 typical."
+                }),
                 "map_types": ("STRING", {
                     "multiline": True,
-                    "default": "albedo\nnormal\nroughness\nao"
+                    "default": "albedo\nnormal\nroughness\nao",
+                    "tooltip": "Types of texture maps to bake, one per line. Options: albedo, normal, roughness, metallic, ao, height, emission."
                 }),
             },
             "optional": {
-                "panorama": ("IMAGE",),
-                "enable_ambient_occlusion": ("BOOLEAN", {"default": True}),
-                "ao_samples": ("INT", {"default": 100, "min": 10, "max": 1000}),
-                "enable_normal_maps": ("BOOLEAN", {"default": True}),
-                "texture_padding": ("INT", {"default": 4, "min": 0, "max": 16}),
-                "uv_unwrap_method": (["angle_based", "conformal"], {"default": "angle_based"}),
+                "panorama": ("IMAGE", {
+                    "tooltip": "Source panorama image to sample colors from for albedo texture baking. If not provided, uses default material colors."
+                }),
+                "enable_ambient_occlusion": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Generate ambient occlusion maps showing surface self-shadowing. Creates realistic depth and crevice shading."
+                }),
+                "ao_samples": ("INT", {
+                    "default": 100, "min": 10, "max": 1000,
+                    "tooltip": "Number of ray samples for ambient occlusion calculation. More samples = higher quality but slower baking."
+                }),
+                "enable_normal_maps": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Generate normal maps from mesh geometry. Adds surface detail without increasing polygon count."
+                }),
+                "texture_padding": ("INT", {
+                    "default": 4, "min": 0, "max": 16,
+                    "tooltip": "Pixels of padding around UV islands to prevent texture seams. 2-8 pixels prevents filtering artifacts."
+                }),
+                "uv_unwrap_method": (["angle_based", "conformal"], {
+                    "default": "angle_based",
+                    "tooltip": "UV unwrapping algorithm. angle_based: preserves angles, good for spherical geometry. conformal: minimal distortion."
+                }),
             }
         }
 

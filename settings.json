@@ -1,9 +1,9 @@
 {
   "model_paths": {
-    "flux_text": "models/unet/flux1-dev.safetensors",
+    "flux_text": "models/unet/flux1-dev-fp8.safetensors",
     "flux_image": "models/unet/flux1-fill-dev.safetensors",
-    "pano_text_lora": "models/Hunyuan_World/HunyuanWorld-PanoDiT-Text-lora.safetensors",
-    "pano_image_lora": "models/Hunyuan_World/HunyuanWorld-PanoDiT-Image-lora.safetensors"
+    "pano_text_lora": "models/Hunyuan_World/HunyuanWorld-PanoDiT-Text.safetensors",
+    "pano_image_lora": "models/Hunyuan_World/HunyuanWorld-PanoDiT-Image.safetensors"
   },
   "device": "cuda:0",
   "dtype": "bfloat16",

@@ -1,0 +1,3 @@
+{
+  "workflow": "HYW_ModelLoader -> HYW_PanoGen -> HYW_SeamlessWrap360 -> SaveImage"
+}

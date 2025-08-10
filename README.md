@@ -1,227 +1,144 @@
 # ComfyUI HunyuanWorld Node Pack
 
-A comprehensive ComfyUI node pack for HunyuanWorld-1.0, enabling text-to-panorama generation and 3D world reconstruction directly within ComfyUI.
+A comprehensive ComfyUI node pack for HunyuanWorld offering text-to-panorama generation, 3D world reconstruction, and related utilities directly within ComfyUI.
 
-## Features
+## Requirements
 
-- **Text-to-Panorama**: Generate high-quality 360° panoramas from text prompts
-- **Image-to-Panorama**: Convert perspective images to panoramic views  
-- **3D World Reconstruction**: Transform panoramas into layered 3D meshes
-- **Advanced Inpainting**: Scene and sky inpainting for panorama refinement
-- **Texture Baking**: Generate PBR textures from panoramas
-- **Multiple Export Formats**: GLB, GLTF, OBJ, PLY, STL support
-- **Quality Tools**: Validation, seamless wrapping, and mesh analysis
+- **ComfyUI** (latest)
+- **Python** 3.x
+- **CUDA-enabled GPU** (for accelerated models)
+- **Dependencies**: see [requirements.txt](requirements.txt)
 
 ## Installation
 
+### Automatic Installation (Recommended)
+
 1. Clone this repository into your ComfyUI custom_nodes directory:
-```bash
-cd ComfyUI/custom_nodes/
-git clone https://github.com/cedarconnor/ComfyUI_HunyuanWorld.git
-```
+   ```bash
+   cd C:\ComfyUI\custom_nodes
+   git clone https://github.com/cedarconnor/ComfyUI_HunyuanWorld.git
+   ```
 
-2. Install required dependencies:
-```bash
-cd ComfyUI_HunyuanWorld
-pip install -r requirements.txt
-```
+2. Install all dependencies with a single command:
+   ```bash
+   cd C:\ComfyUI\custom_nodes\ComfyUI_HunyuanWorld
+   C:\ComfyUI\.venv\Scripts\python.exe -m pip install -r requirements.txt
+   C:\ComfyUI\.venv\Scripts\python.exe install.py
+   ```
 
-3. **Download Required Models** - All models must be downloaded manually to specific locations:
-
-### FLUX Base Models (Required)
-Place in `ComfyUI/models/unet/`:
-- **FLUX.1-dev**: Download `flux1-dev.safetensors` from [Black Forest Labs FLUX.1-dev](https://huggingface.co/black-forest-labs/FLUX.1-dev)
-- **FLUX.1-Fill-dev**: Download `flux1-fill-dev.safetensors` from [Black Forest Labs FLUX.1-Fill-dev](https://huggingface.co/black-forest-labs/FLUX.1-Fill-dev)
-
-### HunyuanWorld LoRA Models (Required)  
-Place in `ComfyUI/models/Hunyuan_World/`:
-- **Text-to-Panorama LoRA**: Download `HunyuanWorld-PanoDiT-Text-lora.safetensors` from [tencent/HunyuanWorld-1](https://huggingface.co/tencent/HunyuanWorld-1/tree/main/HunyuanWorld-PanoDiT-Text)
-- **Image-to-Panorama LoRA**: Download `HunyuanWorld-PanoDiT-Image-lora.safetensors` from [tencent/HunyuanWorld-1](https://huggingface.co/tencent/HunyuanWorld-1/tree/main/HunyuanWorld-PanoDiT-Image)
-
-### Additional Models for 3D Reconstruction (Optional)
-The following models will be downloaded automatically by the HunyuanWorld library when first used:
-- **MoGe depth estimation**: Used for 3D reconstruction
-- **Depth Anything**: Used for depth estimation
-- **Various segmentation models**: Used for layer decomposition
-
-### Expected File Structure:
-```
-ComfyUI/models/
-├── unet/
-│   ├── flux1-dev.safetensors
-│   └── flux1-fill-dev.safetensors
-└── Hunyuan_World/
-    ├── HunyuanWorld-PanoDiT-Text-lora.safetensors
-    └── HunyuanWorld-PanoDiT-Image-lora.safetensors
-```
+3. Place model files:
+   - **FLUX Base Models** → `C:\ComfyUI\models\unet\`
+     - flux1-dev-fp8.safetensors
+     - flux1-fill-dev.safetensors
+   - **HunyuanWorld Models** → `C:\ComfyUI\models\Hunyuan_World\`
+     - HunyuanWorld-PanoDiT-Text.safetensors
+     - HunyuanWorld-PanoDiT-Image.safetensors
+     - HunyuanWorld-PanoInpaint-Scene.safetensors
+     - HunyuanWorld-PanoInpaint-Sky.safetensors
 
 4. Restart ComfyUI to load the new nodes.
 
+### Manual Installation (If automatic fails)
+
+If the automatic installation encounters issues, install dependencies manually:
+
+```bash
+# Core requirements
+C:\ComfyUI\.venv\Scripts\python.exe -m pip install -r requirements.txt
+
+# Git-based dependencies
+C:\ComfyUI\.venv\Scripts\python.exe -m pip install "git+https://github.com/EasternJournalist/utils3d.git"
+C:\ComfyUI\.venv\Scripts\python.exe -m pip install "git+https://github.com/microsoft/MoGe.git"
+
+# Additional HunyuanWorld dependencies
+C:\ComfyUI\.venv\Scripts\python.exe -m pip install basicsr realesrgan zim-anything easydict
+```
+
+## Troubleshooting
+
+**Import Errors**: If you see "HunyuanWorld modules are not available", ensure all dependencies are installed. Run the installation verification:
+```bash
+C:\ComfyUI\.venv\Scripts\python.exe install.py
+```
+
+**Model Path Issues**: The node pack automatically detects your ComfyUI installation directory. If you see "model not found" errors, ensure:
+- FLUX models are in `C:\ComfyUI\models\unet\`
+- HunyuanWorld models are in `C:\ComfyUI\models\Hunyuan_World\`
+
+**VRAM Issues**: Use CPU offloading and VAE tiling in the model loader settings for systems with limited VRAM.
+
+**Performance**: For faster generation, ensure you have sufficient VRAM and use bfloat16 precision.
+
 ## Node Categories
 
-### 🔧 **Loaders**
-- **HYW_ModelLoader**: Load and configure HunyuanWorld models
-- **HYW_Config**: Create reusable parameter configurations  
-- **HYW_SettingsLoader**: Load settings from JSON file
+### Loaders
+- **HYW_ModelLoader**: Load HunyuanWorld models and create runtime instance
+- **HYW_SettingsLoader**: Load settings from `settings.json`
+- **HYW_Config**: Create or override inference configuration
 
-### 🎨 **Generation** 
-- **HYW_PanoGen**: Text/Image-to-panorama generation
+### Generation
+- **HYW_PanoGen**: Generate panorama (text or image conditioned)
 - **HYW_PanoGenBatch**: Batch panorama generation
-- **HYW_PanoInpaint_Scene**: Scene element inpainting
+- **HYW_PanoInpaint_Scene**: Inpaint scene regions in panorama
 - **HYW_PanoInpaint_Advanced**: Advanced multi-region inpainting
-- **HYW_PanoInpaint_Sky**: Specialized sky inpainting
+- **HYW_PanoInpaint_Sky**: Inpaint sky regions
+- **HYW_SkyMaskGenerator**: Generate sky mask for panorama
 
-### 🏗️ **Reconstruction**
-- **HYW_WorldReconstructor**: Convert panorama to layered 3D world
-- **HYW_MeshProcessor**: Process and refine mesh geometry
-- **HYW_MeshAnalyzer**: Analyze mesh quality and properties
+### Reconstruction
+- **HYW_WorldReconstructor**: Reconstruct 3D world mesh from panorama
+- **HYW_MeshProcessor**: Process and clean mesh geometry
+- **HYW_MeshAnalyzer**: Analyze mesh quality and statistics
 
-### 📦 **Export**
-- **HYW_TextureBaker**: Bake PBR textures from panoramas  
-- **HYW_MeshExport**: Export meshes to various 3D formats
-- **HYW_Thumbnailer**: Generate 3D world previews
+### Export
+- **HYW_TextureBaker**: Bake PBR textures from panorama and mesh data
+- **HYW_MeshExport**: Export mesh and textures to GLB/OBJ/etc.
+- **HYW_Thumbnailer**: Generate 3D world preview thumbnails
 
-### 🛠️ **Utils**
-- **HYW_SeamlessWrap360**: Make panoramas seamless
-- **HYW_SkyMaskGenerator**: Generate sky masks automatically
-- **HYW_PanoramaValidator**: Validate panorama quality
-- **HYW_MetadataManager**: Track workflow metadata
+### Utils
+- **HYW_SeamlessWrap360**: Seamlessly wrap panoramas horizontally
+- **HYW_PanoramaValidator**: Validate panorama images
+- **HYW_MetadataManager**: Manage workflow metadata and hashing
 
-## Quick Start
+## Examples
 
-### Basic Text-to-Panorama
-1. Add **HYW_ModelLoader** node
-2. Add **HYW_PanoGen** node  
-3. Connect ModelLoader output to PanoGen input
-4. Set your text prompt in PanoGen
-5. Add **SaveImage** node to save result
-
-### Full 3D Pipeline
-1. **HYW_ModelLoader** → **HYW_PanoGen** (generate panorama)
-2. **HYW_WorldReconstructor** (create 3D world from panorama)
-3. **HYW_TextureBaker** (bake textures)
-4. **HYW_MeshExport** (export to GLB/OBJ)
+See the `examples/` directory for detailed step-by-step guides:
+- [Text-to-Panorama](examples/text_to_panorama.md)
+- [Panorama-to-3D World](examples/panorama_to_3d_world.md)
 
 ## Configuration
 
-### Model Settings
-Edit `settings.json` to configure default model paths and parameters:
+Edit `settings.json` to configure default model paths, runtime parameters, and optimizations. For example:
 
 ```json
 {
   "model_paths": {
-    "flux_text": "models/unet/flux1-dev.safetensors",
+    "flux_text": "models/unet/flux1-dev-fp8.safetensors",
     "flux_image": "models/unet/flux1-fill-dev.safetensors",
-    "pano_text_lora": "models/Hunyuan_World/HunyuanWorld-PanoDiT-Text-lora.safetensors",
-    "pano_image_lora": "models/Hunyuan_World/HunyuanWorld-PanoDiT-Image-lora.safetensors"
+    "pano_text_lora": "models/Hunyuan_World/HunyuanWorld-PanoDiT-Text.safetensors",
+    "pano_image_lora": "models/Hunyuan_World/HunyuanWorld-PanoDiT-Image.safetensors"
   },
   "device": "cuda:0",
   "dtype": "bfloat16",
   "defaults": {
     "pano_size": [1920, 960],
     "guidance_scale": 30.0,
-    "steps": 50
+    "num_inference_steps": 50,
+    "blend_extend": 6,
+    "true_cfg_scale": 0.0,
+    "shifting_extend": 0
+  },
+  "optimization": {
+    "enable_model_cpu_offload": true,
+    "enable_vae_tiling": true,
+    "enable_xformers": true
   }
 }
 ```
 
-### Performance Optimization
-- Enable CPU offloading to save VRAM
-- Use VAE tiling for large images
-- Adjust target mesh complexity based on hardware
-
-## Supported Formats
-
-### Input
-- Text prompts (for generation)
-- Images: PNG, JPG, WebP
-- Panoramas: Equirectangular format (2:1 aspect ratio recommended)
-
-### Output  
-- **Images**: PNG, JPG  
-- **3D Meshes**: GLB, GLTF, OBJ, PLY, STL
-- **Textures**: PNG, JPG with PBR maps (albedo, normal, AO, roughness)
-
-## Example Workflows
-
-See the `examples/` directory for detailed workflow guides:
-- `text_to_panorama.md` - Basic panorama generation
-- `panorama_to_3d_world.md` - Full 3D reconstruction pipeline
-
-## Hardware Requirements
-
-### Minimum
-- GPU: 8GB VRAM (RTX 3070 / RTX 4060)
-- RAM: 16GB system memory
-- Storage: 10GB for models
-
-### Recommended  
-- GPU: 12GB+ VRAM (RTX 4070 Ti / RTX 4080)
-- RAM: 32GB system memory
-- Storage: 20GB+ for models and outputs
-
-## Troubleshooting
-
-### Common Issues
-
-**"HunyuanWorld modules not available"**
-- Ensure HunyuanWorld-1.0 is cloned in the correct directory
-- Check that all dependencies are installed
-
-**CUDA out of memory**
-- Enable model CPU offloading
-- Reduce panorama resolution
-- Use lower mesh target sizes
-
-**Poor panorama quality**
-- Increase guidance scale (25-35)
-- Use more inference steps (50-100)
-- Adjust prompt for better descriptions
-
-**Mesh export fails**
-- Check output directory permissions
-- Reduce mesh complexity
-- Try different export formats
-
-### Performance Tips
-- Use bfloat16 dtype for best VRAM efficiency  
-- Enable VAE tiling for large panoramas
-- Process in batches for multiple outputs
-- Use preview quality for testing workflows
-
-## Data Types
-
-The node pack uses custom data types for efficient processing:
-- **HYW_RUNTIME**: Model runtime instance
-- **HYW_CONFIG**: Configuration parameters
-- **HYW_METADATA**: Processing metadata
-- **HYW_MESH_LAYERS**: Layered 3D mesh data
-- **HYW_BAKED_TEXTURES**: Texture atlas data
-
 ## Contributing
 
-Contributions welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality  
-4. Submit a pull request
+Contributions welcome! Please open issues or PRs to add new features, improve documentation, or fix bugs.
 
 ## License
 
 This project follows the HunyuanWorld-1.0 Community License. See the original repository for details.
-
-## Credits
-
-- **HunyuanWorld-1.0**: Tencent AI Lab
-- **FLUX Models**: Black Forest Labs  
-- **ComfyUI Integration**: Community contribution
-
-## Support
-
-- Documentation: See `examples/` directory
-- Issues: GitHub issue tracker
-- Community: ComfyUI Discord server
-
----
-
-*Built with ❤️ for the ComfyUI community*

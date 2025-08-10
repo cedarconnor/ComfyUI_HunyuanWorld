@@ -40,26 +40,55 @@ class HYW_PanoInpaint_Scene:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "hyw_runtime": ("HYW_RUNTIME",),
-                "panorama": ("IMAGE",),
-                "mask": ("IMAGE",),
+                "hyw_runtime": ("HYW_RUNTIME", {
+                    "tooltip": "HunyuanWorld runtime instance for inpainting operations. Must have image-to-panorama pipeline loaded."
+                }),
+                "panorama": ("IMAGE", {
+                    "tooltip": "Input panorama image to inpaint. Should be in 360° equirectangular format for best results."
+                }),
+                "mask": ("IMAGE", {
+                    "tooltip": "Inpainting mask where white areas are inpainted and black areas are preserved. Use grayscale for partial inpainting strength."
+                }),
                 "prompt": ("STRING", {
                     "multiline": True, 
-                    "default": "detailed scene elements, high quality"
+                    "default": "detailed scene elements, high quality",
+                    "tooltip": "Description of what to generate in masked areas. Be specific about scene elements, lighting, and style for better results."
                 }),
-                "strength": ("FLOAT", {"default": 0.7, "min": 0.0, "max": 1.0, "step": 0.05}),
-                "guidance_scale": ("FLOAT", {"default": 30.0, "min": 0.0, "max": 100.0, "step": 0.5}),
-                "num_inference_steps": ("INT", {"default": 30, "min": 1, "max": 200}),
-                "seed": ("INT", {"default": 42, "min": 0, "max": 2**31-1}),
+                "strength": ("FLOAT", {
+                    "default": 0.7, "min": 0.0, "max": 1.0, "step": 0.05,
+                    "tooltip": "Inpainting strength. 0.0=preserve original, 1.0=completely regenerate masked areas. 0.6-0.8 balances quality and consistency."
+                }),
+                "guidance_scale": ("FLOAT", {
+                    "default": 30.0, "min": 0.0, "max": 100.0, "step": 0.5,
+                    "tooltip": "How strongly to follow the prompt. Higher values = more prompt adherence. 20-40 recommended for inpainting."
+                }),
+                "num_inference_steps": ("INT", {
+                    "default": 30, "min": 1, "max": 200,
+                    "tooltip": "Number of denoising steps. 20-50 usually sufficient for inpainting. More steps improve quality but increase time."
+                }),
+                "seed": ("INT", {
+                    "default": 42, "min": 0, "max": 2**31-1,
+                    "tooltip": "Random seed for reproducible inpainting results. Same seed with identical settings produces consistent results."
+                }),
             },
             "optional": {
                 "negative_prompt": ("STRING", {
                     "multiline": True, 
-                    "default": "low quality, blurry, artifacts"
+                    "default": "low quality, blurry, artifacts",
+                    "tooltip": "What to avoid in inpainted regions. Common: 'blurry, artifacts, low quality, distorted, seams, inconsistent lighting'."
                 }),
-                "blend_extend": ("INT", {"default": 6, "min": 0, "max": 20}),
-                "true_cfg_scale": ("FLOAT", {"default": 2.0, "min": 0.0, "max": 20.0, "step": 0.1}),
-                "shifting_extend": ("INT", {"default": 0, "min": 0, "max": 10}),
+                "blend_extend": ("INT", {
+                    "default": 6, "min": 0, "max": 20,
+                    "tooltip": "Pixels to blend at inpainting boundaries for seamless integration. Higher values = smoother transitions but may blur details."
+                }),
+                "true_cfg_scale": ("FLOAT", {
+                    "default": 2.0, "min": 0.0, "max": 20.0, "step": 0.1,
+                    "tooltip": "Advanced CFG for better prompt following in inpainted areas. 0.0=disabled. 1.0-5.0 can improve quality for complex prompts."
+                }),
+                "shifting_extend": ("INT", {
+                    "default": 0, "min": 0, "max": 10,
+                    "tooltip": "Additional boundary processing for panorama continuity. 0=disabled. May help with seamless 360° inpainting."
+                }),
             }
         }
 
@@ -124,32 +153,68 @@ class HYW_PanoInpaint_Advanced:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "hyw_runtime": ("HYW_RUNTIME",),
-                "panorama": ("IMAGE",),
-                "mask": ("IMAGE",),
+                "hyw_runtime": ("HYW_RUNTIME", {
+                    "tooltip": "HunyuanWorld runtime for advanced inpainting with multiple regions and specialized processing."
+                }),
+                "panorama": ("IMAGE", {
+                    "tooltip": "Input 360° panorama to inpaint. Works best with equirectangular format panoramas."
+                }),
+                "mask": ("IMAGE", {
+                    "tooltip": "Inpainting mask defining areas to regenerate. White=inpaint, black=preserve. Supports multi-region masks."
+                }),
                 "prompt": ("STRING", {
                     "multiline": True, 
-                    "default": "high quality inpainting"
+                    "default": "high quality inpainting",
+                    "tooltip": "Base prompt for inpainting. Will be enhanced based on inpaint_type selection. Be descriptive about desired content."
                 }),
-                "inpaint_type": (["scene", "sky", "foreground", "background"], {"default": "scene"}),
-                "strength": ("FLOAT", {"default": 0.7, "min": 0.0, "max": 1.0, "step": 0.05}),
-                "guidance_scale": ("FLOAT", {"default": 30.0, "min": 0.0, "max": 100.0, "step": 0.5}),
-                "num_inference_steps": ("INT", {"default": 30, "min": 1, "max": 200}),
-                "seed": ("INT", {"default": 42, "min": 0, "max": 2**31-1}),
+                "inpaint_type": (["scene", "sky", "foreground", "background"], {
+                    "default": "scene",
+                    "tooltip": "Type of content being inpainted. Adds specialized prompting: scene=general, sky=atmospheric, foreground=detailed, background=depth."
+                }),
+                "strength": ("FLOAT", {
+                    "default": 0.7, "min": 0.0, "max": 1.0, "step": 0.05,
+                    "tooltip": "Inpainting strength affecting how much the original content is preserved vs regenerated. 0.7-0.8 recommended."
+                }),
+                "guidance_scale": ("FLOAT", {
+                    "default": 30.0, "min": 0.0, "max": 100.0, "step": 0.5,
+                    "tooltip": "Prompt adherence strength. Higher values follow prompts more closely. 25-35 good for detailed inpainting."
+                }),
+                "num_inference_steps": ("INT", {
+                    "default": 30, "min": 1, "max": 200,
+                    "tooltip": "Denoising steps for quality vs speed trade-off. 25-50 recommended for high quality advanced inpainting."
+                }),
+                "seed": ("INT", {
+                    "default": 42, "min": 0, "max": 2**31-1,
+                    "tooltip": "Random seed for reproducible advanced inpainting results. Same seed ensures consistent region generation."
+                }),
             },
             "optional": {
                 "negative_prompt": ("STRING", {
                     "multiline": True, 
-                    "default": "low quality, blurry, artifacts"
+                    "default": "low quality, blurry, artifacts",
+                    "tooltip": "What to avoid in all inpainted regions. Include artifacts like 'seams, inconsistent lighting, mismatched perspective'."
                 }),
                 "region_prompts": ("STRING", {
                     "multiline": True,
-                    "default": "region1: trees and forest\nregion2: sky and clouds"
+                    "default": "region1: trees and forest\nregion2: sky and clouds",
+                    "tooltip": "Specific prompts for different mask regions. Format: 'region1: description'. Each line defines a region's content."
                 }),
-                "blend_extend": ("INT", {"default": 6, "min": 0, "max": 20}),
-                "true_cfg_scale": ("FLOAT", {"default": 2.0, "min": 0.0, "max": 20.0, "step": 0.1}),
-                "feather_mask": ("BOOLEAN", {"default": True}),
-                "preserve_edges": ("BOOLEAN", {"default": True}),
+                "blend_extend": ("INT", {
+                    "default": 6, "min": 0, "max": 20,
+                    "tooltip": "Boundary blending for seamless integration between regions and original content. Higher=smoother but softer edges."
+                }),
+                "true_cfg_scale": ("FLOAT", {
+                    "default": 2.0, "min": 0.0, "max": 20.0, "step": 0.1,
+                    "tooltip": "Enhanced CFG for better prompt adherence in complex multi-region inpainting. 1.5-4.0 typically effective."
+                }),
+                "feather_mask": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Apply Gaussian blur to mask edges for smoother transitions. Recommended for natural-looking inpainting results."
+                }),
+                "preserve_edges": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Protect important edge details during inpainting. Helps maintain structural integrity of the panorama."
+                }),
             }
         }
 

@@ -41,31 +41,74 @@ class HYW_PanoGen:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "hyw_runtime": ("HYW_RUNTIME",),
+                "hyw_runtime": ("HYW_RUNTIME", {
+                    "tooltip": "HunyuanWorld runtime instance from HYW_ModelLoader. Contains loaded models and configuration."
+                }),
                 "prompt": ("STRING", {
                     "multiline": True, 
-                    "default": "A beautiful landscape panorama"
+                    "default": "A beautiful landscape panorama",
+                    "tooltip": "Text description of the desired panorama. Be descriptive about lighting, atmosphere, and scene composition for best results."
                 }),
-                "height": ("INT", {"default": 960, "min": 128, "max": 8192, "step": 128}),
-                "width": ("INT", {"default": 1920, "min": 256, "max": 16384, "step": 256}),
-                "guidance_scale": ("FLOAT", {"default": 30.0, "min": 0.0, "max": 100.0, "step": 0.5}),
-                "num_inference_steps": ("INT", {"default": 50, "min": 1, "max": 200}),
-                "seed": ("INT", {"default": 42, "min": 0, "max": 2**31-1}),
+                "height": ("INT", {
+                    "default": 960, "min": 128, "max": 8192, "step": 128,
+                    "tooltip": "Height of generated panorama in pixels. Standard is 960px. Should be half of width for proper 360° aspect ratio (2:1)."
+                }),
+                "width": ("INT", {
+                    "default": 1920, "min": 256, "max": 16384, "step": 256,
+                    "tooltip": "Width of generated panorama in pixels. Standard is 1920px. Higher resolutions require more VRAM and processing time."
+                }),
+                "guidance_scale": ("FLOAT", {
+                    "default": 30.0, "min": 0.0, "max": 100.0, "step": 0.5,
+                    "tooltip": "Controls prompt adherence vs creativity. Higher values (20-50) follow prompt more strictly. Lower values (5-15) allow more variation."
+                }),
+                "num_inference_steps": ("INT", {
+                    "default": 50, "min": 1, "max": 200,
+                    "tooltip": "Number of denoising steps. More steps generally improve quality but increase generation time. 30-70 steps recommended."
+                }),
+                "seed": ("INT", {
+                    "default": 42, "min": 0, "max": 2**31-1,
+                    "tooltip": "Random seed for reproducible results. Same seed with identical settings produces the same panorama. Use different values for variations."
+                }),
             },
             "optional": {
                 "negative_prompt": ("STRING", {
                     "multiline": True, 
-                    "default": "low quality, blurry, distorted"
+                    "default": "low quality, blurry, distorted",
+                    "tooltip": "Describes what to avoid in the generated panorama. Common: 'blurry, distorted, low quality, artifacts, seams, text, logos'."
                 }),
-                "input_image": ("IMAGE",),
-                "mask": ("IMAGE",),
-                "blend_extend": ("INT", {"default": 6, "min": 0, "max": 20}),
-                "true_cfg_scale": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 20.0, "step": 0.1}),
-                "shifting_extend": ("INT", {"default": 0, "min": 0, "max": 10}),
-                "fov": ("FLOAT", {"default": 80.0, "min": 10.0, "max": 180.0}),
-                "theta": ("FLOAT", {"default": 0.0, "min": -180.0, "max": 180.0}),
-                "phi": ("FLOAT", {"default": 0.0, "min": -90.0, "max": 90.0}),
-                "hyw_config": ("HYW_CONFIG",),
+                "input_image": ("IMAGE", {
+                    "tooltip": "Input image to expand into panorama (image-to-panorama mode). Leave empty for text-to-panorama generation."
+                }),
+                "mask": ("IMAGE", {
+                    "tooltip": "Mask defining which areas of input image to preserve (white) vs generate (black). Only used with input_image."
+                }),
+                "blend_extend": ("INT", {
+                    "default": 6, "min": 0, "max": 20,
+                    "tooltip": "Pixels to blend at panorama seams for smooth 360° transitions. Higher values = smoother wrapping but may blur details."
+                }),
+                "true_cfg_scale": ("FLOAT", {
+                    "default": 0.0, "min": 0.0, "max": 20.0, "step": 0.1,
+                    "tooltip": "Advanced CFG technique for better prompt following. 0.0=disabled. Try 2.0-8.0 for complex scenes that don't follow prompts well."
+                }),
+                "shifting_extend": ("INT", {
+                    "default": 0, "min": 0, "max": 10,
+                    "tooltip": "Additional processing for better panorama continuity. 0=disabled. Higher values may improve seamless wrapping quality."
+                }),
+                "fov": ("FLOAT", {
+                    "default": 80.0, "min": 10.0, "max": 180.0,
+                    "tooltip": "Field of view for input image perspective correction. 70-90° for normal photos, 110-140° for wide angle, 180° for fisheye."
+                }),
+                "theta": ("FLOAT", {
+                    "default": 0.0, "min": -180.0, "max": 180.0,
+                    "tooltip": "Horizontal placement angle of input image in panorama. 0°=front center, 90°=right side, 180°=back, -90°=left side."
+                }),
+                "phi": ("FLOAT", {
+                    "default": 0.0, "min": -90.0, "max": 90.0,
+                    "tooltip": "Vertical placement angle of input image. 0°=horizon level, +45°=looking up, -45°=looking down. ±90°=straight up/down."
+                }),
+                "hyw_config": ("HYW_CONFIG", {
+                    "tooltip": "Optional configuration override from HYW_Config node. When connected, overrides individual parameter values."
+                }),
             }
         }
 
@@ -152,25 +195,53 @@ class HYW_PanoGenBatch:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "hyw_runtime": ("HYW_RUNTIME",),
+                "hyw_runtime": ("HYW_RUNTIME", {
+                    "tooltip": "HunyuanWorld runtime instance from HYW_ModelLoader. Must be the same for all batch generations."
+                }),
                 "prompts": ("STRING", {
                     "multiline": True, 
-                    "default": "A beautiful landscape panorama\nA city skyline at sunset\nA forest with mountains"
+                    "default": "A beautiful landscape panorama\nA city skyline at sunset\nA forest with mountains",
+                    "tooltip": "Multiple prompts separated by line breaks. Each line becomes a separate panorama generation. Empty lines are ignored."
                 }),
-                "height": ("INT", {"default": 960, "min": 128, "max": 8192, "step": 128}),
-                "width": ("INT", {"default": 1920, "min": 256, "max": 16384, "step": 256}),
-                "guidance_scale": ("FLOAT", {"default": 30.0, "min": 0.0, "max": 100.0, "step": 0.5}),
-                "num_inference_steps": ("INT", {"default": 50, "min": 1, "max": 200}),
-                "base_seed": ("INT", {"default": 42, "min": 0, "max": 2**31-1}),
+                "height": ("INT", {
+                    "default": 960, "min": 128, "max": 8192, "step": 128,
+                    "tooltip": "Height for all generated panoramas in pixels. Standard: 960px. Applied to entire batch."
+                }),
+                "width": ("INT", {
+                    "default": 1920, "min": 256, "max": 16384, "step": 256,
+                    "tooltip": "Width for all generated panoramas in pixels. Standard: 1920px. Applied to entire batch."
+                }),
+                "guidance_scale": ("FLOAT", {
+                    "default": 30.0, "min": 0.0, "max": 100.0, "step": 0.5,
+                    "tooltip": "Guidance scale applied to all prompts in batch. Higher values = stronger prompt adherence. 20-50 recommended."
+                }),
+                "num_inference_steps": ("INT", {
+                    "default": 50, "min": 1, "max": 200,
+                    "tooltip": "Inference steps for all generations in batch. More steps = better quality but longer total time. 30-70 recommended."
+                }),
+                "base_seed": ("INT", {
+                    "default": 42, "min": 0, "max": 2**31-1,
+                    "tooltip": "Starting seed for batch. Each prompt uses base_seed + index (0,1,2...). Ensures varied but reproducible results."
+                }),
             },
             "optional": {
                 "negative_prompt": ("STRING", {
                     "multiline": True, 
-                    "default": "low quality, blurry, distorted"
+                    "default": "low quality, blurry, distorted",
+                    "tooltip": "Negative prompt applied to all generations in batch. Describes unwanted elements for all panoramas."
                 }),
-                "blend_extend": ("INT", {"default": 6, "min": 0, "max": 20}),
-                "true_cfg_scale": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 20.0, "step": 0.1}),
-                "shifting_extend": ("INT", {"default": 0, "min": 0, "max": 10}),
+                "blend_extend": ("INT", {
+                    "default": 6, "min": 0, "max": 20,
+                    "tooltip": "Seam blending pixels for all panoramas in batch. Higher values = smoother 360° transitions for all results."
+                }),
+                "true_cfg_scale": ("FLOAT", {
+                    "default": 0.0, "min": 0.0, "max": 20.0, "step": 0.1,
+                    "tooltip": "Advanced CFG scaling for all batch generations. 0.0=disabled. Try 2.0-8.0 if prompts aren't followed well."
+                }),
+                "shifting_extend": ("INT", {
+                    "default": 0, "min": 0, "max": 10,
+                    "tooltip": "Panorama continuity processing for all batch items. 0=disabled. Higher values may improve wrap-around quality."
+                }),
             }
         }
 

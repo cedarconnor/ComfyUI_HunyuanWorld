@@ -44,26 +44,56 @@ class HYW_WorldReconstructor:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "hyw_runtime": ("HYW_RUNTIME",),
-                "panorama": ("IMAGE",),
-                "classes": ("STRING", {"default": "outdoor"}),
-                "seed": ("INT", {"default": 42, "min": 0, "max": 2**31-1}),
-                "target_size": ("INT", {"default": 3840, "min": 1024, "max": 8192, "step": 256}),
+                "hyw_runtime": ("HYW_RUNTIME", {
+                    "tooltip": "HunyuanWorld runtime with 3D reconstruction pipeline loaded. Must have LayerDecomposition and WorldComposer components."
+                }),
+                "panorama": ("IMAGE", {
+                    "tooltip": "Input 360° panorama image for 3D world reconstruction. Higher resolution panoramas produce more detailed 3D geometry."
+                }),
+                "classes": ("STRING", {
+                    "default": "outdoor",
+                    "tooltip": "Scene classification for reconstruction algorithm. 'outdoor': landscapes/exteriors. 'indoor': interior spaces. Affects depth estimation."
+                }),
+                "seed": ("INT", {
+                    "default": 42, "min": 0, "max": 2**31-1,
+                    "tooltip": "Random seed for reproducible 3D reconstruction. Same seed produces consistent geometry from the same panorama."
+                }),
+                "target_size": ("INT", {
+                    "default": 3840, "min": 1024, "max": 8192, "step": 256,
+                    "tooltip": "Target processing resolution. Higher values = more detail but longer processing time and more memory usage. 3840 is standard 4K."
+                }),
             },
             "optional": {
                 "labels_fg1": ("STRING", {
                     "multiline": True,
-                    "default": "tree, building, car"
+                    "default": "tree, building, car",
+                    "tooltip": "Comma-separated labels for primary foreground objects to extract into separate layers. Examples: tree, building, car, rock, monument."
                 }),
                 "labels_fg2": ("STRING", {
                     "multiline": True,
-                    "default": "person, object, furniture"
+                    "default": "person, object, furniture",
+                    "tooltip": "Comma-separated labels for secondary foreground objects. Usually smaller/detailed items: person, furniture, sign, vehicle details."
                 }),
-                "quality": (["preview", "standard", "high"], {"default": "standard"}),
-                "max_triangles": ("INT", {"default": 200000, "min": 10000, "max": 1000000}),
-                "semantic_strength": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.05}),
-                "enable_super_resolution": ("BOOLEAN", {"default": True}),
-                "filter_mask": ("BOOLEAN", {"default": True}),
+                "quality": (["preview", "standard", "high"], {
+                    "default": "standard",
+                    "tooltip": "Reconstruction quality preset. Preview: fast/low-poly. Standard: balanced quality/speed. High: maximum detail but slower."
+                }),
+                "max_triangles": ("INT", {
+                    "default": 200000, "min": 10000, "max": 1000000,
+                    "tooltip": "Maximum triangles per mesh layer before simplification. Higher values = more detail but larger file sizes and slower processing."
+                }),
+                "semantic_strength": ("FLOAT", {
+                    "default": 0.5, "min": 0.0, "max": 1.0, "step": 0.05,
+                    "tooltip": "Strength of semantic segmentation for object separation. 0.0=geometry only, 1.0=strong semantic separation. 0.5 balances both."
+                }),
+                "enable_super_resolution": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Apply super-resolution to enhance detail during reconstruction. Improves quality but increases processing time."
+                }),
+                "filter_mask": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Apply mask filtering to clean up segmentation boundaries. Recommended for cleaner layer separation."
+                }),
             }
         }
 
@@ -183,17 +213,43 @@ class HYW_MeshProcessor:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "world_layers": ("HYW_MESH_LAYERS",),
-                "operation": (["smooth", "decimate", "repair", "merge", "separate"], {"default": "smooth"}),
+                "world_layers": ("HYW_MESH_LAYERS", {
+                    "tooltip": "Mesh layers from HYW_WorldReconstructor to process and refine. Each layer is processed independently."
+                }),
+                "operation": (["smooth", "decimate", "repair", "merge", "separate"], {
+                    "default": "smooth",
+                    "tooltip": "Processing operation: smooth=reduce noise, decimate=reduce triangles, repair=fix topology, merge=combine vertices, separate=clean components."
+                }),
             },
             "optional": {
-                "smoothing_iterations": ("INT", {"default": 5, "min": 1, "max": 50}),
-                "decimation_ratio": ("FLOAT", {"default": 0.5, "min": 0.1, "max": 0.9, "step": 0.1}),
-                "merge_distance": ("FLOAT", {"default": 0.01, "min": 0.001, "max": 0.1, "step": 0.001}),
-                "repair_holes": ("BOOLEAN", {"default": True}),
-                "remove_duplicates": ("BOOLEAN", {"default": True}),
-                "filter_small_components": ("BOOLEAN", {"default": True}),
-                "min_component_size": ("INT", {"default": 100, "min": 10, "max": 10000}),
+                "smoothing_iterations": ("INT", {
+                    "default": 5, "min": 1, "max": 50,
+                    "tooltip": "Number of Laplacian smoothing iterations for 'smooth' operation. More iterations = smoother but may lose detail. 3-10 typical."
+                }),
+                "decimation_ratio": ("FLOAT", {
+                    "default": 0.5, "min": 0.1, "max": 0.9, "step": 0.1,
+                    "tooltip": "Fraction of triangles to keep in 'decimate' operation. 0.5=half triangles, 0.1=very aggressive reduction, 0.9=mild reduction."
+                }),
+                "merge_distance": ("FLOAT", {
+                    "default": 0.01, "min": 0.001, "max": 0.1, "step": 0.001,
+                    "tooltip": "Distance threshold for merging nearby vertices in 'merge' operation. Smaller values=less merging, larger=more aggressive."
+                }),
+                "repair_holes": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Fill holes and fix degenerate triangles during 'repair' operation. Improves mesh manifold properties."
+                }),
+                "remove_duplicates": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Remove duplicate vertices and triangles during processing. Generally recommended for cleaner geometry."
+                }),
+                "filter_small_components": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Remove small disconnected mesh components. Helps clean up noise and floating geometry artifacts."
+                }),
+                "min_component_size": ("INT", {
+                    "default": 100, "min": 10, "max": 10000,
+                    "tooltip": "Minimum triangle count for mesh components to keep. Smaller components are removed. 100-1000 typical range."
+                }),
             }
         }
 
@@ -314,12 +370,23 @@ class HYW_MeshAnalyzer:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "world_layers": ("HYW_MESH_LAYERS",),
+                "world_layers": ("HYW_MESH_LAYERS", {
+                    "tooltip": "Mesh layers to analyze for geometry statistics, quality metrics, and structural properties."
+                }),
             },
             "optional": {
-                "detailed_analysis": ("BOOLEAN", {"default": True}),
-                "check_manifold": ("BOOLEAN", {"default": True}),
-                "compute_quality_metrics": ("BOOLEAN", {"default": True}),
+                "detailed_analysis": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Compute detailed geometry statistics including bounding boxes, surface areas, and spatial metrics."
+                }),
+                "check_manifold": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Check mesh manifold properties: edge/vertex manifold, watertight, orientable. Important for 3D printing/export."
+                }),
+                "compute_quality_metrics": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Calculate triangle quality metrics like area distribution and geometry health indicators."
+                }),
             }
         }
 
