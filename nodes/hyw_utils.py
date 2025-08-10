@@ -45,15 +45,16 @@ class HYW_SeamlessWrap360:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "panorama": ("IMAGE",),
-                "blend_mode": (["linear", "cosine", "gaussian", "feather"], {"default": "cosine"}),
-                "blend_width": ("INT", {"default": 32, "min": 8, "max": 256, "step": 8}),
+                "panorama": ("IMAGE", {"tooltip": "Panorama image (2:1 equirectangular) to make seamless."}),
+                "blend_mode": (["linear", "cosine", "gaussian", "feather"], {"default": "cosine", "tooltip": "Blending curve for seam smoothing. Cosine is smooth and natural."}),
+                "blend_width": ("INT", {"default": 32, "min": 8, "max": 256, "step": 8, "tooltip": "Width in pixels at each edge to blend across the seam."}),
             },
             "optional": {
-                "enable_vertical_wrap": ("BOOLEAN", {"default": False}),
-                "vertical_blend_height": ("INT", {"default": 16, "min": 4, "max": 128, "step": 4}),
-                "preserve_center": ("BOOLEAN", {"default": True}),
-                "edge_detection": ("BOOLEAN", {"default": True}),
+                "enable_vertical_wrap": ("BOOLEAN", {"default": False, "tooltip": "Also blend top/bottom edges to soften pole artifacts."}),
+                "vertical_blend_height": ("INT", {"default": 16, "min": 4, "max": 128, "step": 4, "tooltip": "Height in pixels from top/bottom to blend when vertical wrap is enabled."}),
+                "preserve_center": ("BOOLEAN", {"default": True, "tooltip": "Keep center untouched (blending limited to edges)."}),
+                "edge_detection": ("BOOLEAN", {"default": True, "tooltip": "Analyze edge similarity and only blend if needed."}),
+                "force_blend": ("BOOLEAN", {"default": False, "tooltip": "Apply blending regardless of edge detection result."}),
             }
         }
 
@@ -95,7 +96,10 @@ class HYW_SeamlessWrap360:
         return mask
 
     def detect_edge_content(self, image_array, blend_width):
-        """Detect if edges have significant content differences"""
+        """Detect if edges have significant content differences.
+
+        Returns (needs_blending: bool, mean_diff: float)
+        """
         try:
             height, width = image_array.shape[:2]
             
@@ -108,18 +112,18 @@ class HYW_SeamlessWrap360:
             
             # Calculate difference
             diff = np.abs(left_edge.astype(float) - right_edge_flipped.astype(float))
-            mean_diff = np.mean(diff)
+            mean_diff = float(np.mean(diff))
             
             # Return True if edges are significantly different
-            return mean_diff > 30  # Threshold for difference
+            return (mean_diff > 30, mean_diff)  # Threshold for difference
             
         except Exception as e:
             print(f"Edge detection failed: {e}")
-            return True  # Default to blending if detection fails
+            return True, 9999.0  # Default to blending if detection fails
 
     def make_seamless(self, panorama, blend_mode, blend_width, 
                      enable_vertical_wrap=False, vertical_blend_height=16,
-                     preserve_center=True, edge_detection=True):
+                     preserve_center=True, edge_detection=True, force_blend=False):
         """Make panorama seamless for 360-degree viewing"""
         
         try:
@@ -130,9 +134,12 @@ class HYW_SeamlessWrap360:
             
             # Check if blending is needed
             needs_blending = True
+            mean_edge_diff = None
             if edge_detection:
-                needs_blending = self.detect_edge_content(pano_array, blend_width)
-                print(f"Edge content analysis: {'Blending needed' if needs_blending else 'Edges already similar'}")
+                needs_blending, mean_edge_diff = self.detect_edge_content(pano_array, blend_width)
+                print(f"Edge content analysis: {'Blending needed' if needs_blending else 'Edges already similar'} (mean diff: {mean_edge_diff:.2f})")
+            if force_blend:
+                needs_blending = True
             
             result_array = pano_array.copy()
             
@@ -217,7 +224,9 @@ class HYW_SeamlessWrap360:
                 'vertical_blend_height': vertical_blend_height,
                 'preserve_center': preserve_center,
                 'edge_detection': edge_detection,
+                'force_blend': force_blend,
                 'blending_applied': needs_blending,
+                'edge_mean_difference': float(mean_edge_diff) if mean_edge_diff is not None else None,
                 'image_size': [width, height]
             }
             
