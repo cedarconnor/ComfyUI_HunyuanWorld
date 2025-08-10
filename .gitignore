@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Claude Code files
+.claude/
+Claude.md
+CLAUDE.md
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Model files (too large for git)
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.bin
+
+# Output directories
+output/
+outputs/
+results/
+Images/
+
+# Log files
+*.log
+logs/
