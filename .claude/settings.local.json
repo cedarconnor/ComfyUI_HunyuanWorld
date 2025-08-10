@@ -49,7 +49,9 @@
       "Bash(git clone:*)",
       "Bash(mkdir:*)",
       "Bash(git remote add:*)",
-      "Bash(git remote set-url:*)"
+      "Bash(git remote set-url:*)",
+      "Bash(rmdir:*)",
+      "Bash(powershell:*)"
     ],
     "deny": []
   }
