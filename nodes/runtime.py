@@ -112,15 +112,26 @@ class HYWRuntime:
             if not os.path.exists(lora_path):
                 raise FileNotFoundError(f"HunyuanWorld text LoRA not found at: {lora_path}")
             
-            # Load from local files with complete offline mode
-            self._text2pano_pipe = Text2PanoramaPipelines.from_single_file(
-                flux_model_path,
-                torch_dtype=self.torch_dtype,
-                local_files_only=True,
-                use_safetensors=True,
-                load_safety_checker=False,
-                requires_safety_checker=False
-            ).to(self.cfg.device)
+            # The from_single_file method requires config files that aren't included in .safetensors
+            # For truly offline operation, we need to provide these components separately
+            
+            print("OFFLINE MODE LIMITATION:")
+            print("The FLUX model .safetensors file does not contain all required configuration.")
+            print("For complete offline operation, additional model components are needed:")
+            print("- CLIP text encoder")  
+            print("- T5 text encoder")
+            print("- VAE decoder")
+            print("- Scheduler configuration")
+            print("")
+            print("SOLUTION: Use ComfyUI's native FLUX nodes instead of this integration")
+            print("until offline model loading is fully implemented.")
+            
+            raise RuntimeError(
+                "Offline model loading not yet implemented. "
+                "The HunyuanWorld integration currently requires internet access to download "
+                "FLUX model configuration files. For offline usage, please use ComfyUI's "
+                "native FLUX nodes with LoRA support."
+            )
             
             # Load LoRA weights from local file
             self._text2pano_pipe.load_lora_weights(lora_path, adapter_name="hunyuanworld_text")

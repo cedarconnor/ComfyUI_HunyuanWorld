@@ -2,7 +2,9 @@
 
 A comprehensive ComfyUI node pack for HunyuanWorld offering text-to-panorama generation, 3D world reconstruction, and related utilities directly within ComfyUI.
 
-**🔒 Completely Local Operation** - No internet connection required. All processing runs locally using your downloaded model files with no web requests to Hugging Face or other services.
+**⚠️ Current Status: Offline Mode Under Development** 
+
+This node pack is designed for local operation but currently requires internet access during initial model loading to download FLUX configuration files. Complete offline mode is under development.
 
 ## Requirements
 
@@ -66,6 +68,10 @@ C:\ComfyUI\.venv\Scripts\python.exe install.py
 **Model Path Issues**: The node pack automatically detects your ComfyUI installation directory. If you see "model not found" errors, ensure:
 - FLUX models are in `C:\ComfyUI\models\unet\`
 - HunyuanWorld models are in `C:\ComfyUI\models\Hunyuan_World\`
+
+**Offline Mode Limitation**: Currently requires internet access during first-time model loading to download FLUX configuration files. If you see "403 Forbidden" or "local configs not found" errors, this is expected. Complete offline mode is under development.
+
+**Temporary Workaround**: For offline panorama generation, use ComfyUI's native FLUX nodes with HunyuanWorld LoRA weights loaded separately.
 
 **VRAM Issues**: Use CPU offloading and VAE tiling in the model loader settings for systems with limited VRAM.
 
