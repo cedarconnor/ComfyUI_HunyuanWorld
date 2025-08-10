@@ -112,132 +112,22 @@ class HYWRuntime:
             if not os.path.exists(lora_path):
                 raise FileNotFoundError(f"HunyuanWorld text LoRA not found at: {lora_path}")
             
-            # Load FLUX components manually from ComfyUI's standard model directories
-            print("Loading FLUX pipeline components from ComfyUI model directories...")
+            # For complete offline operation, provide helpful error message with alternative solution
+            print("CURRENT LIMITATION: Complete offline loading requires complex configuration setup.")
+            print("")
+            print("RECOMMENDED SOLUTION:")
+            print("Use ComfyUI's native FLUX nodes with HunyuanWorld LoRA files:")
+            print("1. Load FLUX Dev model in ComfyUI")
+            print("2. Use LoRA Loader with HunyuanWorld-PanoDiT-Text.safetensors")  
+            print("3. Generate 360° panoramas with FLUX + HunyuanWorld LoRA")
+            print("")
+            print("This provides the same functionality with ComfyUI's proven model loading system.")
             
-            comfyui_root = self._find_comfyui_root()
-            
-            # Define paths to ComfyUI model components
-            clip_path = os.path.join(comfyui_root, "models", "clip", "clip_l.safetensors")
-            t5_path = os.path.join(comfyui_root, "models", "text_encoders", "t5xxl_fp16.safetensors")
-            vae_path = os.path.join(comfyui_root, "models", "vae", "ae.safetensors")
-            
-            print(f"CLIP path: {clip_path}")
-            print(f"T5 path: {t5_path}")
-            print(f"VAE path: {vae_path}")
-            print(f"FLUX transformer path: {flux_model_path}")
-            
-            # Check if all components exist
-            missing_components = []
-            if not os.path.exists(clip_path):
-                missing_components.append(f"CLIP: {clip_path}")
-            if not os.path.exists(t5_path):
-                missing_components.append(f"T5: {t5_path}")
-            if not os.path.exists(vae_path):
-                missing_components.append(f"VAE: {vae_path}")
-                
-            if missing_components:
-                print("Missing required components:")
-                for component in missing_components:
-                    print(f"  - {component}")
-                raise RuntimeError(f"Missing FLUX components for offline loading: {', '.join(missing_components)}")
-            
-            # Load components manually using diffusers
-            from diffusers import FluxTransformer2DModel, AutoencoderKL, FlowMatchEulerDiscreteScheduler
-            from transformers import CLIPTextModel, T5EncoderModel, CLIPTokenizer, T5TokenizerFast
-            
-            print("Loading FLUX components...")
-            
-            try:
-                # Load VAE from local file
-                print("Loading VAE...")
-                vae = AutoencoderKL.from_single_file(
-                    vae_path,
-                    torch_dtype=self.torch_dtype,
-                    local_files_only=True
-                )
-                
-                # Load CLIP text encoder
-                print("Loading CLIP text encoder...")
-                text_encoder = CLIPTextModel.from_single_file(
-                    clip_path,
-                    torch_dtype=self.torch_dtype,
-                    local_files_only=True
-                )
-                
-                # Load T5 text encoder
-                print("Loading T5 text encoder...")
-                text_encoder_2 = T5EncoderModel.from_single_file(
-                    t5_path,
-                    torch_dtype=self.torch_dtype,
-                    local_files_only=True
-                )
-                
-                # Load FLUX transformer
-                print("Loading FLUX transformer...")
-                transformer = FluxTransformer2DModel.from_single_file(
-                    flux_model_path,
-                    torch_dtype=self.torch_dtype,
-                    local_files_only=True
-                )
-                
-                # Create tokenizers from local cache if available, skip if not
-                print("Creating tokenizers...")
-                try:
-                    from transformers import CLIPTokenizer, T5TokenizerFast
-                    
-                    # Try to load from Hugging Face cache first
-                    tokenizer = CLIPTokenizer.from_pretrained(
-                        "openai/clip-vit-large-patch14",
-                        local_files_only=True
-                    )
-                    tokenizer_2 = T5TokenizerFast.from_pretrained(
-                        "google/t5-v1_1-xxl", 
-                        local_files_only=True
-                    )
-                    print("✓ Loaded tokenizers from local cache")
-                    
-                except Exception as tokenizer_error:
-                    print(f"Warning: Could not load tokenizers from cache: {tokenizer_error}")
-                    print("Creating basic tokenizers...")
-                    
-                    # Create minimal tokenizers if cache not available
-                    from transformers import CLIPTokenizer, T5TokenizerFast
-                    
-                    # Use basic configurations
-                    tokenizer = None  # Will be handled by pipeline
-                    tokenizer_2 = None  # Will be handled by pipeline
-                    
-                    print("⚠ Using minimal tokenizer configuration")
-                
-                # Create scheduler with default FLUX settings
-                print("Creating scheduler...")
-                scheduler = FlowMatchEulerDiscreteScheduler(
-                    num_train_timesteps=1000,
-                    shift=1.0,
-                    base_image_seq_len=256,
-                    max_image_seq_len=4096
-                )
-                
-                # Create the pipeline manually
-                print("Assembling pipeline...")
-                self._text2pano_pipe = Text2PanoramaPipelines(
-                    vae=vae,
-                    text_encoder=text_encoder,
-                    text_encoder_2=text_encoder_2,
-                    tokenizer=tokenizer,
-                    tokenizer_2=tokenizer_2,
-                    scheduler=scheduler,
-                    transformer=transformer
-                ).to(self.cfg.device)
-                
-                print("✅ Pipeline loaded successfully from local components!")
-                
-            except Exception as e:
-                print(f"Error loading pipeline components: {e}")
-                import traceback
-                traceback.print_exc()
-                raise RuntimeError(f"Failed to load FLUX pipeline from local components: {e}")
+            raise RuntimeError(
+                "Offline FLUX component loading requires additional development. "
+                "Please use ComfyUI's native FLUX workflow with HunyuanWorld LoRA files "
+                "as an alternative until full offline integration is completed."
+            )
             
             # Load LoRA weights from local file
             self._text2pano_pipe.load_lora_weights(lora_path, adapter_name="hunyuanworld_text")

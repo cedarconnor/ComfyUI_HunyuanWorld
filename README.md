@@ -2,9 +2,9 @@
 
 A comprehensive ComfyUI node pack for HunyuanWorld offering text-to-panorama generation, 3D world reconstruction, and related utilities directly within ComfyUI.
 
-**🔒 Complete Offline Operation** 
+**🔧 Development Status: Offline Mode In Progress**
 
-This node pack operates entirely offline using your locally installed ComfyUI FLUX model components. No internet connection required after initial ComfyUI setup.
+This node pack aims for complete offline operation but currently requires additional configuration development. For immediate offline panorama generation, use the recommended workaround below.
 
 ## Requirements
 
@@ -72,7 +72,11 @@ C:\ComfyUI\.venv\Scripts\python.exe install.py
 - T5 encoder: `C:\ComfyUI\models\text_encoders\t5xxl_fp16.safetensors`
 - FLUX VAE: `C:\ComfyUI\models\vae\ae.safetensors`
 
-**Offline Operation**: Loads all components from your existing ComfyUI model files. No internet required.
+**Recommended Offline Workaround**: 
+1. Use ComfyUI's native **FLUX Dev** node to load `flux1-dev-fp8.safetensors`
+2. Add **LoRA Loader** node with `HunyuanWorld-PanoDiT-Text.safetensors`
+3. Generate panoramas using the combined FLUX + HunyuanWorld LoRA workflow
+4. This provides the same panorama generation capability using ComfyUI's proven model loading system
 
 **VRAM Issues**: Use CPU offloading and VAE tiling in the model loader settings for systems with limited VRAM.
 
