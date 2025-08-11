@@ -1,3 +1,4 @@
+NOT WORKING YET!!!!!
 # ComfyUI HunyuanWorld Node Pack
 
 A comprehensive ComfyUI node pack for HunyuanWorld offering text-to-panorama generation, 3D world reconstruction, and related utilities directly within ComfyUI.
